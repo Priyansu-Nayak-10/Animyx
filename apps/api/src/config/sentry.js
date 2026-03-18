@@ -104,21 +104,23 @@ function initializeSentry() {
  * Middleware: Attach request info to Sentry context
  */
 function sentryRequestMiddleware(req, res, next) {
-  Sentry.captureContext({
-    user: {
+  if (!process.env.SENTRY_DSN) return next();
+
+  Sentry.configureScope((scope) => {
+    scope.setUser({
       id: req.user?.id,
       email: req.user?.email,
       ip_address: req.ip
-    },
-    tags: {
+    });
+    scope.setTags({
       method: req.method,
       path: req.path,
       status: res.statusCode
-    },
-    extra: {
+    });
+    scope.setExtras({
       query: req.query,
       params: req.params
-    }
+    });
   });
 
   next();
@@ -128,7 +130,9 @@ function sentryRequestMiddleware(req, res, next) {
  * Middleware: Capture Express errors with Sentry
  */
 function sentryErrorHandler(err, req, res, next) {
-  Sentry.captureException(err);
+  if (process.env.SENTRY_DSN) {
+    Sentry.captureException(err);
+  }
   next(err);
 }
 
@@ -137,6 +141,8 @@ function sentryErrorHandler(err, req, res, next) {
  * Automatically track HTTP requests for performance monitoring
  */
 function sentryTracingMiddleware(req, res, next) {
+  if (!process.env.SENTRY_DSN) return next();
+
   const transaction = Sentry.startTransaction({
     op: 'http.server',
     name: `${req.method} ${req.path}`,
@@ -145,9 +151,11 @@ function sentryTracingMiddleware(req, res, next) {
 
   // Complete transaction when response is sent
   res.on('finish', () => {
-    transaction.setStatus(res.statusCode < 400 ? 'ok' : 'error');
-    transaction.setTag('http.status', res.statusCode);
-    transaction.finish();
+    if (transaction) {
+      transaction.setStatus(res.statusCode < 400 ? 'ok' : 'error');
+      transaction.setTag('http.status', res.statusCode);
+      transaction.finish();
+    }
   });
 
   next();
