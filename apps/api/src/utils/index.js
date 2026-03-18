@@ -22,8 +22,20 @@ const getSupabase = () => require('../database/supabase.js');
 function formatLogPayload(level, context, args) {
   const timestamp = new Date().toISOString();
   const [first, ...rest] = args;
-  const message = first instanceof Error ? first.message : String(first);
-  const error = first instanceof Error ? first : null;
+  
+  let message = "";
+  let error = null;
+
+  if (first instanceof Error) {
+    message = first.message;
+    error = first;
+  } else if (typeof first === 'object' && first !== null) {
+    message = JSON.stringify(first);
+    error = first; // Still treat as error for stack/code extraction
+  } else {
+    message = String(first);
+  }
+
   const meta = rest.length ? rest[0] : {};
 
   const entry = {
@@ -31,7 +43,10 @@ function formatLogPayload(level, context, args) {
     timestamp,
     context,
     message,
-    ...(error && { stack: error.stack, errorCode: error.code }),
+    ...(error && { 
+      stack: error.stack || undefined, 
+      errorCode: error.code || error.errorCode || undefined 
+    }),
     ...meta
   };
 
@@ -53,10 +68,20 @@ function createLogger(context = 'app') {
       console.warn(formatLogPayload('warn', context, [msg, meta]));
       sendToErrorTracker(context, 'warn', msg, meta);
     },
-    error: (msg, error, meta) => {
-      const errorObj = error instanceof Error ? error : new Error(String(error));
-      console.error(formatLogPayload('error', context, [errorObj, meta]));
-      sendToErrorTracker(context, 'error', msg, { ...meta, error: errorObj });
+    error: (msg, error, meta = {}) => {
+      // Handle shifting arguments: logger.error(errorObj)
+      let actualMsg = msg;
+      let actualError = error;
+      let actualMeta = meta;
+
+      if (msg instanceof Error || (typeof msg === 'object' && msg !== null && !error)) {
+        actualError = msg;
+        actualMsg = "An error occurred";
+      }
+
+      const errorObj = actualError instanceof Error ? actualError : (typeof actualError === 'object' ? actualError : new Error(String(actualError)));
+      console.error(formatLogPayload('error', context, [errorObj, { ...actualMeta, msg: actualMsg }]));
+      sendToErrorTracker(context, 'error', actualMsg, { ...actualMeta, error: errorObj });
     },
     debug: (msg, meta) => {
       if (process.env.DEBUG) {
@@ -176,7 +201,7 @@ const apiResponse = (res, data, statusCode = 200, message = 'Success') => {
 
 const apiError = (res, message = 'Internal Server Error', statusCode = 500, error = null) => {
   if (error) {
-    logger.error(error, { context: message, statusCode });
+    logger.error(message, error, { statusCode });
   }
 
   if (statusCode >= 500) {

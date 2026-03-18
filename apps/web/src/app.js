@@ -14,7 +14,7 @@ import { initSocket, createApiClient } from './core/appCore.js';
 import { loadNotifications, onSocketNotification, clearAllNotifications } from './features/notifications/notifications.js';
 import { getState, setState, restoreKey, persistKey } from './store.js';
 import { authFetch, apiUrl } from './config.js';
-import { createDataStore, initLibraryCloudSync } from './core/appCore.js';
+import { createDataStore, initLibraryCloudSync, syncService } from './core/appCore.js';
 import * as selectors from './core/appCore.js';
 import { createLibraryStore } from './store.js';
 import { initInsights } from './features/dashboard/dashboard.js';
@@ -657,7 +657,6 @@ async function bootstrap() {
   const user = getState('currentUser');
   if (user?.id) {
     try {
-      const { syncService } = await import('./core/appCore.js');
       await syncService.init({ libraryStore });
     } catch (err) {
       console.warn('[Animyx] SyncService initialization failed:', err);
