@@ -19,7 +19,7 @@
     "lint:fix": "npm run lint:fix --workspace=apps/api"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.98.0"
+    "@supabase/supabase-js": "^2.49.1"
   },
   "devDependencies": {
     "turbo": "^2.8.16"
