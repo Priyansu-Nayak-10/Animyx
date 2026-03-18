@@ -12,7 +12,8 @@ export default defineConfig({
         app: resolve(__dirname, 'pages/app.html'),
         signin: resolve(__dirname, 'pages/signin.html'),
         signup: resolve(__dirname, 'pages/signup.html'),
-        resetPassword: resolve(__dirname, 'pages/reset-password.html')
+        resetPassword: resolve(__dirname, 'pages/reset-password.html'),
+        forgotPassword: resolve(__dirname, 'pages/forgot-password.html')
       }
     }
   }
