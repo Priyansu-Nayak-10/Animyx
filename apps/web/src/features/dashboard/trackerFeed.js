@@ -17,13 +17,35 @@ function renderTrackerItems(container, items) {
       </div>`;
     return;
   }
+
+  const typeMap = {
+    SEQUEL_ANNOUNCED: { icon: "star", label: "Sequel", class: "sequel" },
+    FINISHED: { icon: "check_circle", label: "Done", class: "finished" },
+    TRACKING: { icon: "sensors", label: "Watching", class: "tracking" },
+    DUB: { icon: "mic", label: "Dub", class: "dub" },
+    REMINDER: { icon: "notifications", label: "Reminder", class: "reminder" },
+    GENERIC: { icon: "info", label: "Update", class: "tracking" }
+  };
+
   container.innerHTML = items.map((n) => {
     const time = relativeTime(n.created_at || n.ts);
+    const typeKey = String(n.type || "GENERIC").toUpperCase();
+    const config = typeMap[typeKey] || typeMap.GENERIC;
+    const title = escapeHtml(n.title || "Activity Update");
     const message = escapeHtml(n.message || "New activity detected");
+
     return `
-    <div class="tracker-item" data-type="${escapeHtml(n.type)}">
-      <div class="terminal-content">${message}</div>
-      <div class="terminal-time">${time}</div>
+    <div class="tracker-item" data-type="${typeKey}">
+      <div class="tracker-badge ${config.class}">
+        <span class="material-icons">${config.icon}</span>
+      </div>
+      <div class="tracker-item-body">
+        <div class="tracker-item-title">${title}</div>
+        <div class="tracker-item-meta">
+          <span class="tracker-type-label ${config.class}">${config.label}</span>
+          <span>${time}</span>
+        </div>
+      </div>
     </div>`;
   }).join("");
 }
@@ -49,21 +71,32 @@ export function initTrackerFeed({ libraryStore, milestones = null, userId = null
 
   function merge() {
     const all = [
-      ...backendItems.map((n) => ({
-        type: n.type || "TRACKING",
-        title: n.message || String(n.type || ""),
-        message: n.message,
-        created_at: n.created_at ? new Date(n.created_at).getTime() : Date.now()
-      })),
+      ...backendItems.map((n) => {
+        // Try to extract a title from the message if it looks like '"Title" — meta'
+        let displayTitle = "System Update";
+        let displayMessage = n.message || "";
+        const match = displayMessage.match(/^"(.*)" — (.*)$/);
+        if (match) {
+          displayTitle = match[1];
+          displayMessage = match[2];
+        }
+
+        return {
+          type: n.type || "GENERIC",
+          title: displayTitle,
+          message: displayMessage,
+          created_at: n.created_at ? new Date(n.created_at).getTime() : Date.now()
+        };
+      }),
       ...localItems
     ];
     const seen = new Set();
     return all.filter((item) => {
-      const key = item.title;
+      const key = `${item.type}|${item.title}|${item.message}`;
       if (seen.has(key)) return false;
       seen.add(key);
       return true;
-    });
+    }).sort((a, b) => (b.created_at || b.ts || 0) - (a.created_at || a.ts || 0));
   }
 
   function render() {

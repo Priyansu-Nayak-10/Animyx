@@ -167,17 +167,17 @@ body.dark {
 }
 
 .sidebar {
-    width: 16rem;
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    overflow-y: auto;
-    overflow-x: hidden;
+    width: 280px;
+    height: 100vh;
     background-color: var(--bg-sidebar);
     border-right: 1px solid var(--border-glass);
-    z-index: 10;
-    transition: background-color 0.3s, border-color 0.3s;
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease;
+    will-change: transform;
 }
 
 body.dark .sidebar {
@@ -224,8 +224,6 @@ body.dark .sidebar {
 .navbar {
     flex-shrink: 0;
     display: flex;
-    transform: translateZ(0); /* Sticky performance */
-    will-change: transform;
     align-items: center;
     height: 4.5rem;
     padding: 0;
@@ -236,7 +234,8 @@ body.dark .sidebar {
     position: sticky;
     top: 0;
     transform: translateZ(0);
-    will-change: transform;
+    will-change: transform, background-color;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 body.dark .navbar {
@@ -440,16 +439,18 @@ body.dark .navbar {
     margin-bottom: 0.75rem;
     padding-left: 1rem;
 }
-
 .nav-item {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    padding: 0.625rem 1rem;
-    border-radius: 16px;
-    text-decoration: none;
-    transition: all 0.3s ease;
+    gap: 0.85rem;
+    padding: 0.85rem 1.25rem;
+    border-radius: 12px;
     color: var(--text-secondary);
+    text-decoration: none;
+    font-weight: 550;
+    font-size: 0.85rem;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
     margin-bottom: 0.25rem;
 }
 
@@ -670,15 +671,27 @@ body.dark .search-wrapper {
 .view-container {
     padding: 1.5rem;
     position: relative;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+    min-height: 0;
 }
 
 .view-section {
-    display: none;
-    animation: fadeInView 0.4s ease-out forwards;
+    grid-area: 1 / 1 / 2 / 2;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateY(10px);
+    will-change: opacity, transform;
 }
 
 .view-section.active {
-    display: block;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
 }
 
 @keyframes fadeInView {
@@ -1306,14 +1319,25 @@ body.dark .card {
     box-shadow: 0 22px 48px rgba(2, 6, 23, 0.42);
 }
 
+.watching-content-wrap.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background-color: var(--bg-main);
+    border-bottom: 1px solid var(--border-glass);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
 .watching-content-wrapper {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.1rem 1.2rem;
-    gap: 1rem;
-    width: 100%;
-    overflow: hidden;
+    padding: 1.5rem;
+    height: 100%;
 }
 
 .watching-info-group {
@@ -3929,7 +3953,6 @@ body.dark .watchlist-item {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    display: block;
     transition: transform 0.6s ease;
 }
 

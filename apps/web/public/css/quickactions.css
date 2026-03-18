@@ -263,7 +263,9 @@
   overflow: hidden;
   cursor: pointer;
   scroll-snap-align: start;
-  transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+  transition: transform 0.16s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.16s ease, background 0.16s ease;
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
 .wl-strip-card:hover {
