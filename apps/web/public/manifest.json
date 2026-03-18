@@ -1,0 +1,21 @@
+﻿{
+  "name": "Animex",
+  "short_name": "Animex",
+  "start_url": "/pages/app.html",
+  "display": "standalone",
+  "background_color": "#0a0a0f",
+  "theme_color": "#111116",
+  "description": "Your ultimate anime tracking and discovery platform.",
+  "icons": [
+    {
+      "src": "/images/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

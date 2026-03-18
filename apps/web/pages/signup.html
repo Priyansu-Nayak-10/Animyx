@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account • Animex</title>
+    <link rel="icon" href="/images/favicon.png" />
+    <meta name="description" content="Create your Animex 2.0 account - Start your ultimate anime journey today.">
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Auth Styles -->
+    <link rel="stylesheet" href="/css/auth.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0B0C13">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+</head>
+
+<body class="auth-page">
+    <div class="auth-grid-container">
+        <!-- TOP NAVIGATION -->
+        <nav class="auth-nav">
+            <span class="auth-logo-text-top">Animex.</span>
+        </nav>
+
+        <div class="auth-main-split">
+            <!-- LEFT: Form Section -->
+            <div class="auth-form-section">
+                <div class="auth-form-header">
+                    <h1 class="auth-welcome">JOIN ANIMEX!</h1>
+                    <p class="auth-switch">Already have a account, <a href="signin.html">Sign in</a></p>
+                </div>
+
+                <!-- Backend Error -->
+                <div id="backend-error" class="backend-error" role="alert" aria-live="polite"></div>
+
+                <form id="signup-form" class="auth-form-minimal auth-form-body">
+                    <div class="form-group-minimal" style="position: relative;">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" class="auth-input" placeholder="otaku_kun" required title="Username" autocomplete="off">
+                        <span id="username-indicator" class="availability-indicator"></span>
+                    </div>
+
+                    <div class="form-group-minimal">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" class="auth-input" placeholder="example@gmail.com" required title="Email Address">
+                    </div>
+
+                    <div class="form-group-minimal">
+                        <label for="password">Password</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="password" name="password" class="auth-input" placeholder="••••••••" required title="Password">
+                            <button type="button" class="toggle-password" data-target="password">
+                                <i class="fas fa-eye-slash"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-minimal-options">
+                        <label class="minimal-remember">
+                            <input type="checkbox" id="terms" required>
+                            <span class="dot"></span>
+                            I agree to the Terms & Conditions
+                        </label>
+                    </div>
+
+                    <button type="submit" id="signup-btn" class="btn-minimal-submit">
+                        <span class="btn-text">Sign Up</span>
+                        <div class="spinner"></div>
+                    </button>
+                </form>
+            </div>
+
+            <!-- RIGHT: Mascot Section -->
+            <div class="auth-mascot-section">
+                <div class="mascot-circle">
+                    <img src="/images/animex_mascot.png" alt="Animex Mascot">
+                </div>
+                
+                <!-- SOCIAL LINKS REMOVED -->
+            </div>
+        </div>
+    </div>
+
+    <script src="/env.js"></script>
+    <script type="module" src="../src/features/auth/auth.js"></script>
+</body>
+</html>

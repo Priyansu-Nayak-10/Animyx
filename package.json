@@ -1,0 +1,27 @@
+{
+  "name": "animex-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "npm@10.5.0",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "start": "node apps/api/src/server.js",
+    "build:render": "npm run build --workspace=apps/web",
+    "dev:api": "npm run dev --workspace=apps/api",
+    "dev:web": "npm run dev --workspace=apps/web",
+    "build:web": "npm run build --workspace=apps/web",
+    "install:all": "npm install",
+    "lint": "npm run lint --workspace=apps/api",
+    "lint:fix": "npm run lint:fix --workspace=apps/api"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.98.0"
+  },
+  "devDependencies": {
+    "turbo": "^2.8.16"
+  }
+}

@@ -1,0 +1,437 @@
+/* Watchlist quick actions (kept separate to avoid touching legacy-encoded style.css). */
+
+.wl-quickbar {
+  margin-top: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  pointer-events: auto;
+}
+
+.wl-quick-left {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.wl-mini-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: rgba(15, 23, 42, 0.35);
+  color: #e2e8f0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.wl-mini-btn .material-icons {
+  font-size: 18px;
+}
+
+.wl-mini-btn:hover {
+  transform: translateY(-1px);
+  background: rgba(15, 23, 42, 0.6);
+  border-color: rgba(139, 92, 246, 0.35);
+}
+
+.wl-quick-right {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.wl-quick-right .status-pill {
+  padding: 0.25rem 0.55rem;
+  font-size: 0.7rem;
+  border-radius: 999px;
+  line-height: 1.2;
+}
+
+.wl-control-btn.active {
+  border-color: rgba(139, 92, 246, 0.45);
+  box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.18) inset, 0 0 18px rgba(139, 92, 246, 0.12);
+}
+
+/* Selection + bulk actions */
+.wl-select-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  border: 1px solid rgba(196, 181, 253, 0.28);
+  background: rgba(20, 15, 38, 0.7);
+  color: rgba(245, 243, 255, 0.96);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  cursor: pointer;
+  z-index: 3;
+  box-shadow: 0 10px 26px rgba(0,0,0,0.35);
+}
+
+.watchlist-item.is-selected {
+  outline: 2px solid rgba(139, 92, 246, 0.45);
+  box-shadow: 0 0 0 1px rgba(139, 92, 246, 0.18) inset, 0 18px 42px rgba(0,0,0,0.4);
+}
+
+.wl-bulkbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(196, 181, 253, 0.18);
+  background: rgba(20, 15, 38, 0.55);
+  backdrop-filter: blur(10px);
+  margin: 0 0 14px;
+}
+
+.wl-bulk-count {
+  color: rgba(241, 245, 249, 0.92);
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.wl-bulk-right {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.wl-bulk-btn {
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: rgba(15, 23, 42, 0.35);
+  color: rgba(241, 245, 249, 0.95);
+  font-weight: 750;
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.wl-bulk-btn:hover {
+  border-color: rgba(139, 92, 246, 0.35);
+  background: rgba(15, 23, 42, 0.55);
+}
+
+.wl-bulk-btn.danger {
+  border-color: rgba(248, 113, 113, 0.32);
+  background: rgba(127, 29, 29, 0.18);
+}
+
+.wl-bulk-btn.danger:hover {
+  background: rgba(127, 29, 29, 0.26);
+}
+
+/* Watchlist highlights */
+.wl-history-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+@media (min-width: 980px) {
+  .wl-history-grid {
+    grid-template-columns: 3fr 7fr;
+  }
+}
+
+.wl-history-card {
+  border-radius: 18px;
+  border: 1px solid rgba(196, 181, 253, 0.14);
+  background: rgba(20, 15, 38, 0.35);
+  backdrop-filter: blur(12px);
+  padding: 12px 12px 10px;
+}
+
+.wl-history-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 2px 2px 10px;
+}
+
+.wl-history-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.wl-strip-nav {
+  display: none;
+  align-items: center;
+  gap: 6px;
+}
+
+.wl-strip-nav.is-visible {
+  display: inline-flex;
+}
+
+.wl-nav-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: rgba(15, 23, 42, 0.42);
+  color: rgba(226, 232, 240, 0.92);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.14s ease, border-color 0.14s ease, background 0.14s ease;
+}
+
+.wl-nav-btn:hover {
+  transform: translateY(-1px);
+  border-color: rgba(139, 92, 246, 0.28);
+  background: rgba(15, 23, 42, 0.55);
+}
+
+.wl-nav-btn:active {
+  transform: translateY(0px);
+}
+
+.wl-nav-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.wl-history-title {
+  margin: 0;
+  color: rgba(241, 245, 249, 0.94);
+  font-size: 14px;
+  font-weight: 850;
+  letter-spacing: 0.01em;
+}
+
+.wl-history-sub {
+  color: rgba(148, 163, 184, 0.92);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.wl-strip {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: 2px 2px 8px;
+  scroll-snap-type: x mandatory;
+}
+
+/* Continue Watching: single-card carousel style */
+.wl-history-card[data-wl-kind="continue"] .wl-strip {
+  overflow: hidden;
+  scroll-snap-type: none;
+}
+
+.wl-history-card[data-wl-kind="continue"] .wl-strip-card {
+  width: 100%;
+  max-width: none;
+}
+
+.wl-history-card[data-wl-kind="continue"] .wl-strip-poster {
+  height: 140px;
+}
+
+.wl-strip::-webkit-scrollbar {
+  height: 8px;
+}
+
+.wl-strip::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.18);
+  border-radius: 999px;
+}
+
+.wl-strip-card {
+  flex: 0 0 auto;
+  width: 210px;
+  border-radius: 16px;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  background: rgba(15, 23, 42, 0.28);
+  overflow: hidden;
+  cursor: pointer;
+  scroll-snap-align: start;
+  transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+}
+
+.wl-strip-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(139, 92, 246, 0.28);
+  background: rgba(15, 23, 42, 0.38);
+}
+
+.wl-strip-poster {
+  position: relative;
+  width: 100%;
+  height: 110px;
+  overflow: hidden;
+}
+
+.wl-strip-poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: saturate(1.05);
+}
+
+.wl-strip-progress {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.12);
+  overflow: hidden;
+}
+
+.wl-strip-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, rgba(91,179,255,0.9), rgba(139,92,246,0.9));
+}
+
+.wl-strip-meta {
+  padding: 10px 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.wl-strip-title {
+  color: rgba(241, 245, 249, 0.94);
+  font-weight: 850;
+  font-size: 13px;
+  line-height: 1.25;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.wl-strip-sub {
+  color: rgba(148, 163, 184, 0.92);
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.wl-strip-empty {
+  color: rgba(148, 163, 184, 0.92);
+  font-weight: 650;
+  font-size: 12px;
+  padding: 12px 6px 14px;
+}
+
+/* Discover curated rails */
+.curated-rail {
+  margin: 18px 0 26px;
+}
+
+.curated-rail-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.curated-rail-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 900;
+  color: rgba(241, 245, 249, 0.94);
+  letter-spacing: 0.01em;
+}
+
+.curated-rail-sub {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(148, 163, 184, 0.92);
+}
+
+.curated-grid {
+  align-items: stretch;
+}
+
+/* Undo bar */
+.animex-undo-bar {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%) translateY(14px);
+  opacity: 0;
+  z-index: 9999;
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.animex-undo-bar.is-open {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+
+.animex-undo-inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(20, 15, 38, 0.92);
+  border: 1px solid rgba(196, 181, 253, 0.22);
+  box-shadow: 0 18px 40px rgba(0,0,0,0.35), 0 0 22px rgba(139,92,246,0.12);
+  max-width: min(720px, calc(100vw - 24px));
+}
+
+.animex-undo-text {
+  color: rgba(241, 245, 249, 0.95);
+  font-weight: 650;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: min(520px, calc(100vw - 180px));
+}
+
+.animex-undo-btn {
+  border: 1px solid rgba(139, 92, 246, 0.35);
+  background: rgba(139, 92, 246, 0.14);
+  color: rgba(245, 243, 255, 0.96);
+  font-weight: 800;
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.animex-undo-btn:hover {
+  background: rgba(139, 92, 246, 0.22);
+}
+
+.animex-undo-close {
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  background: transparent;
+  color: rgba(148, 163, 184, 0.95);
+  font-weight: 900;
+  font-size: 18px;
+  line-height: 1;
+  width: 30px;
+  height: 30px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.animex-undo-close:hover {
+  background: rgba(148, 163, 184, 0.08);
+}

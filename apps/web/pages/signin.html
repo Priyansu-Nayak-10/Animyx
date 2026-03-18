@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In • Animex</title>
+    <link rel="icon" href="/images/favicon.png" />
+    <meta name="description" content="Sign in to Animex 2.0 - Your ultimate anime tracking experience.">
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Auth Styles -->
+    <link rel="stylesheet" href="/css/auth.css">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0B0C13">
+    <link rel="apple-touch-icon" href="/images/favicon.png">
+</head>
+
+<body class="auth-page">
+    <div class="auth-grid-container">
+        <!-- TOP NAVIGATION -->
+        <nav class="auth-nav">
+            <span class="auth-logo-text-top">Animex.</span>
+        </nav>
+
+        <div class="auth-main-split">
+            <!-- LEFT: Form Section -->
+            <div class="auth-form-section">
+                <div class="auth-form-header">
+                    <h1 class="auth-welcome">WELCOME BACK!</h1>
+                    <p class="auth-switch">Don’t have a account, <a href="signup.html">Sign up</a></p>
+                </div>
+
+                <!-- Backend Error -->
+                <div id="backend-error" class="backend-error" role="alert" aria-live="polite"></div>
+
+                <form id="signin-form" class="auth-form-minimal auth-form-body">
+                    <div class="form-group-minimal">
+                        <label for="email">Username/Email</label>
+                        <input type="email" id="email" name="email" class="auth-input" placeholder="example@gmail.com" required title="Email Address">
+                    </div>
+
+                    <div class="form-group-minimal">
+                        <label for="password">Password</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="password" name="password" class="auth-input" placeholder="••••••••" required title="Password">
+                            <button type="button" class="toggle-password" data-target="password">
+                                <i class="fas fa-eye-slash"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-minimal-options">
+                        <label class="minimal-remember">
+                            <input type="checkbox" id="remember">
+                            <span class="dot"></span>
+                            Remember me
+                        </label>
+                        <a href="reset-password.html" class="minimal-forgot">Forget password?</a>
+                    </div>
+
+                    <button type="submit" id="signin-btn" class="btn-minimal-submit">
+                        <span class="btn-text">Sign In</span>
+                        <div class="spinner"></div>
+                    </button>
+                </form>
+            </div>
+
+            <!-- RIGHT: Mascot Section -->
+            <div class="auth-mascot-section">
+                <div class="mascot-circle">
+                    <img src="/images/animex_mascot.png" alt="Animex Mascot">
+                </div>
+                
+                <!-- SOCIAL LINKS REMOVED -->
+            </div>
+        </div>
+    </div>
+
+    <script src="/env.js"></script>
+    <script type="module" src="../src/features/auth/signinEnhancements.js"></script>
+    <script type="module" src="../src/features/auth/auth.js"></script>
+</body>
+</html>

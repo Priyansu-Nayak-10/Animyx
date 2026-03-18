@@ -1,0 +1,39 @@
+# Dependency directories
+node_modules/
+
+# Environment variables (protect backend and monorepo envs)
+.env
+.env.*
+apps/api/.env
+apps/api/.env.*
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Build & coverage artifacts
+dist/
+build/
+coverage/
+.next/
+.cache/
+out/
+tmp/
+temp/
+
+# Editor & tooling cruft
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Misc local dev files
+*.swp
+*.swo
+*.tmp
+*.bak
