@@ -5,7 +5,7 @@ import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../config.js';
 // Client ID (previously core/clientId.js)
 // ---------------------------------------------------------------------------
 
-const CLIENT_ID_STORAGE_KEY = 'animyx:clientId';
+const CLIENT_ID_STORAGE_KEY = 'Animyx:clientId';
 
 function fallbackUuid() {
   const rnd = () => Math.floor(Math.random() * 0xffffffff).toString(16).padStart(8, '0');
