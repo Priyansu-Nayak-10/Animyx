@@ -485,6 +485,77 @@ export function initResetPasswordPage() {
     }
 }
 
+export function initForgotPasswordPage() {
+    async function run() {
+        const form = document.getElementById('forgot-password-form');
+        const submitBtn = document.getElementById('forgot-btn');
+        const emailInput = document.getElementById('email');
+        const errorContainer = document.getElementById('backend-error');
+        const requestState = document.getElementById('request-state');
+        const successState = document.getElementById('success-state');
+        const resendLink = document.getElementById('resend-link');
+        const container = document.querySelector('.forgot-container');
+
+        if (container) {
+            setTimeout(() => container.classList.add('animate-enter'), 100);
+        }
+
+        if (!form || !submitBtn || !emailInput) return;
+
+        const handleForgot = async (e) => {
+            if (e) e.preventDefault();
+            clearBackendError(document.body); // Clear any global errors
+            if (errorContainer) errorContainer.innerText = '';
+
+            const email = emailInput.value.trim();
+            if (!validateEmail(email)) {
+                showInlineError(emailInput, 'Please enter a valid email address');
+                return;
+            }
+            clearInlineError(emailInput);
+
+            setButtonLoading(submitBtn, true);
+            try {
+                const { error } = await supabase.auth.resetPasswordForEmail(email, {
+                    redirectTo: `${window.location.origin}/pages/reset-password.html`
+                });
+                if (error) throw error;
+
+                if (requestState && successState) {
+                    requestState.style.display = 'none';
+                    successState.style.display = 'block';
+                }
+            } catch (error) {
+                if (errorContainer) showBackendError(errorContainer.parentElement, error.message || 'Failed to send reset link');
+                else alert(error.message || 'Failed to send reset link');
+            } finally {
+                setButtonLoading(submitBtn, false);
+            }
+        };
+
+        form.addEventListener('submit', handleForgot);
+
+        if (resendLink) {
+            resendLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (requestState && successState) {
+                    successState.style.display = 'none';
+                    requestState.style.display = 'block';
+                }
+            });
+        }
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", () => { void run(); }, { once: true });
+    } else {
+        void run();
+    }
+}
+
+initResetPasswordPage();
+initForgotPasswordPage();
+initSessionBootstrapIfPresent();
 function initSessionBootstrapIfPresent() {
     const overlay = document.getElementById('auth-loading-overlay');
     if (!overlay) return;
