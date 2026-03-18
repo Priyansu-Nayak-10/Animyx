@@ -13,7 +13,7 @@ import { initInsights } from "./insights.js";
 import { getTopOngoingAnikoto } from "../../core/appCore.js";
 
 // Constants for backward compatibility (could be moved to shared-config later)
-const NEWS_CACHE_KEY = "animex_live_news_cache_v1";
+const NEWS_CACHE_KEY = "Animyx_live_news_cache_v1";
 const NEWS_CACHE_TTL_MS = 30 * 60 * 1000;
 const NEWS_REFRESH_INTERVAL_MS = 10 * 60 * 1000;
 const NEWS_TOTAL_LIMIT = 5;

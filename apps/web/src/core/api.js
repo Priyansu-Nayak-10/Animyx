@@ -1,7 +1,7 @@
 import { withAuthHeaders, BACKEND_ORIGIN, BACKEND_URL } from '../config.js';
 const BACKEND_BASE = BACKEND_URL || "/api";
 const API_BASE = "https://api.jikan.moe/v4";
-const CACHE_PREFIX = "animex_v3_cache_";
+const CACHE_PREFIX = "Animyx_v3_cache_";
 const DEFAULT_CACHE_TTL_MS = 10 * 60 * 1000;
 const DEFAULT_LIVE_UPCOMING_ENDPOINT = `${BACKEND_BASE}/upcoming/live`;
 

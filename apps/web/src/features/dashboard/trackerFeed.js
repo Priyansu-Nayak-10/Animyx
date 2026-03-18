@@ -5,7 +5,7 @@
 import { authFetch, apiUrl } from "../../config.js";
 import { relativeTime, escapeHtml } from "./utils.js";
 
-const TRACKER_NOTIF_CACHE_KEY = "animex_tracker_notif_cache_v1";
+const TRACKER_NOTIF_CACHE_KEY = "Animyx_tracker_notif_cache_v1";
 
 function renderTrackerItems(container, items) {
   if (!container) return;

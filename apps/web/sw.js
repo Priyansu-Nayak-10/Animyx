@@ -1,5 +1,5 @@
 /**
- * Animex Service Worker
+ * Animyx Service Worker
  * Handles Web Push Notifications
  */
 
@@ -9,7 +9,7 @@ self.addEventListener('push', function (event) {
     try {
         const payload = event.data.json();
 
-        const title = payload.title || 'Animex Alert';
+        const title = payload.title || 'Animyx Alert';
         const options = {
             body: payload.message || 'You have a new update.',
             icon: '/icon-192x192.png',

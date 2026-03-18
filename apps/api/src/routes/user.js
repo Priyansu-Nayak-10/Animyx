@@ -370,7 +370,7 @@ router.get('/me/profile', async (req, res) => {
  * @swagger
  * /api/users/me:
  *   delete:
- *     summary: Permanently delete the current user's account and all Animex data
+ *     summary: Permanently delete the current user's account and all Animyx data
  *     tags: [User]
  *     responses:
  *       200:

@@ -3,7 +3,7 @@
  */
 
 export function initMilestones({ libraryStore, toast = null }) {
-  const MILESTONE_STORAGE_KEY = "animex_dismissed_milestones";
+  const MILESTONE_STORAGE_KEY = "Animyx_dismissed_milestones";
   const dismissed = new Set(JSON.parse(localStorage.getItem(MILESTONE_STORAGE_KEY) || "[]"));
 
   const milestones = [

@@ -1,9 +1,9 @@
 /**
- * Animex — MAL XML Import API
+ * Animyx — MAL XML Import API
  *
  * POST /api/import/mal
  *   Accepts a MyAnimeList XML data export, parses it, and bulk-upserts
- *   the user's anime list into their Animex `followed_anime` library.
+ *   the user's anime list into their Animyx `followed_anime` library.
  */
 const express = require('express');
 const multer = require('multer');
@@ -35,7 +35,7 @@ const upload = multer({
 });
 
 // ─────────────────────────────────────────
-//  Status mapping: MAL → Animex
+//  Status mapping: MAL → Animyx
 // ─────────────────────────────────────────
 const STATUS_MAP = {
     'completed': 'completed',
@@ -117,7 +117,7 @@ async function bulkUpsert(userId, entries) {
  * @swagger
  * /api/import/mal:
  *   post:
- *     summary: Import a MyAnimeList XML export into the user's Animex library
+ *     summary: Import a MyAnimeList XML export into the user's Animyx library
  *     tags: [Import]
  *     requestBody:
  *       required: true

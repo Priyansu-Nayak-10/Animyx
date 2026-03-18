@@ -1,5 +1,5 @@
 import { supabase } from '../../core/supabaseClient.js';
-import { clearAnimexAllData, clearAnimexUserData } from '../../core/clearClientData.js';
+import { clearAnimyxAllData, clearAnimyxUserData } from '../../core/clearClientData.js';
 import { apiUrl } from '../../config.js';
 
 // --- Validation Handlers ---
@@ -214,7 +214,7 @@ async function checkUsernameAvailability(username, indicator) {
 // --- Main Auth Logic (SignIn & SignUp) ---
 document.addEventListener('DOMContentLoaded', async () => {
     // Prevent redirect loops with a short-lived lock
-    const lockTs = Number(sessionStorage.getItem('animex:redirectLock') || 0);
+    const lockTs = Number(sessionStorage.getItem('Animyx:redirectLock') || 0);
     const lockActive = (Date.now() - lockTs) < 3000;
 
     // Redirect if already authenticated with a valid (non-expiring) token
@@ -230,13 +230,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         if (userOk) {
-            sessionStorage.setItem('animex:redirectLock', String(Date.now()));
+            sessionStorage.setItem('Animyx:redirectLock', String(Date.now()));
             window.location.replace('/pages/app.html'); // Or dashboard
             return;
         }
 
         // Invalid cached session: clear it and continue on the auth page.
-        try { await clearAnimexAllData(); } catch (_) {}
+        try { await clearAnimyxAllData(); } catch (_) {}
         await supabase.auth.signOut();
     }
 
@@ -281,7 +281,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 });
                 if (error) throw error;
                 // Wipe any stale user-scoped caches so new sessions never inherit old libraries.
-                try { await clearAnimexUserData({ keepPreferences: true }); } catch (_) {}
+                try { await clearAnimyxUserData({ keepPreferences: true }); } catch (_) {}
                 setTimeout(() => window.location.href = '/pages/app.html', 600);
             } catch (error) {
                 showBackendError(errorContainer, error.message || 'Login failed');
@@ -399,7 +399,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                    // Cache locally so the dashboard shows the username immediately after redirect.
                    try {
-                       localStorage.setItem('animex_profile_v1', JSON.stringify({
+                       localStorage.setItem('Animyx_profile_v1', JSON.stringify({
                            user_id: data.user.id,
                            name: desiredUsername,
                            updated_at: new Date().toISOString()
@@ -499,7 +499,7 @@ function initSessionBootstrapIfPresent() {
 
         let profileName = '';
         try {
-            const raw = localStorage.getItem('animex_profile_v1');
+            const raw = localStorage.getItem('Animyx_profile_v1');
             const parsed = raw ? JSON.parse(raw) : null;
             if (parsed && parsed.user_id === session?.user?.id && parsed.name) profileName = String(parsed.name);
         } catch (_) { }
@@ -514,7 +514,7 @@ function initSessionBootstrapIfPresent() {
             accessToken: session.access_token,
             user_metadata: meta
         };
-        localStorage.setItem('animex:currentUser', JSON.stringify(userState));
+        localStorage.setItem('Animyx:currentUser', JSON.stringify(userState));
 
         const headerName = document.getElementById('header-username');
         if (headerName) headerName.textContent = displayName;
@@ -527,11 +527,11 @@ function initSessionBootstrapIfPresent() {
         if (!next) return;
 
         try {
-            const raw = localStorage.getItem('animex:currentUser');
+            const raw = localStorage.getItem('Animyx:currentUser');
             const parsed = raw ? JSON.parse(raw) : null;
             if (parsed && typeof parsed === 'object') {
                 parsed.name = next;
-                localStorage.setItem('animex:currentUser', JSON.stringify(parsed));
+                localStorage.setItem('Animyx:currentUser', JSON.stringify(parsed));
             }
         } catch (_) { }
 
@@ -562,7 +562,7 @@ function initSessionBootstrapIfPresent() {
                     user_id: userId || (payload?.data?.user_id ?? undefined),
                     name
                 };
-                localStorage.setItem('animex_profile_v1', JSON.stringify(next));
+                localStorage.setItem('Animyx_profile_v1', JSON.stringify(next));
             } catch (_) { }
 
             applyDisplayName(name);
@@ -575,7 +575,7 @@ function initSessionBootstrapIfPresent() {
         if (!name) return;
 
         try {
-            const raw = localStorage.getItem('animex_profile_v1');
+            const raw = localStorage.getItem('Animyx_profile_v1');
             const parsed = raw ? JSON.parse(raw) : {};
             const next = {
                 ...parsed,
@@ -583,7 +583,7 @@ function initSessionBootstrapIfPresent() {
                 name: parsed?.name || name,
                 updated_at: new Date().toISOString()
             };
-            localStorage.setItem('animex_profile_v1', JSON.stringify(next));
+            localStorage.setItem('Animyx_profile_v1', JSON.stringify(next));
         } catch (_) { }
 
         try {
@@ -599,7 +599,7 @@ function initSessionBootstrapIfPresent() {
     }
 
     async function forceSignOut() {
-        try { await clearAnimexAllData(); } catch (_) { }
+        try { await clearAnimyxAllData(); } catch (_) { }
         try { await supabase.auth.signOut(); } catch (_) { }
     }
 
@@ -630,7 +630,7 @@ function initSessionBootstrapIfPresent() {
 
             if (!session) {
                 if (!window.location.pathname.endsWith('/pages/signin.html')) {
-                    sessionStorage.setItem('animex:redirectLock', String(Date.now()));
+                    sessionStorage.setItem('Animyx:redirectLock', String(Date.now()));
                     window.location.replace('/pages/signin.html');
                 }
                 return;
@@ -640,7 +640,7 @@ function initSessionBootstrapIfPresent() {
             if (!userOk) {
                 await forceSignOut();
                 if (!window.location.pathname.endsWith('/pages/signin.html')) {
-                    sessionStorage.setItem('animex:redirectLock', String(Date.now()));
+                    sessionStorage.setItem('Animyx:redirectLock', String(Date.now()));
                     window.location.replace('/pages/signin.html');
                 }
                 return;
@@ -649,12 +649,12 @@ function initSessionBootstrapIfPresent() {
             await bootstrapProfileFromAuthMetadata(session);
 
             try {
-                const prevUserId = String(localStorage.getItem('animex:lastUserId') || '');
+                const prevUserId = String(localStorage.getItem('Animyx:lastUserId') || '');
                 const nextUserId = String(session?.user?.id || '');
                 if (prevUserId && nextUserId && prevUserId !== nextUserId) {
-                    await clearAnimexUserData({ keepPreferences: true });
+                    await clearAnimyxUserData({ keepPreferences: true });
                 }
-                if (nextUserId) localStorage.setItem('animex:lastUserId', nextUserId);
+                if (nextUserId) localStorage.setItem('Animyx:lastUserId', nextUserId);
             } catch (_) { }
 
             persistSession(session);
@@ -670,22 +670,22 @@ function initSessionBootstrapIfPresent() {
                 if (nextSession) {
                     persistSession(nextSession);
                 } else {
-                    void clearAnimexUserData({ keepPreferences: true });
+                    void clearAnimyxUserData({ keepPreferences: true });
                     if (!window.location.pathname.endsWith('/pages/signin.html')) {
-                        sessionStorage.setItem('animex:redirectLock', String(Date.now()));
+                        sessionStorage.setItem('Animyx:redirectLock', String(Date.now()));
                         window.location.replace('/pages/signin.html');
                     }
                 }
             });
 
-            window.addEventListener('animex:auth-invalid', () => { void forceSignOut(); }, { passive: true });
+            window.addEventListener('Animyx:auth-invalid', () => { void forceSignOut(); }, { passive: true });
 
             setOverlayHidden();
         } catch (err) {
-            console.error('[Animex] Auth initialization error:', err);
+            console.error('[Animyx] Auth initialization error:', err);
             setOverlayHidden();
             if (!window.location.pathname.endsWith('/pages/signin.html')) {
-                sessionStorage.setItem('animex:redirectLock', String(Date.now()));
+                sessionStorage.setItem('Animyx:redirectLock', String(Date.now()));
                 window.location.replace('/pages/signin.html');
             }
         }
@@ -697,13 +697,13 @@ function initSessionBootstrapIfPresent() {
         logoutBtn.addEventListener('click', async () => {
             logoutBtn.disabled = true;
             logoutBtn.style.opacity = '0.6';
-            await clearAnimexUserData({ keepPreferences: true });
+            await clearAnimyxUserData({ keepPreferences: true });
             await supabase.auth.signOut();
             window.location.href = '/pages/signin.html';
         });
     }
 
-    window.__ANIMEX_AUTH_READY = initializeAuth();
+    window.__Animyx_AUTH_READY = initializeAuth();
     document.addEventListener('DOMContentLoaded', bindLogout);
 }
 

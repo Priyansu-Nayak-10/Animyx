@@ -2,7 +2,7 @@ import './auth.js';
 
 /* Legacy implementation migrated into auth.js.
 import { supabase } from '../../core/supabaseClient.js';
-import { clearAnimexAllData, clearAnimexUserData } from '../../core/clearClientData.js';
+import { clearAnimyxAllData, clearAnimyxUserData } from '../../core/clearClientData.js';
 import { apiUrl } from '../../config.js';
 
 function setOverlayHidden() {
@@ -18,7 +18,7 @@ function persistSession(session) {
   // Prefer user-chosen username (profile name / auth metadata) over email prefix.
   let profileName = '';
   try {
-    const raw = localStorage.getItem('animex_profile_v1');
+    const raw = localStorage.getItem('Animyx_profile_v1');
     const parsed = raw ? JSON.parse(raw) : null;
     if (parsed && parsed.user_id === session?.user?.id && parsed.name) profileName = String(parsed.name);
   } catch (_) { }
@@ -34,7 +34,7 @@ function persistSession(session) {
     // Used as a fallback for profile UI until cloud profile is fetched.
     user_metadata: meta
   };
-  localStorage.setItem('animex:currentUser', JSON.stringify(userState));
+  localStorage.setItem('Animyx:currentUser', JSON.stringify(userState));
 
   const headerName = document.getElementById('header-username');
   if (headerName) headerName.textContent = displayName;
@@ -48,11 +48,11 @@ function applyDisplayName(name) {
 
   // Update stored currentUser.name so other parts of the UI use the right value.
   try {
-    const raw = localStorage.getItem('animex:currentUser');
+    const raw = localStorage.getItem('Animyx:currentUser');
     const parsed = raw ? JSON.parse(raw) : null;
     if (parsed && typeof parsed === 'object') {
       parsed.name = next;
-      localStorage.setItem('animex:currentUser', JSON.stringify(parsed));
+      localStorage.setItem('Animyx:currentUser', JSON.stringify(parsed));
     }
   } catch (_) { }
 
@@ -84,7 +84,7 @@ async function fetchAndApplyCloudProfileName(accessToken) {
         user_id: userId || (payload?.data?.user_id ?? undefined),
         name
       };
-      localStorage.setItem('animex_profile_v1', JSON.stringify(next));
+      localStorage.setItem('Animyx_profile_v1', JSON.stringify(next));
     } catch (_) { }
 
     applyDisplayName(name);
@@ -98,7 +98,7 @@ async function bootstrapProfileFromAuthMetadata(session) {
 
   // Ensure local profile cache exists so the dashboard shows the username immediately.
   try {
-    const raw = localStorage.getItem('animex_profile_v1');
+    const raw = localStorage.getItem('Animyx_profile_v1');
     const parsed = raw ? JSON.parse(raw) : {};
     const next = {
       ...parsed,
@@ -106,7 +106,7 @@ async function bootstrapProfileFromAuthMetadata(session) {
       name: parsed?.name || name,
       updated_at: new Date().toISOString()
     };
-    localStorage.setItem('animex_profile_v1', JSON.stringify(next));
+    localStorage.setItem('Animyx_profile_v1', JSON.stringify(next));
   } catch (_) { }
 
   // Best-effort: upsert into backend profile so it persists even when signup required email confirm.
@@ -124,7 +124,7 @@ async function bootstrapProfileFromAuthMetadata(session) {
 
 async function forceSignOut() {
   // Hard reset: fixes deleted-user cached sessions + clears any user-scoped caches.
-  try { await clearAnimexAllData(); } catch (_) {}
+  try { await clearAnimyxAllData(); } catch (_) {}
   try { await supabase.auth.signOut(); } catch (_) {}
 }
 
@@ -159,7 +159,7 @@ async function initializeAuth() {
     if (!session) {
       // Prevent redirect loops: only redirect if we're not already on signin page
       if (!window.location.pathname.endsWith('/pages/signin.html')) {
-        sessionStorage.setItem('animex:redirectLock', String(Date.now()));
+        sessionStorage.setItem('Animyx:redirectLock', String(Date.now()));
         window.location.replace('/pages/signin.html');
       }
       return;
@@ -169,7 +169,7 @@ async function initializeAuth() {
     if (!userOk) {
       await forceSignOut();
       if (!window.location.pathname.endsWith('/pages/signin.html')) {
-        sessionStorage.setItem('animex:redirectLock', String(Date.now()));
+        sessionStorage.setItem('Animyx:redirectLock', String(Date.now()));
         window.location.replace('/pages/signin.html');
       }
       return;
@@ -180,12 +180,12 @@ async function initializeAuth() {
     // If a different user signs in on the same device, wipe user-scoped caches so the UI never shows
     // the previous account's library/profile/settings.
     try {
-      const prevUserId = String(localStorage.getItem('animex:lastUserId') || '');
+      const prevUserId = String(localStorage.getItem('Animyx:lastUserId') || '');
       const nextUserId = String(session?.user?.id || '');
       if (prevUserId && nextUserId && prevUserId !== nextUserId) {
-        await clearAnimexUserData({ keepPreferences: true });
+        await clearAnimyxUserData({ keepPreferences: true });
       }
-      if (nextUserId) localStorage.setItem('animex:lastUserId', nextUserId);
+      if (nextUserId) localStorage.setItem('Animyx:lastUserId', nextUserId);
     } catch (_) { }
 
     persistSession(session);
@@ -206,25 +206,25 @@ async function initializeAuth() {
         persistSession(nextSession);
       } else {
         // Normal sign-out: clear user data (keep theme/accent).
-        void clearAnimexUserData({ keepPreferences: true });
+        void clearAnimyxUserData({ keepPreferences: true });
         if (!window.location.pathname.endsWith('/pages/signin.html')) {
-          sessionStorage.setItem('animex:redirectLock', String(Date.now()));
+          sessionStorage.setItem('Animyx:redirectLock', String(Date.now()));
           window.location.replace('/pages/signin.html');
         }
       }
     });
 
     // Allow API layer to signal an invalid session (prevents cached session loops).
-    window.addEventListener('animex:auth-invalid', () => { void forceSignOut(); }, { passive: true });
+    window.addEventListener('Animyx:auth-invalid', () => { void forceSignOut(); }, { passive: true });
 
     setOverlayHidden();
   } catch (err) {
     // Never leave the overlay stuck — always hide it even on unexpected errors
-    console.error('[Animex] Auth initialization error:', err);
+    console.error('[Animyx] Auth initialization error:', err);
     setOverlayHidden();
     // Redirect to signin as fallback only if not already there
     if (!window.location.pathname.endsWith('/pages/signin.html')) {
-      sessionStorage.setItem('animex:redirectLock', String(Date.now()));
+      sessionStorage.setItem('Animyx:redirectLock', String(Date.now()));
       window.location.replace('/pages/signin.html');
     }
   }
@@ -236,12 +236,12 @@ function bindLogout() {
   logoutBtn.addEventListener('click', async () => {
     logoutBtn.disabled = true;
     logoutBtn.style.opacity = '0.6';
-    await clearAnimexUserData({ keepPreferences: true });
+    await clearAnimyxUserData({ keepPreferences: true });
     await supabase.auth.signOut();
     window.location.href = '/pages/signin.html';
   });
 }
 
-window.__ANIMEX_AUTH_READY = initializeAuth();
+window.__Animyx_AUTH_READY = initializeAuth();
 document.addEventListener('DOMContentLoaded', bindLogout);
 */

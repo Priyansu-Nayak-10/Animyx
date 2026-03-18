@@ -2,7 +2,7 @@ import './auth.js';
 
 if (false) {
 /**
- * Animex Auth Redesign Enhancements
+ * Animyx Auth Redesign Enhancements
  * Handles form entry animations and UI interactions for the minimalist theme.
  */
 

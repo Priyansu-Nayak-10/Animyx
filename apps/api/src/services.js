@@ -36,8 +36,8 @@ async function recordActivity(userProfile, action, stringPayload) {
 
   try {
     if (redis && redis.status === 'ready') {
-      await redis.lpush('animex:live_activity', JSON.stringify(activityEvent));
-      await redis.ltrim('animex:live_activity', 0, MAX_ACTIVITIES - 1);
+      await redis.lpush('Animyx:live_activity', JSON.stringify(activityEvent));
+      await redis.ltrim('Animyx:live_activity', 0, MAX_ACTIVITIES - 1);
     } else {
       fallbackMemoryActivities.unshift(activityEvent);
       if (fallbackMemoryActivities.length > MAX_ACTIVITIES) {
@@ -58,7 +58,7 @@ async function recordActivity(userProfile, action, stringPayload) {
 async function getRecentActivities() {
   try {
     if (redis && redis.status === 'ready') {
-      const list = await redis.lrange('animex:live_activity', 0, MAX_ACTIVITIES - 1);
+      const list = await redis.lrange('Animyx:live_activity', 0, MAX_ACTIVITIES - 1);
       return list.map((item) => JSON.parse(item));
     }
   } catch (err) {

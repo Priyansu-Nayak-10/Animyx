@@ -1,5 +1,5 @@
 /**
- * Animex backend utils — consolidated module.
+ * Animyx backend utils — consolidated module.
  *
  * This file intentionally exports the same public utilities that previously lived in:
  * - utils/logger.js

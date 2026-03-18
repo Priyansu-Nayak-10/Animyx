@@ -5,7 +5,7 @@ import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../config.js';
 // Client ID (previously core/clientId.js)
 // ---------------------------------------------------------------------------
 
-const CLIENT_ID_STORAGE_KEY = 'animex:clientId';
+const CLIENT_ID_STORAGE_KEY = 'animyx:clientId';
 
 function fallbackUuid() {
   const rnd = () => Math.floor(Math.random() * 0xffffffff).toString(16).padStart(8, '0');
@@ -35,7 +35,7 @@ export function getClientId() {
 
 let client;
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-  console.error('[Animex] Missing Supabase runtime config. Authentication and cloud sync will be disabled.');
+  console.error('[Animyx] Missing Supabase runtime config. Authentication and cloud sync will be disabled.');
 
   const dummyAuth = new Proxy({}, {
     get: (_target, prop) => {
@@ -149,7 +149,7 @@ export function initSectionReveal({
     entries.forEach((entry) => {
       const node = entry.target;
       if (!entry.isIntersecting || revealed.has(node)) return;
-      node.classList.add("animex-reveal-visible");
+      node.classList.add("animyx-reveal-visible");
       revealed.add(node);
       observer.unobserve(node);
     });
@@ -157,8 +157,8 @@ export function initSectionReveal({
 
   function registerNode(node) {
     if (!(node instanceof HTMLElement) || nodes.has(node)) return;
-    if (node.classList.contains("animex-reveal-skip")) return;
-    node.classList.add("animex-reveal");
+    if (node.classList.contains("Animyx-reveal-skip")) return;
+    node.classList.add("animyx-reveal");
     nodes.add(node);
     observer.observe(node);
   }
@@ -315,30 +315,30 @@ export function dedupeAnimeList(list) {
 
 const USER_SCOPED_LOCALSTORAGE_KEYS = [
   // Library & user objects
-  'animex_library_v3',
-  'animex_profile_v1',
-  'animex_settings_v1',
+  'Animyx_library_v3',
+  'Animyx_profile_v1',
+  'Animyx_settings_v1',
 
   // Dashboard caches / misc
-  'animex_live_news_cache_v1',
-  'animex_fav_clip',
-  'animex_dashboard_upcoming_v1',
-  'animex_notif_cache_v1',
-  'animex_tracker_notifs_v1'
+  'Animyx_live_news_cache_v1',
+  'Animyx_fav_clip',
+  'Animyx_dashboard_upcoming_v1',
+  'Animyx_notif_cache_v1',
+  'Animyx_tracker_notifs_v1'
 ];
 
 const USER_SCOPED_SESSIONSTORAGE_KEYS = [
-  'animex:redirectLock'
+  'Animyx:redirectLock'
 ];
 
 const LOCALSTORAGE_PREFIXES = [
   // API cache module
-  'animex_v3_cache_'
+  'Animyx_v3_cache_'
 ];
 
 const INDEXEDDB_DATABASES = [
   // cloudSync offline KV
-  'animex_sync_v1'
+  'Animyx_sync_v1'
 ];
 
 function safeRemoveStorageKey(storage, key) {
@@ -364,7 +364,7 @@ function looksLikeSupabaseAuthKey(key) {
   return false;
 }
 
-export async function clearAnimexUserData({ keepPreferences = true } = {}) {
+export async function clearAnimyxUserData({ keepPreferences = true } = {}) {
   // keepPreferences=true keeps theme/accent, but clears library/profile/sync caches.
   for (const key of USER_SCOPED_LOCALSTORAGE_KEYS) safeRemoveStorageKey(localStorage, key);
   for (const key of USER_SCOPED_SESSIONSTORAGE_KEYS) safeRemoveStorageKey(sessionStorage, key);
@@ -374,8 +374,8 @@ export async function clearAnimexUserData({ keepPreferences = true } = {}) {
       if (String(key).startsWith(prefix)) safeRemoveStorageKey(localStorage, key);
     }
     // Clear store-level persisted keys, except preferences if requested.
-    if (String(key).startsWith('animex:')) {
-      const suffix = String(key).slice('animex:'.length);
+    if (String(key).startsWith('Animyx:')) {
+      const suffix = String(key).slice('Animyx:'.length);
       const isPreference = (suffix === 'theme' || suffix === 'accentColor');
       if (keepPreferences && isPreference) return;
       safeRemoveStorageKey(localStorage, key);
@@ -399,8 +399,8 @@ export async function clearAnimexUserData({ keepPreferences = true } = {}) {
   }
 }
 
-export async function clearAnimexAllData() {
-  await clearAnimexUserData({ keepPreferences: false });
+export async function clearAnimyxAllData() {
+  await clearAnimyxUserData({ keepPreferences: false });
 
   // Also remove Supabase auth keys so deleted users don't keep cached sessions.
   safeIterateKeys(localStorage, (key) => {

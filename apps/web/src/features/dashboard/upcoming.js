@@ -6,7 +6,7 @@ import { authFetch, apiUrl } from "../../config.js";
 import { escapeHtml } from "./utils.js";
 
 export function initUpcomingWidget({ fetchImpl = fetch.bind(globalThis), storage = globalThis.localStorage, timers = globalThis }) {
-  const CACHE_KEY = "animex_dashboard_upcoming_v1";
+  const CACHE_KEY = "Animyx_dashboard_upcoming_v1";
   const CACHE_TTL_MS = 12 * 60 * 60 * 1000;
   const JIKAN_ENDPOINT = "https://api.jikan.moe/v4/seasons/upcoming?limit=6";
   const BACKEND_ENDPOINT = apiUrl("/anime/upcoming?limit=6");

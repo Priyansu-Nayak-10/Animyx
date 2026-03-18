@@ -2,7 +2,7 @@
  * features/dashboard/clipCard.js
  */
 
-export const DASHBOARD_CLIP_KEY = "animex_fav_clip";
+export const DASHBOARD_CLIP_KEY = "Animyx_fav_clip";
 
 function readClipValue(storage) {
   return String(storage?.getItem?.(DASHBOARD_CLIP_KEY) || "").trim();

@@ -1,4 +1,4 @@
-const DEFAULT_THEME_KEY = "animex_theme";
+const DEFAULT_THEME_KEY = "Animyx_theme";
 
 function initToast({ root = document.body } = {}) {
   let container = null;
@@ -7,7 +7,7 @@ function initToast({ root = document.body } = {}) {
   function ensureContainer() {
     if (container && container.isConnected) return container;
     container = document.createElement("div");
-    container.id = "animex-toast-root";
+    container.id = "Animyx-toast-root";
     Object.assign(container.style, {
       position: "fixed",
       right: "16px",

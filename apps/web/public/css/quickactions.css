@@ -365,7 +365,7 @@
 }
 
 /* Undo bar */
-.animex-undo-bar {
+.Animyx-undo-bar {
   position: fixed;
   left: 50%;
   bottom: 18px;
@@ -376,13 +376,13 @@
   transition: opacity 0.18s ease, transform 0.18s ease;
 }
 
-.animex-undo-bar.is-open {
+.Animyx-undo-bar.is-open {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
   pointer-events: auto;
 }
 
-.animex-undo-inner {
+.Animyx-undo-inner {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -394,7 +394,7 @@
   max-width: min(720px, calc(100vw - 24px));
 }
 
-.animex-undo-text {
+.Animyx-undo-text {
   color: rgba(241, 245, 249, 0.95);
   font-weight: 650;
   font-size: 13px;
@@ -404,7 +404,7 @@
   max-width: min(520px, calc(100vw - 180px));
 }
 
-.animex-undo-btn {
+.Animyx-undo-btn {
   border: 1px solid rgba(139, 92, 246, 0.35);
   background: rgba(139, 92, 246, 0.14);
   color: rgba(245, 243, 255, 0.96);
@@ -415,11 +415,11 @@
   cursor: pointer;
 }
 
-.animex-undo-btn:hover {
+.Animyx-undo-btn:hover {
   background: rgba(139, 92, 246, 0.22);
 }
 
-.animex-undo-close {
+.Animyx-undo-close {
   border: 1px solid rgba(148, 163, 184, 0.25);
   background: transparent;
   color: rgba(148, 163, 184, 0.95);
@@ -432,6 +432,6 @@
   cursor: pointer;
 }
 
-.animex-undo-close:hover {
+.Animyx-undo-close:hover {
   background: rgba(148, 163, 184, 0.08);
 }

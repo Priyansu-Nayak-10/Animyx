@@ -6,7 +6,7 @@ const Redis = require('ioredis');
 const { logger } = require('../utils');
 
 const redisUrl = process.env.REDIS_URL;
-const cacheNamespace = process.env.CACHE_NAMESPACE || 'animex:v1';
+const cacheNamespace = process.env.CACHE_NAMESPACE || 'Animyx:v1';
 const isTestEnv = process.env.NODE_ENV === 'test';
 let redis = null;
 

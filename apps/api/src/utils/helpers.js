@@ -1,5 +1,5 @@
 /**
- * Common utility helpers for Animex backend
+ * Common utility helpers for Animyx backend
  */
 const { jikanClient, anilistClient } = require('./httpClient.js');
 const { DateTime } = require('luxon');

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'animex-v2';
+const CACHE_NAME = 'animyx-v3';
 const ASSETS = [
   '/',
   '/index.html',

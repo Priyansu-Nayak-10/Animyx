@@ -1,6 +1,6 @@
-﻿{
-  "name": "Animex",
-  "short_name": "Animex",
+{
+  "name": "Animyx",
+  "short_name": "Animyx",
   "start_url": "/pages/app.html",
   "display": "standalone",
   "background_color": "#0a0a0f",

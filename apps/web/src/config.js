@@ -18,7 +18,7 @@ export const SUPABASE_ANON_KEY = CONFIG.supabaseAnonKey;
 
 export function getCurrentUser() {
   try {
-    return JSON.parse(localStorage.getItem('animex:currentUser') || 'null');
+    return JSON.parse(localStorage.getItem('animyx:currentUser') || 'null');
   } catch {
     return null;
   }
@@ -43,10 +43,10 @@ export async function authFetch(input, init = {}) {
   const res = await fetch(input, nextInit);
   if (res.status === 401) {
     try {
-      localStorage.removeItem('animex:currentUser');
+      localStorage.removeItem('animyx:currentUser');
     } catch (_) { /* ignore */ }
     try {
-      window.dispatchEvent(new CustomEvent('animex:auth-invalid'));
+      window.dispatchEvent(new CustomEvent('animyx:auth-invalid'));
     } catch (_) { /* ignore */ }
     if (!window.location.pathname.endsWith('/pages/signin.html')) {
       window.location.replace('/pages/signin.html');

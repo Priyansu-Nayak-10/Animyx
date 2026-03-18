@@ -13,9 +13,9 @@ const options = {
     definition: {
         openapi: '3.0.0',
         info: {
-            title: 'Animex 2.0 API',
+            title: 'Animyx 2.0 API',
             version: '2.0.0',
-            description: 'Backend REST API for the Animex anime tracker. All /api/* endpoints (except /health) require a Bearer JWT in the Authorization header.',
+            description: 'Backend REST API for the Animyx anime tracker. All /api/* endpoints (except /health) require a Bearer JWT in the Authorization header.',
         },
         components: {
             securitySchemes: {
@@ -43,7 +43,7 @@ const spec = swaggerJsdoc(options);
 function mountSwagger(app) {
     if (process.env.NODE_ENV === 'production') return;
     app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(spec, {
-        customSiteTitle: 'Animex API Docs',
+        customSiteTitle: 'Animyx API Docs',
         swaggerOptions: { persistAuthorization: true },
     }));
     app.get('/api/docs.json', (req, res) => res.json(spec));

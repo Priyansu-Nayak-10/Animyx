@@ -101,7 +101,7 @@ class SyncService {
       if (remoteClientId && remoteClientId === localClientId) return;
 
       // Tell CloudSync we're applying a remote change so it doesn't push it back.
-      window.dispatchEvent(new CustomEvent('animex:library-sync-applying', {
+      window.dispatchEvent(new CustomEvent('Animyx:library-sync-applying', {
         detail: { source: 'supabase', eventType, malId: newItem?.mal_id || null }
       }));
 
@@ -150,17 +150,17 @@ class SyncService {
       this.libraryStore.upsert(normalized, normalized.status);
 
       // Notify cloudSync to not push this change back
-      window.dispatchEvent(new CustomEvent('animex:library-sync-received', { detail: normalized }));
+      window.dispatchEvent(new CustomEvent('Animyx:library-sync-received', { detail: normalized }));
     } else if (eventType === 'DELETE') {
       const localClientId = getClientId();
       const remoteClientId = String(oldItem?.client_id || '');
       if (remoteClientId && remoteClientId === localClientId) return;
 
-      window.dispatchEvent(new CustomEvent('animex:library-sync-applying', {
+      window.dispatchEvent(new CustomEvent('Animyx:library-sync-applying', {
         detail: { source: 'supabase', eventType, malId: oldItem?.mal_id || null }
       }));
       this.libraryStore.remove(oldItem.mal_id);
-      window.dispatchEvent(new CustomEvent('animex:library-sync-received', { detail: { malId: oldItem?.mal_id || null, deleted: true } }));
+      window.dispatchEvent(new CustomEvent('Animyx:library-sync-received', { detail: { malId: oldItem?.mal_id || null, deleted: true } }));
     }
   }
 
@@ -182,10 +182,10 @@ class SyncService {
     };
 
     // Update localStorage to trigger UI refresh (if userFeatures is listening)
-    localStorage.setItem('animex_profile_v1', JSON.stringify(profile));
+    localStorage.setItem('Animyx_profile_v1', JSON.stringify(profile));
     
     // Dispatch custom event for UI components
-    window.dispatchEvent(new CustomEvent('animex:profile-sync', { detail: profile }));
+    window.dispatchEvent(new CustomEvent('Animyx:profile-sync', { detail: profile }));
   }
 
   /**
@@ -206,7 +206,7 @@ class SyncService {
       accentColor: data.accent_color
     };
 
-    localStorage.setItem('animex_settings_v1', JSON.stringify(settings));
+    localStorage.setItem('Animyx_settings_v1', JSON.stringify(settings));
     
     // Update global store
     setState({
@@ -214,7 +214,7 @@ class SyncService {
       accentColor: settings.accentColor
     });
 
-    window.dispatchEvent(new CustomEvent('animex:settings-sync', { detail: settings }));
+    window.dispatchEvent(new CustomEvent('Animyx:settings-sync', { detail: settings }));
   }
 }
 

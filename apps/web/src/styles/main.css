@@ -1,5 +1,5 @@
-﻿/* ============================================================
-   Animex — Main stylesheet (merged)
+/* ============================================================
+   Animyx — Main stylesheet (merged)
    Source: public/css/style.css + src/styles/style.css
    ============================================================ */
 
@@ -1249,10 +1249,10 @@ body.dark #dashboard-view .progress-btn {
     border-radius: 50%;
     border: 3px solid rgba(91, 179, 255, 0.22);
     border-top-color: rgba(103, 211, 255, 1);
-    animation: animex-spin 1s linear infinite;
+    animation: Animyx-spin 1s linear infinite;
 }
 
-@keyframes animex-spin {
+@keyframes Animyx-spin {
     to {
         transform: rotate(360deg);
     }
@@ -7599,7 +7599,7 @@ body.dark .tracker-item-title {
     pointer-events: none;
 }
 
-.animex-toast {
+.Animyx-toast {
     background: var(--bg-card);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-left: 4px solid var(--brand-primary, var(--brand-primary));
@@ -7614,19 +7614,19 @@ body.dark .tracker-item-title {
     animation: toast-in 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
-.animex-toast.sequel {
+.Animyx-toast.sequel {
     border-left-color: var(--brand-accent);
 }
 
-.animex-toast.dub {
+.Animyx-toast.dub {
     border-left-color: #14b8a6;
 }
 
-.animex-toast.finished {
+.Animyx-toast.finished {
     border-left-color: var(--chart-green);
 }
 
-.animex-toast.reminder {
+.Animyx-toast.reminder {
     border-left-color: #f97316;
 }
 
@@ -7642,12 +7642,12 @@ body.dark .tracker-item-title {
     }
 }
 
-/* ---- Animex stability overrides (scoped) ---- */
+/* ---- Animyx stability overrides (scoped) ---- */
 :root {
-    --animex-space-section: 28px;
-    --animex-space-card: 20px;
-    --animex-space-grid: 24px;
-    --animex-radius-card: 16px;
+    --Animyx-space-section: 28px;
+    --Animyx-space-card: 20px;
+    --Animyx-space-grid: 24px;
+    --Animyx-radius-card: 16px;
 }
 
 .card,
@@ -7655,7 +7655,7 @@ body.dark .tracker-item-title {
 .insight-panel,
 .profile-hero-card,
 .profile-glass-card {
-    border-radius: var(--animex-radius-card);
+    border-radius: var(--Animyx-radius-card);
 }
 
 .legend {
@@ -7664,15 +7664,15 @@ body.dark .tracker-item-title {
 }
 
 #milestones-card {
-    padding: var(--animex-space-section);
+    padding: var(--Animyx-space-section);
 }
 
 .milestone-grid {
-    gap: var(--animex-space-grid);
+    gap: var(--Animyx-space-grid);
 }
 
 .milestone-tile {
-    padding: var(--animex-space-card);
+    padding: var(--Animyx-space-card);
 }
 
 .activity-timeline {
@@ -7742,13 +7742,13 @@ body.dark .tracker-item-title {
     min-width: 0;
 }
 
-.animex-reveal {
+.Animyx-reveal {
     opacity: 0;
     transform: translateY(12px);
     transition: opacity 420ms ease, transform 420ms ease;
 }
 
-.animex-reveal-visible {
+.Animyx-reveal-visible {
     opacity: 1;
     transform: translateY(0);
 }
@@ -8582,7 +8582,7 @@ body:not(.dark) #profile-view .profile-save-hint {
 
 /* --- BEGIN src/styles/style.css --- */
 /* ============================================================
-   Animex 2.0 — Global Stylesheet
+   Animyx 2.0 — Global Stylesheet
    Extends and supplements index.html embedded styles
    ============================================================ */
 
@@ -9989,14 +9989,14 @@ body {
 .genre-bar-item.is-skeleton .genre-fill {
   background: linear-gradient(90deg, rgba(167, 139, 250, 0.12), rgba(139, 92, 246, 0.28), rgba(167, 139, 250, 0.12)) !important;
   opacity: 0.6;
-  animation: animex-skeleton 1.4s ease-in-out infinite;
+  animation: Animyx-skeleton 1.4s ease-in-out infinite;
 }
 
 .genre-bar-item.is-skeleton .genre-count {
   color: rgba(215, 202, 255, 0.55);
 }
 
-@keyframes animex-skeleton {
+@keyframes Animyx-skeleton {
   0% { filter: brightness(0.95); transform: translateX(-6%); }
   50% { filter: brightness(1.15); transform: translateX(6%); }
   100% { filter: brightness(0.95); transform: translateX(-6%); }

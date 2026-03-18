@@ -1,5 +1,5 @@
 /**
- * Animex — Nightly Recommendation Engine
+ * Animyx — Nightly Recommendation Engine
  *
  * Runs at 3 AM daily. For each recently active user, derives their
  * top genre preferences from their completed/rated library entries,

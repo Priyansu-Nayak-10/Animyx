@@ -22,8 +22,8 @@ const initSocket = (server) => {
   // Legacy default (kept on by default to avoid breaking existing deployments).
   // Set ALLOW_LEGACY_VERCEL_ORIGIN=0 to disable.
   const allowLegacyVercelOrigin = String(process.env.ALLOW_LEGACY_VERCEL_ORIGIN || '1') !== '0';
-  if (allowLegacyVercelOrigin && !allowedOrigins.includes('https://animex-psi.vercel.app')) {
-    allowedOrigins.push('https://animex-psi.vercel.app');
+  if (allowLegacyVercelOrigin && !allowedOrigins.includes('https://Animyx-psi.vercel.app')) {
+    allowedOrigins.push('https://Animyx-psi.vercel.app');
   }
 
   io = new Server(server, {

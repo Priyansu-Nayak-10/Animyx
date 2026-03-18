@@ -1,4 +1,4 @@
-﻿import { initSeasonTabs } from './seasonTabs.js';
+import { initSeasonTabs } from './seasonTabs.js';
 import { renderAnimeGrid } from './animeGrid.js';
 import { bindHoverPreviews } from './animePreviewCard.js';
 import { normalizeAnime, dedupeAnimeList } from '../../core/dataNormalize.js';
@@ -84,7 +84,7 @@ function initSeasonBrowser({ api, toast, libraryStore, modal }) {
         return findAnimeInCache(malId);
     });
 
-    // â”€â”€ "Add to List" button click â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── "Add to List" button click ─────────────────────────────────────────────
     gridContainer.addEventListener('click', (e) => {
         const addBtn = e.target.closest('button[data-action="add-library"]');
         if (!addBtn) return;
@@ -102,13 +102,13 @@ function initSeasonBrowser({ api, toast, libraryStore, modal }) {
         // Add to watchlist immediately (Watching by default to match the Watchlist UI)
         if (libraryStore) {
             libraryStore.upsert({ ...targetAnime, status: STATUS.WATCHING }, STATUS.WATCHING);
-            toast?.show(`Added "${targetAnime.title || 'Anime'}" to watchlist âœ“`);
+            toast?.show(`Added "${targetAnime.title || 'Anime'}" to watchlist ✓`);
         } else {
             toast?.show('Library not available', 'error');
         }
     });
 
-    // â”€â”€ Anime card image / body click â†’ open info modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── Anime card image / body click → open info modal ───────────────────────
     gridContainer.addEventListener('anime-click', async (e) => {
         const { malId } = e.detail || {};
         if (!malId) return;

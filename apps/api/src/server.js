@@ -103,8 +103,8 @@ function createApp() {
   // Legacy default (kept on by default to avoid breaking existing deployments).
   // Set ALLOW_LEGACY_VERCEL_ORIGIN=0 to disable.
   const allowLegacyVercelOrigin = String(process.env.ALLOW_LEGACY_VERCEL_ORIGIN || '1') !== '0';
-  if (allowLegacyVercelOrigin && !allowedOrigins.includes('https://animex-psi.vercel.app')) {
-    allowedOrigins.push('https://animex-psi.vercel.app');
+  if (allowLegacyVercelOrigin && !allowedOrigins.includes('https://animyx-psi.vercel.app')) {
+    allowedOrigins.push('https://animyx-psi.vercel.app');
   }
 
   const isProd = process.env.NODE_ENV === 'production';
@@ -222,7 +222,7 @@ function createApp() {
   app.get('/', (req, res) => res.redirect('/pages/signin.html'));
   app.use(express.static(STATIC_DIR, { index: false }));
 
-  app.get('/health', (req, res) => res.json({ status: 'Animex backend running' }));
+  app.get('/health', (req, res) => res.json({ status: 'Animyx backend running' }));
   app.get('/api/health', (req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
 
   const apiLimiter = createRateLimiter({ windowMs: 60_000, max: 240 });

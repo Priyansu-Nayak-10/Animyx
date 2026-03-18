@@ -1,5 +1,5 @@
 /**
- * Animex backend jobs — consolidated module.
+ * Animyx backend jobs — consolidated module.
  *
  * This file merges the logic that previously lived in:
  * - jobs/lifecycle.job.js

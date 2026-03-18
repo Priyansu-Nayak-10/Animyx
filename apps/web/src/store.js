@@ -1,6 +1,6 @@
 /**
  * store/app.js — Global Application State
- * Lightweight reactive state store for Animex frontend.
+ * Lightweight reactive state store for Animyx frontend.
  */
 
 // ─── Initial State ────────────────────────────────────────────────────────────
@@ -82,7 +82,7 @@ export const resetState = () => {
  */
 export const persistKey = (key) => {
   subscribe(key, (val) => {
-    try { localStorage.setItem(`animex:${key}`, JSON.stringify(val)); } catch (_) { }
+    try { localStorage.setItem(`Animyx:${key}`, JSON.stringify(val)); } catch (_) { }
   });
 };
 
@@ -91,7 +91,7 @@ export const persistKey = (key) => {
  */
 export const restoreKey = (key) => {
   try {
-    const raw = localStorage.getItem(`animex:${key}`);
+    const raw = localStorage.getItem(`Animyx:${key}`);
     if (raw !== null) setState({ [key]: JSON.parse(raw) });
   } catch (_) { }
 };
@@ -100,9 +100,9 @@ export const restoreKey = (key) => {
 window.addEventListener('storage', (e) => {
   if (!e.key) return;
 
-  // Handle store-level keys (animex:theme, animex:accentColor, etc.)
-  if (e.key.startsWith('animex:')) {
-    const key = e.key.replace('animex:', '');
+  // Handle store-level keys (Animyx:theme, Animyx:accentColor, etc.)
+  if (e.key.startsWith('Animyx:')) {
+    const key = e.key.replace('Animyx:', '');
     try {
       const newVal = e.newValue !== null ? JSON.parse(e.newValue) : null;
       if (JSON.stringify(state[key]) !== e.newValue) {
@@ -113,7 +113,7 @@ window.addEventListener('storage', (e) => {
   }
 
   // Handle settings changes from another tab
-  if (e.key === 'animex_settings_v1') {
+  if (e.key === 'Animyx_settings_v1') {
     try {
       const settings = e.newValue ? JSON.parse(e.newValue) : null;
       if (settings) {
@@ -121,29 +121,29 @@ window.addEventListener('storage', (e) => {
           theme: settings.darkTheme ? 'dark' : 'light',
           accentColor: settings.accentColor || 'var(--brand-primary)'
         });
-        window.dispatchEvent(new CustomEvent('animex:settings-sync', { detail: settings }));
+        window.dispatchEvent(new CustomEvent('Animyx:settings-sync', { detail: settings }));
       }
     } catch (_) { }
     return;
   }
 
   // Handle profile changes from another tab
-  if (e.key === 'animex_profile_v1') {
+  if (e.key === 'Animyx_profile_v1') {
     try {
       const profile = e.newValue ? JSON.parse(e.newValue) : null;
       if (profile) {
-        window.dispatchEvent(new CustomEvent('animex:profile-sync', { detail: profile }));
+        window.dispatchEvent(new CustomEvent('Animyx:profile-sync', { detail: profile }));
       }
     } catch (_) { }
     return;
   }
 
   // Handle library changes from another tab
-  if (e.key === 'animex_library_v3') {
+  if (e.key === 'Animyx_library_v3') {
     try {
       const items = e.newValue ? JSON.parse(e.newValue) : [];
       if (Array.isArray(items)) {
-        window.dispatchEvent(new CustomEvent('animex:library-sync-received', { detail: items }));
+        window.dispatchEvent(new CustomEvent('Animyx:library-sync-received', { detail: items }));
       }
     } catch (_) { }
     return;
@@ -157,7 +157,7 @@ const STATUS = Object.freeze({
   DROPPED: "dropped"
 });
 
-const STORAGE_KEY = "animex_library_v3";
+const STORAGE_KEY = "Animyx_library_v3";
 
 function clone(data) {
   if (typeof structuredClone === "function") return structuredClone(data);

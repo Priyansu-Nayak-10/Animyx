@@ -1,9 +1,9 @@
 import { apiUrl, authFetch } from '../../config.js';
 import { setState } from '../../store.js';
 import { supabase } from '../../core/supabaseClient.js';
-import { clearAnimexAllData } from '../../core/clearClientData.js';
-const PROFILE_STORAGE_KEY = "animex_profile_v1";
-const SETTINGS_STORAGE_KEY = "animex_settings_v1";
+import { clearAnimyxAllData } from '../../core/clearClientData.js';
+const PROFILE_STORAGE_KEY = "Animyx_profile_v1";
+const SETTINGS_STORAGE_KEY = "Animyx_settings_v1";
 const DEFAULT_AVATAR_URL =
   "https://lh3.googleusercontent.com/aida-public/AB6AXuCZIUjpzoTljfbNTeGmRQKuBDx6E6cXNLOTQbK6rcfrP_rs28dFFZ75JwW4sHvRfNIXCQc9oUfnfUraGWQWCNuMpLg5D2L37XNwpH3vBzWdVdBQanEdpvD-o464S-lnVRcvaM__u2qTA1s9j87J6fYLrhu7SMz0cf6qEoJ4fnGyjwEAFwueD6Br16uNo4kVoV9Kh9GHeA3UHfbKyQ-0rzPbPXVM609W9FDgusNOamiiZFmIO95W5FQhieq_6J8-_ccpUMoAvbOSgn05";
 
@@ -77,7 +77,7 @@ function getTopGenre(libraryStore) {
 // ──────────────────────────────────────────────────
 function getUserId() {
   try {
-    const rawUser = globalThis.localStorage?.getItem('animex:currentUser');
+    const rawUser = globalThis.localStorage?.getItem('Animyx:currentUser');
     if (rawUser) {
       const u = JSON.parse(rawUser);
       if (u && u.id) return u.id;
@@ -102,7 +102,7 @@ async function fetchCloudProfile(storage) {
 
 function readProfile(storage) {
   try {
-    const rawUser = globalThis.localStorage?.getItem('animex:currentUser');
+    const rawUser = globalThis.localStorage?.getItem('Animyx:currentUser');
     const sessionUser = rawUser ? JSON.parse(rawUser) : {};
 
     const rawProfile = storage?.getItem?.(PROFILE_STORAGE_KEY);
@@ -238,7 +238,7 @@ function initProfile({ toast, libraryStore, storage = globalThis.localStorage } 
   fetchCloudProfile(storage).then(() => render());
 
   // Listen for real-time sync events
-  window.addEventListener('animex:profile-sync', () => {
+  window.addEventListener('Animyx:profile-sync', () => {
     render();
   });
 
@@ -437,7 +437,7 @@ function initSettings({ toast, libraryStore, storage = globalThis.localStorage }
   fetchCloudSettings(storage).then(() => render());
 
   // Listen for real-time sync events
-  window.addEventListener('animex:settings-sync', () => {
+  window.addEventListener('Animyx:settings-sync', () => {
     render();
   });
 
@@ -562,14 +562,14 @@ function initSettings({ toast, libraryStore, storage = globalThis.localStorage }
     );
     if (!confirmed) return;
 
-    try { await clearAnimexAllData(); } catch (_) { }
+    try { await clearAnimyxAllData(); } catch (_) { }
     try { await supabase.auth.signOut(); } catch (_) { }
     window.location.replace('/pages/signin.html');
   }
 
   async function onDeleteAccount() {
     const confirmed = window.confirm(
-      "DELETE ACCOUNT?\n\nThis permanently deletes your Animex account and ALL synced data (library, profile, settings, notifications).\n\nThis cannot be undone.\n\nType OK in your head and click Cancel if unsure. Continue?"
+      "DELETE ACCOUNT?\n\nThis permanently deletes your Animyx account and ALL synced data (library, profile, settings, notifications).\n\nThis cannot be undone.\n\nType OK in your head and click Cancel if unsure. Continue?"
     );
     if (!confirmed) return;
 
@@ -585,7 +585,7 @@ function initSettings({ toast, libraryStore, storage = globalThis.localStorage }
       return;
     }
 
-    try { await clearAnimexAllData(); } catch (_) { }
+    try { await clearAnimyxAllData(); } catch (_) { }
     try { await supabase.auth.signOut(); } catch (_) { }
     window.location.replace('/pages/signin.html');
   }
@@ -707,11 +707,11 @@ function initExport({ libraryStore, toast } = {}) {
     const rows = items.map(libraryItemToRow);
     const now = new Date().toISOString().slice(0, 10);
     if (activeFormat === "csv") {
-      downloadBlob(toCSV(rows), `animex-export-${now}.csv`, "text/csv;charset=utf-8;");
+      downloadBlob(toCSV(rows), `Animyx-export-${now}.csv`, "text/csv;charset=utf-8;");
       toast?.show?.(`Downloaded ${items.length} entries as CSV ✓`);
     } else {
       const json = JSON.stringify({ exportedAt: new Date().toISOString(), count: items.length, library: items }, null, 2);
-      downloadBlob(json, `animex-export-${now}.json`, "application/json");
+      downloadBlob(json, `Animyx-export-${now}.json`, "application/json");
       toast?.show?.(`Downloaded ${items.length} entries as JSON ✓`);
     }
   }

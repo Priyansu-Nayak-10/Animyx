@@ -1,5 +1,5 @@
 /**
- * main.js — Animex Frontend Bootstrap
+ * main.js — Animyx Frontend Bootstrap
  *
  * Initialises: theme, accent colour, socket, notifications, bell button toggle.
  * Loaded as <script type="module"> AFTER Socket.IO CDN script.
@@ -42,7 +42,7 @@ if ('serviceWorker' in navigator) {
 
 // ── Restore persisted preferences ────────────────────────────
 // Prioritize unified settings object
-const settingsRaw = localStorage.getItem('animex_settings_v1');
+const settingsRaw = localStorage.getItem('Animyx_settings_v1');
 if (settingsRaw) {
   try {
     const s = JSON.parse(settingsRaw);
@@ -69,7 +69,7 @@ const applyTheme = (theme) => {
   document.body.classList.toggle('dark', next === 'dark');
   // Sync with localStorage for legacy / fallback
   try {
-    localStorage.setItem('animex_theme', next);
+    localStorage.setItem('Animyx_theme', next);
   } catch { }
 };
 
@@ -87,8 +87,8 @@ applyAccent(getState('accentColor') || '#8b5cf6');
 
 // ── Bootstrap on DOMContentLoaded ─────────────────────────────
 const initAuthEvents = async () => {
-  await (window.__ANIMEX_AUTH_READY || Promise.resolve());
-  console.log('[Animex] 🚀 Starting...');
+  await (window.__Animyx_AUTH_READY || Promise.resolve());
+  console.log('[Animyx] 🚀 Starting...');
 
   // ── Notification bell wiring ────────────────────────────────
   const bellBtn = document.querySelector('.icon-btn');
@@ -152,7 +152,7 @@ const initAuthEvents = async () => {
 
   // Helper: forward a socket notification to the tracker feed (real-time)
   function forwardToTrackerFeed(notification) {
-    globalThis._animexTrackerFeed?.addEvent?.(notification);
+    globalThis._AnimyxTrackerFeed?.addEvent?.(notification);
   }
 
   if (user?.id) {
@@ -166,10 +166,10 @@ const initAuthEvents = async () => {
     });
   } else {
     // No authenticated user — skip socket to avoid subscribing with wrong ID
-    console.info('[Animex] No user session — socket not connected.');
+    console.info('[Animyx] No user session — socket not connected.');
   }
 
-  console.log('[Animex] ✅ Ready');
+  console.log('[Animyx] ✅ Ready');
 };
 
 if (document.readyState === 'loading') {
@@ -538,15 +538,15 @@ async function bootstrap() {
   // Debug panel only on explicit ?debug=1 — NOT auto-enabled on localhost
   const debugModeEnabled = (
     params.get("debug") === "1"
-    || globalThis.ANIMEX_DEBUG === true
+    || globalThis.Animyx_DEBUG === true
   );
 
   const api = createApiClient({
-    liveUpcomingEndpoint: globalThis.ANIMEX_LIVE_UPCOMING_ENDPOINT || "/api/upcoming/live"
+    liveUpcomingEndpoint: globalThis.Animyx_LIVE_UPCOMING_ENDPOINT || "/api/upcoming/live"
   });
   const store = createDataStore({}, { debug: debugModeEnabled });
   const libraryStore = createLibraryStore();
-  globalThis.ANIMEX_LIBRARY_STORE = libraryStore;
+  globalThis.Animyx_LIBRARY_STORE = libraryStore;
   const controller = createDataController({ api, store });
   const ui = initUI();
   const toast = ui.toast;
@@ -591,7 +591,7 @@ async function bootstrap() {
     if (retryInMs) parts.push(`Retry in: ${Math.ceil(retryInMs / 1000)}s`);
     syncIndicator.title = parts.length ? parts.join(' • ') : 'Sync status';
   };
-  window.addEventListener('animex:sync-status', (e) => applySyncState(e?.detail?.state, e?.detail), { passive: true });
+  window.addEventListener('Animyx:sync-status', (e) => applySyncState(e?.detail?.state, e?.detail), { passive: true });
   applySyncState(navigator.onLine ? 'synced' : 'offline');
 
   const cloudSync = initLibraryCloudSync({ libraryStore, toast, syncIntervalMs: 120000 });
@@ -603,7 +603,7 @@ async function bootstrap() {
         applySyncState('syncing');
         await cloudSync.syncNow();
       } catch (err) {
-        console.warn('[Animex] Manual sync failed:', err);
+        console.warn('[Animyx] Manual sync failed:', err);
         toast?.show?.('Sync failed. Please try again.', 'error', 2200);
       }
     }, { passive: true });
@@ -629,7 +629,7 @@ async function bootstrap() {
   modules.push(trackerFeed);
 
   // Expose addEvent for socket notifications (from main.js / socket module)
-  globalThis._animexTrackerFeed = trackerFeed;
+  globalThis._AnimyxTrackerFeed = trackerFeed;
 
   modules.push(
     initSearchAdvanced({
@@ -660,7 +660,7 @@ async function bootstrap() {
       const { syncService } = await import('./core/appCore.js');
       await syncService.init({ libraryStore });
     } catch (err) {
-      console.warn('[Animex] SyncService initialization failed:', err);
+      console.warn('[Animyx] SyncService initialization failed:', err);
     }
   }
 
@@ -679,7 +679,7 @@ async function bootstrap() {
 
 export function startApp() {
   const init = async () => {
-    await (window.__ANIMEX_AUTH_READY || Promise.resolve());
+    await (window.__Animyx_AUTH_READY || Promise.resolve());
     await bootstrap();
   };
 

@@ -6,7 +6,7 @@ const supabase = require('../database/supabase');
 const hasVapidKeys = Boolean(process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY);
 if (hasVapidKeys) {
     webpush.setVapidDetails(
-        process.env.VAPID_SUBJECT || 'mailto:admin@animex.local',
+        process.env.VAPID_SUBJECT || 'mailto:admin@Animyx.local',
         process.env.VAPID_PUBLIC_KEY,
         process.env.VAPID_PRIVATE_KEY
     );

@@ -1,6 +1,6 @@
 /**
  * features/dashboard/charts.js
- * Chart components for the Animex dashboard.
+ * Chart components for the Animyx dashboard.
  */
 
 import { escapeHtml, describeDonutArc } from "./utils.js";

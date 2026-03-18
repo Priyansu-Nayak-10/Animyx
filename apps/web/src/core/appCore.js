@@ -439,7 +439,7 @@ class SyncService {
       if (remoteClientId && remoteClientId === localClientId) return;
 
       // Tell CloudSync we're applying a remote change so it doesn't push it back.
-      window.dispatchEvent(new CustomEvent('animex:library-sync-applying', {
+      window.dispatchEvent(new CustomEvent('Animyx:library-sync-applying', {
         detail: { source: 'supabase', eventType, malId: newItem?.mal_id || null }
       }));
 
@@ -491,17 +491,17 @@ class SyncService {
       this.libraryStore.upsert(normalized, normalized.status);
 
       // Notify cloudSync to not push this change back
-      window.dispatchEvent(new CustomEvent('animex:library-sync-received', { detail: normalized }));
+      window.dispatchEvent(new CustomEvent('Animyx:library-sync-received', { detail: normalized }));
     } else if (eventType === 'DELETE') {
       const localClientId = getClientId();
       const remoteClientId = String(oldItem?.client_id || '');
       if (remoteClientId && remoteClientId === localClientId) return;
 
-      window.dispatchEvent(new CustomEvent('animex:library-sync-applying', {
+      window.dispatchEvent(new CustomEvent('Animyx:library-sync-applying', {
         detail: { source: 'supabase', eventType, malId: oldItem?.mal_id || null }
       }));
       this.libraryStore.remove(oldItem.mal_id);
-      window.dispatchEvent(new CustomEvent('animex:library-sync-received', { detail: { malId: oldItem?.mal_id || null, deleted: true } }));
+      window.dispatchEvent(new CustomEvent('Animyx:library-sync-received', { detail: { malId: oldItem?.mal_id || null, deleted: true } }));
     }
   }
 
@@ -520,10 +520,10 @@ class SyncService {
     };
 
     // Update localStorage to trigger UI refresh (if userFeatures is listening)
-    localStorage.setItem('animex_profile_v1', JSON.stringify(profile));
+    localStorage.setItem('Animyx_profile_v1', JSON.stringify(profile));
 
     // Dispatch custom event for UI components
-    window.dispatchEvent(new CustomEvent('animex:profile-sync', { detail: profile }));
+    window.dispatchEvent(new CustomEvent('Animyx:profile-sync', { detail: profile }));
   }
 
   handleSettingsChange(payload) {
@@ -541,7 +541,7 @@ class SyncService {
       accentColor: data.accent_color
     };
 
-    localStorage.setItem('animex_settings_v1', JSON.stringify(settings));
+    localStorage.setItem('Animyx_settings_v1', JSON.stringify(settings));
 
     // Update global store
     setState({
@@ -549,7 +549,7 @@ class SyncService {
       accentColor: settings.accentColor
     });
 
-    window.dispatchEvent(new CustomEvent('animex:settings-sync', { detail: settings }));
+    window.dispatchEvent(new CustomEvent('Animyx:settings-sync', { detail: settings }));
   }
 }
 
@@ -561,7 +561,7 @@ const syncService = new SyncService();
 
 const cloudSyncApi = createApiClient();
 
-const SYNC_DB = 'animex_sync_v1';
+const SYNC_DB = 'Animyx_sync_v1';
 const SYNC_STORE = 'kv';
 let syncDbPromise = null;
 
@@ -792,7 +792,7 @@ export function initLibraryCloudSync({ libraryStore, toast = null, syncIntervalM
     const hasExtra = extra && typeof extra === 'object' && Object.keys(extra).length > 0;
     if (!value || (value === lastStatus && !hasExtra)) return;
     lastStatus = value;
-    window.dispatchEvent(new CustomEvent('animex:sync-status', { detail: { state: value, ...extra } }));
+    window.dispatchEvent(new CustomEvent('Animyx:sync-status', { detail: { state: value, ...extra } }));
   }
 
   function isOfflineError(error) {
@@ -956,7 +956,7 @@ export function initLibraryCloudSync({ libraryStore, toast = null, syncIntervalM
       if (!force && signature(local) === signature(merged)) return;
 
       suppressSync = true;
-      window.dispatchEvent(new CustomEvent('animex:library-sync-applying', { detail: { source: 'pull', eventType: 'MERGE' } }));
+      window.dispatchEvent(new CustomEvent('Animyx:library-sync-applying', { detail: { source: 'pull', eventType: 'MERGE' } }));
       libraryStore.init(merged);
       suppressSync = false;
       lastSyncedSig = signature(libraryStore.getAll());
@@ -970,7 +970,7 @@ export function initLibraryCloudSync({ libraryStore, toast = null, syncIntervalM
   }
 
   // Handle incoming real-time library updates by marking them as "already synced"
-  window.addEventListener('animex:library-sync-received', (e) => {
+  window.addEventListener('Animyx:library-sync-received', (e) => {
     const detail = e?.detail;
     if (Array.isArray(detail)) {
       // Cross-tab sync (storage event): apply snapshot without re-persisting to avoid ping-pong loops.
@@ -978,7 +978,7 @@ export function initLibraryCloudSync({ libraryStore, toast = null, syncIntervalM
       const incomingSig = signature(detail);
       if (incomingSig && incomingSig !== localSig) {
         suppressSync = true;
-        window.dispatchEvent(new CustomEvent('animex:library-sync-applying', { detail: { source: 'tab', eventType: 'SNAPSHOT' } }));
+        window.dispatchEvent(new CustomEvent('Animyx:library-sync-applying', { detail: { source: 'tab', eventType: 'SNAPSHOT' } }));
         libraryStore.applyExternal(detail, { persist: false });
         suppressSync = false;
       }
@@ -991,7 +991,7 @@ export function initLibraryCloudSync({ libraryStore, toast = null, syncIntervalM
 
   // Remote updates (Supabase realtime) must not be pushed back to the backend.
   // The event is fired before the store mutation so our subscribe handler can bail out.
-  window.addEventListener('animex:library-sync-applying', () => {
+  window.addEventListener('Animyx:library-sync-applying', () => {
     remoteApplyDepth += 1;
     const dec = () => { remoteApplyDepth = Math.max(0, remoteApplyDepth - 1); };
     if (typeof queueMicrotask === 'function') queueMicrotask(dec);
@@ -1008,7 +1008,7 @@ export function initLibraryCloudSync({ libraryStore, toast = null, syncIntervalM
         const merged = mergeRemoteLocal(remote, local);
 
         suppressSync = true;
-        window.dispatchEvent(new CustomEvent('animex:library-sync-applying', { detail: { source: 'bootstrap', eventType: 'MERGE' } }));
+        window.dispatchEvent(new CustomEvent('Animyx:library-sync-applying', { detail: { source: 'bootstrap', eventType: 'MERGE' } }));
         libraryStore.init(merged);
         suppressSync = false;
         lastSyncedSig = signature(libraryStore.getAll());

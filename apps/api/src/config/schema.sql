@@ -1,4 +1,4 @@
--- Animex 2.0 PostgreSQL schema
+-- Animyx 2.0 PostgreSQL schema
 
 CREATE TABLE IF NOT EXISTS user_profiles (
   user_id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,

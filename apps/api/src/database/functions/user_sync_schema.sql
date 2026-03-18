@@ -1,5 +1,5 @@
 -- ============================================================
---  Animex 2.0 — User Profiles & Settings Sync
+--  Animyx 2.0 — User Profiles & Settings Sync
 --  Run this script in the Supabase SQL Editor.
 -- ============================================================
 

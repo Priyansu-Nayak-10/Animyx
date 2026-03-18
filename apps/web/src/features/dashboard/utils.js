@@ -1,6 +1,6 @@
 /**
  * features/dashboard/utils.js
- * Consolidated shared utility functions for the Animex dashboard.
+ * Consolidated shared utility functions for the Animyx dashboard.
  */
 
 export function escapeHtml(value) {

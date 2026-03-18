@@ -1,4 +1,4 @@
-﻿import { STATUS } from "../../store.js";
+import { STATUS } from "../../store.js";
 import { resolveEpisodes, resolveEpisodesNumeric } from "../../core/utils.js";
 
 const TYPE_FILTERS = Object.freeze({
@@ -29,7 +29,7 @@ function escapeHtml(value) {
 
 function normalizeTitle(item) {
   // Prefer English title using the same priority logic as the rest of the app:
-  // title_english â†’ titles[English] â†’ title (romaji) â†’ title_japanese
+  // title_english → titles[English] → title (romaji) → title_japanese
   const resolved = getDisplayTitle(item);
   return resolved && resolved !== "Unknown Title" ? resolved : String(item?.title || "Unknown");
 }
@@ -70,16 +70,16 @@ function getLibraryItemSnapshot(libraryStore, malId) {
 }
 
 function ensureUndoBar() {
-  let bar = document.getElementById("animex-undo-bar");
+  let bar = document.getElementById("Animyx-undo-bar");
   if (bar && bar.isConnected) return bar;
   bar = document.createElement("div");
-  bar.id = "animex-undo-bar";
-  bar.className = "animex-undo-bar";
+  bar.id = "Animyx-undo-bar";
+  bar.className = "Animyx-undo-bar";
   bar.innerHTML = `
-    <div class="animex-undo-inner">
-      <span class="animex-undo-text" id="animex-undo-text"></span>
-      <button class="animex-undo-btn" type="button" id="animex-undo-btn">Undo</button>
-      <button class="animex-undo-close" type="button" id="animex-undo-close" aria-label="Dismiss">Ã—</button>
+    <div class="Animyx-undo-inner">
+      <span class="Animyx-undo-text" id="Animyx-undo-text"></span>
+      <button class="Animyx-undo-btn" type="button" id="Animyx-undo-btn">Undo</button>
+      <button class="Animyx-undo-close" type="button" id="Animyx-undo-close" aria-label="Dismiss">×</button>
     </div>
   `;
   document.body.appendChild(bar);
@@ -88,9 +88,9 @@ function ensureUndoBar() {
 
 function showUndo({ message, onUndo }) {
   const bar = ensureUndoBar();
-  const text = bar.querySelector("#animex-undo-text");
-  const undoBtn = bar.querySelector("#animex-undo-btn");
-  const closeBtn = bar.querySelector("#animex-undo-close");
+  const text = bar.querySelector("#Animyx-undo-text");
+  const undoBtn = bar.querySelector("#Animyx-undo-btn");
+  const closeBtn = bar.querySelector("#Animyx-undo-close");
   if (text) text.textContent = String(message || "Updated");
 
   // Clear previous handlers by cloning (simple + safe)
@@ -174,7 +174,7 @@ function initWatchlistBoard({ libraryStore, toast = null }) {
         <button class="wl-filter ${uiState.typeFilter === TYPE_FILTERS.SERIES ? "active" : ""}" data-watchlist-action="set-type" data-type="${TYPE_FILTERS.SERIES}">Series</button>
       </div>
       <div class="watchlist-controls-group">
-        <button class="wl-control-btn ${sortMode === "az" ? "active" : ""}" data-watchlist-action="set-sort" data-sort="az">A-Z ${isAsc ? "â†‘" : "â†“"}</button>
+        <button class="wl-control-btn ${sortMode === "az" ? "active" : ""}" data-watchlist-action="set-sort" data-sort="az">A-Z ${isAsc ? "↑" : "↓"}</button>
         <button class="wl-control-btn ${sortMode === "recent" ? "active" : ""}" data-watchlist-action="set-sort" data-sort="recent">Recent</button>
         <button class="wl-control-btn" data-watchlist-action="random-pick">Pick Something For Me</button>
       </div>
@@ -237,7 +237,7 @@ function initWatchlistBoard({ libraryStore, toast = null }) {
     const totalDisplay = resolveEpisodes(anime?.episodes, anime?.status);
     const pctClass = `pwc-pct-${percent >= 80 ? 'high' : percent >= 50 ? 'mid' : 'low'}`;
 
-    // â”€â”€ In-place update: same anime, card already rendered â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── In-place update: same anime, card already rendered ──────────────────
     if (_pwcRenderedMalId === malId && premiumWatchingContainer.querySelector('.pwc-current')) {
       const elCurrent = premiumWatchingContainer.querySelector('.pwc-current');
       const elRingFill = premiumWatchingContainer.querySelector('.pwc-ring-fill');
@@ -259,7 +259,7 @@ function initWatchlistBoard({ libraryStore, toast = null }) {
       return;
     }
 
-    // â”€â”€ Full build: first render or anime switched â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── Full build: first render or anime switched ──────────────────────────
     _pwcRenderedMalId = malId;
     const title = escapeHtml(normalizeTitle(anime));
     const poster = escapeHtml(String(anime?.image || ""));
@@ -340,7 +340,7 @@ function initWatchlistBoard({ libraryStore, toast = null }) {
     const selectedClass = selected.has(malId) ? "is-selected" : "";
     const openAttr = selectMode ? "" : `data-action="open-anime-modal"`;
     const selectOverlay = selectMode
-      ? `<button class="wl-select-badge" type="button" data-watchlist-action="toggle-item-select" data-id="${malId}" aria-label="Toggle selection">${selected.has(malId) ? "âœ“" : ""}</button>`
+      ? `<button class="wl-select-badge" type="button" data-watchlist-action="toggle-item-select" data-id="${malId}" aria-label="Toggle selection">${selected.has(malId) ? "✓" : ""}</button>`
       : "";
 
     return `<article class="wl-card-vertical watching-card-premium watchlist-item ${selectedClass} status-${escapeHtml(displayStatus)}" draggable="true" ${openAttr} data-id="${malId}"><div class="wl-card-media">${selectOverlay}<img src="${escapeHtml(item?.image || "")}" alt="${escapeHtml(normalizeTitle(item))}" class="wl-card-poster" loading="lazy"><div class="wl-overlay"></div><div class="wl-status-badge ${escapeHtml(displayStatus)} ${statusAnimateClass}">${escapeHtml(displayStatus)}</div><div class="wl-progress-overlay"><div class="wl-progress-bar"><div class="wl-progress-fill progress-glow" style="width:${percent}%"></div></div><span class="wl-progress-text-overlay">${progress} / ${episodeDisplay}</span></div></div><div class="wl-card-content"><h3 class="wl-card-title">${escapeHtml(normalizeTitle(item))}</h3><p class="wl-card-meta">${genreText} | ${yearText}</p><div class="wl-quickbar" aria-label="Quick actions" data-quickbar="1"><div class="wl-quick-right"><button class="status-pill ${isWatching ? "active" : ""}" type="button" data-watchlist-action="set-status" data-id="${malId}" data-status="${STATUS.WATCHING}">Watch</button><button class="status-pill ${isDropped ? "active" : ""}" type="button" data-watchlist-action="set-status" data-id="${malId}" data-status="${STATUS_DROPPED}">Drop</button><button class="status-pill" type="button" data-watchlist-action="set-status" data-id="${malId}" data-status="${STATUS.COMPLETED}">Completed</button></div></div></div></article>`;
@@ -369,7 +369,7 @@ function initWatchlistBoard({ libraryStore, toast = null }) {
       const total = eps > 0 ? eps : 0;
       const pct = total > 0 ? Math.min(100, Math.round((progress / total) * 100)) : 0;
       const subtitle = kind === "continue"
-        ? (total > 0 ? `${progress}/${total} Ã¢â‚¬Â¢ ${pct}%` : `Ep ${progress}`)
+        ? (total > 0 ? `${progress}/${total} â€¢ ${pct}%` : `Ep ${progress}`)
         : `${escapeHtml(String(item?.status || ""))}`;
 
       const actionAttr = uiState.selectMode ? "" : `data-action="open-anime-modal"`;
@@ -563,7 +563,7 @@ function initWatchlistBoard({ libraryStore, toast = null }) {
       const after = getLibraryItemSnapshot(libraryStore, malId);
       if (before && after) {
         showUndo({
-          message: `Progress updated â€¢ ${normalizeTitle(after)}`,
+          message: `Progress updated • ${normalizeTitle(after)}`,
           onUndo: () => {
             // Restore status first, then progress.
             libraryStore.setStatus(malId, before.status);
@@ -580,7 +580,7 @@ function initWatchlistBoard({ libraryStore, toast = null }) {
       const after = getLibraryItemSnapshot(libraryStore, malId);
       if (before && after) {
         showUndo({
-          message: `Progress updated â€¢ ${normalizeTitle(after)}`,
+          message: `Progress updated • ${normalizeTitle(after)}`,
           onUndo: () => {
             libraryStore.setStatus(malId, before.status);
             const current = getLibraryItemSnapshot(libraryStore, malId);
@@ -600,7 +600,7 @@ function initWatchlistBoard({ libraryStore, toast = null }) {
       const after = getLibraryItemSnapshot(libraryStore, malId);
       if (before && after) {
         showUndo({
-          message: `Moved to ${next} â€¢ ${normalizeTitle(after)}`,
+          message: `Moved to ${next} • ${normalizeTitle(after)}`,
           onUndo: () => {
             libraryStore.setStatus(malId, before.status);
             const current = getLibraryItemSnapshot(libraryStore, malId);
@@ -616,7 +616,7 @@ function initWatchlistBoard({ libraryStore, toast = null }) {
       toast?.show?.("Marked as completed");
       if (before) {
         showUndo({
-          message: `Marked completed â€¢ ${normalizeTitle(before)}`,
+          message: `Marked completed • ${normalizeTitle(before)}`,
           onUndo: () => {
             libraryStore.setStatus(malId, before.status);
             const current = getLibraryItemSnapshot(libraryStore, malId);
@@ -714,18 +714,18 @@ function initCompletedBoard({ libraryStore, toast = null }) {
   function buildToolbar() {
     const isAsc = Boolean(uiState.sortAsc);
     const sortMode = uiState.sortMode === "recent" ? "recent" : "az";
-    return `<div class="completed-command-bar watchlist-command-bar" data-completed-toolbar="1"><div class="watchlist-controls-group"><button class="wl-filter ${uiState.typeFilter === TYPE_FILTERS.ALL ? "active" : ""}" data-completed-action="set-type" data-type="${TYPE_FILTERS.ALL}">All</button><button class="wl-filter ${uiState.typeFilter === TYPE_FILTERS.MOVIES ? "active" : ""}" data-completed-action="set-type" data-type="${TYPE_FILTERS.MOVIES}">Movies</button><button class="wl-filter ${uiState.typeFilter === TYPE_FILTERS.SERIES ? "active" : ""}" data-completed-action="set-type" data-type="${TYPE_FILTERS.SERIES}">Series</button></div><div class="watchlist-controls-group"><button class="wl-control-btn ${sortMode === "az" ? "active" : ""}" data-completed-action="set-sort" data-sort="az">A-Z ${isAsc ? "â†‘" : "â†“"}</button><button class="wl-control-btn ${sortMode === "recent" ? "active" : ""}" data-completed-action="set-sort" data-sort="recent">Recent</button><button class="wl-control-btn ${selectMode ? "active" : ""}" data-completed-action="toggle-select">${selectMode ? `Selected: ${selected.size}` : "Select"}</button>${selectMode ? `<button class="wl-control-btn" data-completed-action="clear-selection">Clear</button>` : ""}</div></div>`;
+    return `<div class="completed-command-bar watchlist-command-bar" data-completed-toolbar="1"><div class="watchlist-controls-group"><button class="wl-filter ${uiState.typeFilter === TYPE_FILTERS.ALL ? "active" : ""}" data-completed-action="set-type" data-type="${TYPE_FILTERS.ALL}">All</button><button class="wl-filter ${uiState.typeFilter === TYPE_FILTERS.MOVIES ? "active" : ""}" data-completed-action="set-type" data-type="${TYPE_FILTERS.MOVIES}">Movies</button><button class="wl-filter ${uiState.typeFilter === TYPE_FILTERS.SERIES ? "active" : ""}" data-completed-action="set-type" data-type="${TYPE_FILTERS.SERIES}">Series</button></div><div class="watchlist-controls-group"><button class="wl-control-btn ${sortMode === "az" ? "active" : ""}" data-completed-action="set-sort" data-sort="az">A-Z ${isAsc ? "↑" : "↓"}</button><button class="wl-control-btn ${sortMode === "recent" ? "active" : ""}" data-completed-action="set-sort" data-sort="recent">Recent</button><button class="wl-control-btn ${selectMode ? "active" : ""}" data-completed-action="toggle-select">${selectMode ? `Selected: ${selected.size}` : "Select"}</button>${selectMode ? `<button class="wl-control-btn" data-completed-action="clear-selection">Clear</button>` : ""}</div></div>`;
   }
 
   function buildCompletedCard(item) {
     const currentRating = Number(item?.userRating || 0);
     const starCount = Math.max(0, Math.min(5, Math.round(currentRating / 2)));
-    const overlayStars = `${"â˜…".repeat(starCount)}${"â˜†".repeat(5 - starCount)}`;
+    const overlayStars = `${"★".repeat(starCount)}${"☆".repeat(5 - starCount)}`;
     const malId = Number(item?.malId || 0);
     const selectedClass = selected.has(malId) ? "is-selected" : "";
     const openAttr = selectMode ? "" : `data-action="open-anime-modal"`;
     const selectOverlay = selectMode
-      ? `<button class="wl-select-badge" type="button" data-completed-action="toggle-item" data-id="${malId}" aria-label="Toggle selection">${selected.has(malId) ? "âœ“" : ""}</button>`
+      ? `<button class="wl-select-badge" type="button" data-completed-action="toggle-item" data-id="${malId}" aria-label="Toggle selection">${selected.has(malId) ? "✓" : ""}</button>`
       : "";
 
     return `
@@ -734,7 +734,7 @@ function initCompletedBoard({ libraryStore, toast = null }) {
           <div class="cover-img-wrap" ${openAttr} data-id="${malId}">
             ${selectOverlay}
             <img class="cover-img" src="${escapeHtml(item?.image || "")}" alt="${escapeHtml(normalizeTitle(item))}">
-            <span class="cover-badge">â˜… ${currentRating > 0 ? currentRating.toFixed(1) : '--'}</span>
+            <span class="cover-badge">★ ${currentRating > 0 ? currentRating.toFixed(1) : '--'}</span>
             <div class="cover-gradient"></div>
             <div class="trophy-stamp">COMPLETED</div>
             ${currentRating > 0 ? `<div class="rating-overlay">${overlayStars}</div>` : ""}
@@ -904,7 +904,7 @@ function initCompletedBoard({ libraryStore, toast = null }) {
       toast?.show?.("Moved to watching for rewatch");
       if (before) {
         showUndo({
-          message: `Moved to watching â€¢ ${normalizeTitle(before)}`,
+          message: `Moved to watching • ${normalizeTitle(before)}`,
           onUndo: () => {
             libraryStore.setStatus(malId, before.status);
             const current = getLibraryItemSnapshot(libraryStore, malId);
@@ -922,7 +922,7 @@ function initCompletedBoard({ libraryStore, toast = null }) {
       toast?.show?.("Moved to watchlist");
       if (before) {
         showUndo({
-          message: `Moved to watchlist â€¢ ${normalizeTitle(before)}`,
+          message: `Moved to watchlist • ${normalizeTitle(before)}`,
           onUndo: () => {
             libraryStore.setStatus(malId, before.status);
             const current = getLibraryItemSnapshot(libraryStore, malId);
