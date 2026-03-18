@@ -368,13 +368,14 @@ function initWatchlistBoard({ libraryStore, toast = null }) {
       const total = eps > 0 ? eps : 0;
       const pct = total > 0 ? Math.min(100, Math.round((progress / total) * 100)) : 0;
       const subtitle = kind === "continue"
-        ? (total > 0 ? `${progress}/${total} â€¢ ${pct}%` : `Ep ${progress}`)
+        ? (total > 0 ? `${progress}/${total} • ${pct}%` : `Ep ${progress}`)
         : `${escapeHtml(String(item?.status || ""))}`;
+      const statusClass = String(item?.status || "").toLowerCase();
 
       const actionAttr = uiState.selectMode ? "" : `data-action="open-anime-modal"`;
-      return `<div class="wl-strip-card" role="listitem" ${actionAttr} data-id="${malId}">
+      return `<div class="wl-strip-card status-${statusClass}" role="listitem" ${actionAttr} data-id="${malId}">
           <div class="wl-strip-poster">
-            <img src="${img}" alt="${title}" loading="lazy">
+            <img src="${img}" alt="${title}" loading="lazy" class="pwc-poster-fit">
             ${kind === "continue" && total > 0 ? `<div class="wl-strip-progress"><div class="wl-strip-progress-fill" style="width:${pct}%"></div></div>` : ""}
           </div>
           <div class="wl-strip-meta">
@@ -504,6 +505,49 @@ function initWatchlistBoard({ libraryStore, toast = null }) {
         ? (continueIndex - 1 + len) % len
         : (continueIndex + 1) % len;
       renderHighlights();
+      return;
+    }
+    if (action === "toggle-select-mode") {
+      uiState.selectMode = !uiState.selectMode;
+      if (!uiState.selectMode) selected.clear();
+      render();
+      return;
+    }
+    if (action === "toggle-item-select") {
+      const malId = Number(actionBtn.getAttribute("data-id") || 0);
+      if (!malId) return;
+      if (selected.has(malId)) selected.delete(malId);
+      else selected.add(malId);
+      render();
+      return;
+    }
+    if (action === "clear-selection") {
+      selected.clear();
+      render();
+      return;
+    }
+    if (action === "bulk-status") {
+      if (!selected.size) return;
+      const next = String(actionBtn.getAttribute("data-status") || "").toLowerCase();
+      if (![STATUS.WATCHING, STATUS.PLAN, STATUS_DROPPED, STATUS.COMPLETED].includes(next)) return;
+      const ids = Array.from(selected.values());
+      ids.forEach((id) => libraryStore.setStatus(id, next));
+      toast?.show?.(`Updated ${ids.length} titles`);
+      selected.clear();
+      uiState.selectMode = false;
+      render();
+      return;
+    }
+    if (action === "bulk-remove") {
+      if (!selected.size) return;
+      const ids = Array.from(selected.values());
+      const confirmed = window.confirm(`Remove ${ids.length} selected title(s) from your library?`);
+      if (!confirmed) return;
+      ids.forEach((id) => libraryStore.remove(id));
+      toast?.show?.(`Removed ${ids.length} title(s)`);
+      selected.clear();
+      uiState.selectMode = false;
+      render();
       return;
     }
     if (action === "set-type") {
@@ -1120,8 +1164,8 @@ function initAnimeModal({ controller, libraryStore, toast = null }) {
     if (!malId) return;
     const current = detailCache.get(malId) || { malId, title: `Anime #${malId}` };
     if (action === "modal-add-plan") {
-      libraryStore.upsert({ ...current, status: STATUS.WATCHING }, STATUS.WATCHING);
-      toast?.show?.("Added to watchlist");
+      libraryStore.upsert({ ...current, status: STATUS.PLAN }, STATUS.PLAN);
+      toast?.show?.("Added to Plan to Watch");
       renderDetail(current);
       return;
     }

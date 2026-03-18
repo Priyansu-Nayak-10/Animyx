@@ -1,4 +1,4 @@
-import { STATUS } from "../../store.js";
+ï»¿import { STATUS } from "../../store.js";
 import { BACKEND_URL, withAuthHeaders } from "../../config.js";
 
 const SEARCH_PAGE_SIZE = 25;
@@ -248,7 +248,7 @@ function initSearchAdvanced({
 
   const SORT_OPTIONS = [
     { label: "Ratings", value: "ratings" },
-    { label: "Name A–Z", value: "name_az" },
+    { label: "Name Aâ€“Z", value: "name_az" },
     { label: "Most Viewed", value: "most_viewed" },
     { label: "Number of Episodes", value: "episodes" }
   ];
@@ -307,7 +307,7 @@ function initSearchAdvanced({
             </div>
             <div class="cover-info" data-action="open-anime-modal" data-id="${malId}">
               <h4 class="cover-title" title="${title}">${title}</h4>
-              <p class="cover-genres">${genres} · ${epLabel}</p>
+              <p class="cover-genres">${genres} Â· ${epLabel}</p>
             </div>
             <div class="cover-actions">
               <button class="status-pill" type="button" data-search-action="add-plan" data-id="${malId}">Plan</button>
@@ -559,7 +559,7 @@ function initSearchAdvanced({
               <img src="${img}" class="suggestion-img" alt="${title}" loading="lazy"/>
               <div class="suggestion-details">
                 <span class="suggestion-title">${title}</span>
-                <span class="suggestion-meta">${type} ${year ? '• ' + year : ''}</span>
+                <span class="suggestion-meta">${type} ${year ? 'â€¢ ' + year : ''}</span>
               </div>
             </a>
           `;
@@ -616,7 +616,7 @@ function initSearchAdvanced({
                   : '<div class="suggestion-img suggestion-img-fallback">ANIME</div>'}
                 <span class="suggestion-details">
                   <span class="suggestion-title">${escapeHtml(item.title)}</span>
-                  <span class="suggestion-meta">${escapeHtml(`${item.type} • ${item.studio} • ${item.year}`)}</span>
+                  <span class="suggestion-meta">${escapeHtml(`${item.type} â€¢ ${item.studio} â€¢ ${item.year}`)}</span>
                 </span>
               </button>
             `;
@@ -844,8 +844,8 @@ function initSearchAdvanced({
     const anime = source.find((row) => Number(row?.malId || 0) === malId);
     if (!anime) return;
     if (action === "add-plan") {
-      libraryStore.upsert({ ...anime, status: STATUS.WATCHING }, STATUS.WATCHING);
-      toast?.show?.("Added to watchlist");
+      libraryStore.upsert({ ...anime, status: STATUS.PLAN }, STATUS.PLAN);
+      toast?.show?.("Added to Plan to Watch");
     } else if (action === "add-watching") {
       libraryStore.upsert({ ...anime, status: STATUS.WATCHING }, STATUS.WATCHING);
       toast?.show?.("Marked as watching");
@@ -1092,4 +1092,5 @@ function initSearchAdvanced({
 }
 
 export { initSearchAdvanced };
+
 

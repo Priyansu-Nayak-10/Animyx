@@ -275,16 +275,33 @@
 .wl-strip-poster {
   position: relative;
   width: 100%;
-  height: 110px;
+  height: 120px; /* Consistent height */
   overflow: hidden;
+  background: var(--bg-card); /* Placeholder while loading */
 }
 
 .wl-strip-poster img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center 20%; /* Better framing for posters */
   display: block;
   filter: saturate(1.05);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.wl-strip-card:hover .wl-strip-poster img {
+  transform: scale(1.08); /* Premium hover effect */
+}
+
+/* Stable containers for highlights */
+.wl-strip {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 4px 4px 12px;
+  min-height: 180px; /* Prevent jump when empty */
+  scroll-snap-type: x mandatory;
 }
 
 .wl-strip-progress {
