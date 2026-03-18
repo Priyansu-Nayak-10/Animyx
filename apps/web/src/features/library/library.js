@@ -150,9 +150,6 @@ function initWatchlistBoard({ libraryStore, toast = null }) {
         return item?.malId && [STATUS.PLAN, STATUS.WATCHING, STATUS_DROPPED].includes(status);
       });
     if (uiState.statusFilter === STATUS_FILTERS.ALL) return rows;
-    if (uiState.statusFilter === STATUS_FILTERS.WATCHING) {
-      return rows.filter((item) => [STATUS.WATCHING, STATUS.PLAN].includes(String(item?.status || "").toLowerCase()));
-    }
     return rows.filter((item) => String(item?.status || "").toLowerCase() === uiState.statusFilter);
   }
 
@@ -180,6 +177,7 @@ function initWatchlistBoard({ libraryStore, toast = null }) {
       </div>
       <div class="watchlist-controls-group">
         <button class="watchlist-chip ${uiState.statusFilter === STATUS_FILTERS.WATCHING ? "active" : ""}" data-watchlist-action="set-status-filter" data-status-filter="${STATUS_FILTERS.WATCHING}" data-drop-status="${STATUS.WATCHING}">Watching</button>
+        <button class="watchlist-chip ${uiState.statusFilter === STATUS_FILTERS.PLAN ? "active" : ""}" data-watchlist-action="set-status-filter" data-status-filter="${STATUS_FILTERS.PLAN}" data-drop-status="${STATUS.PLAN}">Planning</button>
         <button class="watchlist-chip ${uiState.statusFilter === STATUS_FILTERS.DROPPED ? "active" : ""}" data-watchlist-action="set-status-filter" data-status-filter="${STATUS_FILTERS.DROPPED}" data-drop-status="${STATUS_DROPPED}">Dropped</button>
         <button class="watchlist-chip ${uiState.statusFilter === STATUS_FILTERS.ALL ? "active" : ""}" data-watchlist-action="set-status-filter" data-status-filter="${STATUS_FILTERS.ALL}">All</button>
       </div>
@@ -333,9 +331,10 @@ function initWatchlistBoard({ libraryStore, toast = null }) {
 
     const malId = Number(item?.malId || 0);
     const isPlan = rawStatus === STATUS.PLAN;
-    const isWatching = rawStatus === STATUS.WATCHING || isPlan;
+    const isWatching = rawStatus === STATUS.WATCHING;
     const isDropped = rawStatus === STATUS_DROPPED;
-    const displayStatus = isPlan ? STATUS.WATCHING : rawStatus;
+    const isCompleted = rawStatus === STATUS.COMPLETED;
+    const displayStatus = rawStatus;
 
     const selectedClass = selected.has(malId) ? "is-selected" : "";
     const openAttr = selectMode ? "" : `data-action="open-anime-modal"`;
@@ -343,7 +342,7 @@ function initWatchlistBoard({ libraryStore, toast = null }) {
       ? `<button class="wl-select-badge" type="button" data-watchlist-action="toggle-item-select" data-id="${malId}" aria-label="Toggle selection">${selected.has(malId) ? "✓" : ""}</button>`
       : "";
 
-    return `<article class="wl-card-vertical watching-card-premium watchlist-item ${selectedClass} status-${escapeHtml(displayStatus)}" draggable="true" ${openAttr} data-id="${malId}"><div class="wl-card-media">${selectOverlay}<img src="${escapeHtml(item?.image || "")}" alt="${escapeHtml(normalizeTitle(item))}" class="wl-card-poster" loading="lazy"><div class="wl-overlay"></div><div class="wl-status-badge ${escapeHtml(displayStatus)} ${statusAnimateClass}">${escapeHtml(displayStatus)}</div><div class="wl-progress-overlay"><div class="wl-progress-bar"><div class="wl-progress-fill progress-glow" style="width:${percent}%"></div></div><span class="wl-progress-text-overlay">${progress} / ${episodeDisplay}</span></div></div><div class="wl-card-content"><h3 class="wl-card-title">${escapeHtml(normalizeTitle(item))}</h3><p class="wl-card-meta">${genreText} | ${yearText}</p><div class="wl-quickbar" aria-label="Quick actions" data-quickbar="1"><div class="wl-quick-right"><button class="status-pill ${isWatching ? "active" : ""}" type="button" data-watchlist-action="set-status" data-id="${malId}" data-status="${STATUS.WATCHING}">Watch</button><button class="status-pill ${isDropped ? "active" : ""}" type="button" data-watchlist-action="set-status" data-id="${malId}" data-status="${STATUS_DROPPED}">Drop</button><button class="status-pill" type="button" data-watchlist-action="set-status" data-id="${malId}" data-status="${STATUS.COMPLETED}">Completed</button></div></div></div></article>`;
+    return `<article class="wl-card-vertical watching-card-premium watchlist-item ${selectedClass} status-${escapeHtml(displayStatus)}" draggable="true" ${openAttr} data-id="${malId}"><div class="wl-card-media">${selectOverlay}<img src="${escapeHtml(item?.image || "")}" alt="${escapeHtml(normalizeTitle(item))}" class="wl-card-poster" loading="lazy"><div class="wl-overlay"></div><div class="wl-status-badge ${escapeHtml(displayStatus)} ${statusAnimateClass}">${escapeHtml(displayStatus)}</div><div class="wl-progress-overlay"><div class="wl-progress-bar"><div class="wl-progress-fill progress-glow" style="width:${percent}%"></div></div><span class="wl-progress-text-overlay">${progress} / ${episodeDisplay}</span></div></div><div class="wl-card-content"><h3 class="wl-card-title">${escapeHtml(normalizeTitle(item))}</h3><p class="wl-card-meta">${genreText} | ${yearText}</p><div class="wl-quickbar" aria-label="Quick actions" data-quickbar="1"><div class="wl-quick-right"><button class="status-pill status-plan ${isPlan ? "active" : ""}" type="button" data-watchlist-action="set-status" data-id="${malId}" data-status="${STATUS.PLAN}">Plan</button><button class="status-pill status-watching ${isWatching ? "active" : ""}" type="button" data-watchlist-action="set-status" data-id="${malId}" data-status="${STATUS.WATCHING}">Watch</button><button class="status-pill status-dropped ${isDropped ? "active" : ""}" type="button" data-watchlist-action="set-status" data-id="${malId}" data-status="${STATUS_DROPPED}">Drop</button><button class="status-pill status-completed ${isCompleted ? "active" : ""}" type="button" data-watchlist-action="set-status" data-id="${malId}" data-status="${STATUS.COMPLETED}">Done</button></div></div></div></article>`;
   }
 
   function renderHighlights() {
@@ -538,7 +537,7 @@ function initWatchlistBoard({ libraryStore, toast = null }) {
     }
     if (action === "set-status-filter") {
       const nextFilter = String(actionBtn.getAttribute("data-status-filter") || STATUS_FILTERS.ALL).toLowerCase();
-      if ([STATUS_FILTERS.ALL, STATUS_FILTERS.WATCHING, STATUS_FILTERS.DROPPED].includes(nextFilter)) {
+      if ([STATUS_FILTERS.ALL, STATUS_FILTERS.WATCHING, STATUS_FILTERS.PLAN, STATUS_FILTERS.DROPPED].includes(nextFilter)) {
         uiState.statusFilter = nextFilter;
         render();
       }
@@ -662,7 +661,7 @@ function initWatchlistBoard({ libraryStore, toast = null }) {
     target.classList.remove("is-drop-target");
     const malId = Number(event.dataTransfer?.getData("text/plain") || 0);
     const nextStatus = String(target.getAttribute("data-drop-status") || "").toLowerCase();
-    if (!malId || ![STATUS.WATCHING, STATUS.PLAN, STATUS_DROPPED].includes(nextStatus)) return;
+    if (!malId || ![STATUS.WATCHING, STATUS.PLAN, STATUS_DROPPED, STATUS.COMPLETED].includes(nextStatus)) return;
     libraryStore.setStatus(malId, nextStatus);
     toast?.show?.(`Moved to ${nextStatus}`);
   }

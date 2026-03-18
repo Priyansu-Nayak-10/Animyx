@@ -99,10 +99,10 @@ function initSeasonBrowser({ api, toast, libraryStore, modal }) {
             return;
         }
 
-        // Add to watchlist immediately (Watching by default to match the Watchlist UI)
+        // Add to watchlist immediately (Plan by default to keep Watchlist clean)
         if (libraryStore) {
-            libraryStore.upsert({ ...targetAnime, status: STATUS.WATCHING }, STATUS.WATCHING);
-            toast?.show(`Added "${targetAnime.title || 'Anime'}" to watchlist ✓`);
+            libraryStore.upsert({ ...targetAnime, status: STATUS.PLAN }, STATUS.PLAN);
+            toast?.show(`Added "${targetAnime.title || 'Anime'}" to Plan to Watch ✓`);
         } else {
             toast?.show('Library not available', 'error');
         }

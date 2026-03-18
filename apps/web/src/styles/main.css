@@ -3434,9 +3434,23 @@ body.dark .anime-card-v2 {
 }
 
 .status-pill.active {
-    background-color: #5bb3ff;
-    /* vivid blue */
     color: var(--bg-main);
+}
+
+.status-pill.active.status-plan {
+    background-color: #64748b; /* Slate */
+}
+
+.status-pill.active.status-watching {
+    background-color: #3b82f6; /* Blue */
+}
+
+.status-pill.active.status-dropped {
+    background-color: #ef4444; /* Red */
+}
+
+.status-pill.active.status-completed {
+    background-color: #22c55e; /* Green */
 }
 
 /* =======================
