@@ -10732,6 +10732,7 @@ body {
   line-height: 1.5;
   color: rgba(239, 233, 255, 0.84);
   -webkit-line-clamp: 4;
+  line-clamp: 4;
   -webkit-box-orient: vertical;
 }
 
@@ -11415,4 +11416,134 @@ body {
 }
 
 
-/* --- END src/styles/style.css --- */
+/* ============================================================
+   PREMIUM UX UPGRADES — Skeleton Shimmer, Image Blur-Up,
+   Mobile Sidebar Backdrop Animation
+   ============================================================ */
+
+/* ── Skeleton Shimmer Cards ──────────────────────────────── */
+@keyframes premiumShimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.skeleton-card {
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--bg-card);
+  border: 1px solid var(--border-glass);
+  pointer-events: none;
+}
+
+.skeleton-poster {
+  width: 100%;
+  aspect-ratio: 2 / 3;
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.03) 25%,
+    rgba(255,255,255,0.08) 50%,
+    rgba(255,255,255,0.03) 75%
+  );
+  background-size: 400px 100%;
+  animation: premiumShimmer 1.4s ease-in-out infinite;
+  border-radius: 0;
+}
+
+.skeleton-line {
+  height: 12px;
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.03) 25%,
+    rgba(255,255,255,0.07) 50%,
+    rgba(255,255,255,0.03) 75%
+  );
+  background-size: 400px 100%;
+  animation: premiumShimmer 1.4s ease-in-out infinite;
+  margin-bottom: 8px;
+}
+
+.skeleton-line.short { width: 60%; }
+.skeleton-line.medium { width: 80%; }
+.skeleton-line.long { width: 100%; }
+.skeleton-line.thin { height: 9px; }
+
+.skeleton-body {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ── Image Blur-Up on Lazy Load ──────────────────────────── */
+img[loading="lazy"] {
+  filter: blur(8px);
+  transition: filter 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+img[loading="lazy"].img-loaded,
+img.img-loaded {
+  filter: blur(0);
+}
+
+/* ── Mobile Sidebar Backdrop Smooth Animation ────────────── */
+.sidebar-backdrop {
+  opacity: 0;
+  transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+body.sidebar-open .sidebar-backdrop {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Mobile sidebar: premium slide with spring easing */
+@media (max-width: 1023px) {
+  .sidebar {
+    transition: transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1);
+    will-change: transform;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  body.sidebar-open .sidebar {
+    transform: translateX(0);
+    box-shadow: 24px 0 48px rgba(0, 0, 0, 0.52);
+  }
+}
+
+/* ── Watchlist card hover premium zoom ───────────────────── */
+.wl-card-vertical .wl-card-poster {
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+
+.wl-card-vertical:hover .wl-card-poster {
+  transform: scale(1.06);
+}
+
+/* ── Search skeleton card ────────────────────────────────── */
+.premium-cover-card .cover-img {
+  filter: blur(6px);
+  transition: filter 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.premium-cover-card .cover-img.img-loaded {
+  filter: blur(0);
+}
+
+/* ── Anime card image blur-up ────────────────────────────── */
+.cover-img-wrap img,
+.anime-card img,
+.wl-card-poster {
+  transition: filter 0.35s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  filter: blur(4px);
+}
+
+.cover-img-wrap img.img-loaded,
+.anime-card img.img-loaded,
+.wl-card-poster.img-loaded {
+  filter: blur(0);
+}
+

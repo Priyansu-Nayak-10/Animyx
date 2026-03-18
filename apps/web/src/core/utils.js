@@ -133,6 +133,41 @@ export function openView(viewId) {
 }
 
 // ---------------------------------------------------------------------------
+// Image Blur-Up (Lazy Load Effect)
+// ---------------------------------------------------------------------------
+
+function applyBlurUpToImage(img) {
+  if (!(img instanceof HTMLImageElement)) return;
+  if (img.classList.contains('_blur-wired')) return;
+  img.classList.add('_blur-wired');
+  if (img.complete && img.naturalWidth > 0) {
+    img.classList.add('img-loaded');
+    return;
+  }
+  img.addEventListener('load', () => img.classList.add('img-loaded'), { once: true });
+  img.addEventListener('error', () => img.classList.add('img-loaded'), { once: true });
+}
+
+export function initImageBlurUp(root = document) {
+  // Apply to all existing images
+  root.querySelectorAll('img').forEach(applyBlurUpToImage);
+
+  // Watch for new images added dynamically
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      mutation.addedNodes.forEach((node) => {
+        if (!(node instanceof HTMLElement)) return;
+        if (node.tagName === 'IMG') applyBlurUpToImage(node);
+        node.querySelectorAll?.('img').forEach(applyBlurUpToImage);
+      });
+    });
+  });
+
+  observer.observe(root.body || root, { childList: true, subtree: true });
+  return Object.freeze({ destroy() { observer.disconnect(); } });
+}
+
+// ---------------------------------------------------------------------------
 // Section reveal (previously core/sectionReveal.js)
 // ---------------------------------------------------------------------------
 

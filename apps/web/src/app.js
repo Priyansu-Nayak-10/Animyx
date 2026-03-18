@@ -24,7 +24,7 @@ import { initUI } from './features/ui/ui.js';
 import { initLibraryUI } from './features/library/library.js';
 import { initDashboardModules, initMilestones, initTrackerFeed } from './features/dashboard/dashboard.js';
 import { initProfile, initSettings, initExport, initImport } from './features/user/userFeatures.js';
-import { normalizeAnime, dedupeAnimeList, bindNavigation, openView, initSectionReveal } from './core/utils.js';
+import { normalizeAnime, dedupeAnimeList, bindNavigation, openView, initSectionReveal, initImageBlurUp } from './core/utils.js';
 
 // --- Production Console Cleaner & PWA Setup ---
 if (!window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')) {
@@ -617,7 +617,8 @@ async function bootstrap() {
     dashboardModules,
     initInsights({ libraryStore }),
     cloudSync,
-    initSectionReveal()
+    initSectionReveal(),
+    initImageBlurUp() // Premium image blur-up effect on lazy load
   ];
 
   // ── My Journey Milestones ─────────────────────────────────────────────────
