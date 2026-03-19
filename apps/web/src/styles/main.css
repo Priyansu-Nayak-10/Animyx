@@ -690,6 +690,9 @@ body.dark .search-wrapper {
     top: 0;
     left: 0;
     width: 100%;
+    /* PREVENT EXTRA SCROLL AREA */
+    height: 0;
+    overflow: hidden;
 }
 
 .view-section.active {
@@ -699,6 +702,8 @@ body.dark .search-wrapper {
     transform: translateY(0);
     /* FIX: Return to flow when active so it determines container height */
     position: relative;
+    height: auto;
+    overflow: visible;
 }
 
 @keyframes fadeInView {
