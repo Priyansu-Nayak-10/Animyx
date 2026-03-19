@@ -1,5 +1,5 @@
-import { supabase } from '../../core/supabaseClient.js';
-import { clearAnimyxAllData, clearAnimyxUserData } from '../../core/clearClientData.js';
+import { supabase } from '../../core/utils.js';
+import { clearAnimyxAllData, clearAnimyxUserData } from '../../core/utils.js';
 import { apiUrl } from '../../config.js';
 
 // --- Validation Handlers ---

@@ -1,7 +1,7 @@
 import { initSeasonTabs } from './seasonTabs.js';
 import { renderAnimeGrid } from './animeGrid.js';
 import { bindHoverPreviews } from './animePreviewCard.js';
-import { normalizeAnime, dedupeAnimeList } from '../../core/dataNormalize.js';
+import { normalizeAnime, dedupeAnimeList } from '../../core/utils.js';
 import { STATUS } from '../../store.js';
 
 function initSeasonBrowser({ api, toast, libraryStore, modal }) {

@@ -1,7 +1,7 @@
 import './auth.js';
 
 /* Legacy implementation migrated into auth.js.
-import { supabase } from "../../core/supabaseClient.js";
+import { supabase } from "../../core/utils.js";
 
 function setButtonLoading(button, loading) {
   if (!button) return;

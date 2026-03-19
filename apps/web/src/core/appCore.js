@@ -1,7 +1,6 @@
 import { createApiClient, API_BASE, DEFAULT_LIVE_UPCOMING_ENDPOINT } from './api.js';
 import { authFetch, apiUrl, BACKEND_ORIGIN, getAccessToken } from '../config.js';
-import { getClientId } from './clientId.js';
-import { supabase } from './supabaseClient.js';
+import { getClientId, supabase } from './utils.js';
 import { getState, setState } from '../store.js';
 
 // ---------------------------------------------------------------------------

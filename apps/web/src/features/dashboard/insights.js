@@ -4,8 +4,7 @@
 
 import { authFetch, apiUrl } from "../../config.js";
 import { STATUS } from "../../store.js";
-import { renderDonutChart, renderInsightGenreDonut } from "./charts.js";
-import { escapeHtml, describeDonutArc } from "./utils.js";
+import { renderDonutChart, renderInsightGenreDonut, escapeHtml, describeDonutArc } from "./dashboard.js";
 
 const GENRE_COLOR_MAP = Object.freeze({
   action: "var(--insight-rose)",

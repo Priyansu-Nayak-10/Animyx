@@ -1,8 +1,8 @@
 import './auth.js';
 
 /* Legacy implementation migrated into auth.js.
-import { supabase } from '../../core/supabaseClient.js';
-import { clearAnimyxAllData, clearAnimyxUserData } from '../../core/clearClientData.js';
+import { supabase } from '../../core/utils.js';
+import { clearAnimyxAllData, clearAnimyxUserData } from '../../core/utils.js';
 import { apiUrl } from '../../config.js';
 
 function setOverlayHidden() {

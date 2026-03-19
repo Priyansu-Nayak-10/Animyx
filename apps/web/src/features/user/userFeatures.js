@@ -1,7 +1,7 @@
 import { apiUrl, authFetch } from '../../config.js';
 import { setState } from '../../store.js';
-import { supabase } from '../../core/supabaseClient.js';
-import { clearAnimyxAllData } from '../../core/clearClientData.js';
+import { supabase } from '../../core/utils.js';
+import { clearAnimyxAllData } from '../../core/utils.js';
 const PROFILE_STORAGE_KEY = "Animyx_profile_v1";
 const SETTINGS_STORAGE_KEY = "Animyx_settings_v1";
 const DEFAULT_AVATAR_URL =
