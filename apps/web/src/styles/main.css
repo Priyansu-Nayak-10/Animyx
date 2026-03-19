@@ -685,6 +685,11 @@ body.dark .search-wrapper {
     transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     transform: translateY(10px);
     will-change: opacity, transform;
+    /* FIX: Lift out of flow when not active so it doesn't contribute to page height */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
 }
 
 .view-section.active {
@@ -692,6 +697,8 @@ body.dark .search-wrapper {
     visibility: visible;
     pointer-events: auto;
     transform: translateY(0);
+    /* FIX: Return to flow when active so it determines container height */
+    position: relative;
 }
 
 @keyframes fadeInView {
