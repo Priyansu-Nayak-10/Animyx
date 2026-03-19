@@ -141,7 +141,8 @@ class AnimeCard extends HTMLElement {
         this.shadowRoot.innerHTML = `
       <style>
         :host {
-          display: block;
+          display: flex;
+          flex-direction: column;
           position: relative;
           cursor: pointer;
           border-radius: 16px;
@@ -172,6 +173,7 @@ class AnimeCard extends HTMLElement {
           aspect-ratio: 2 / 3;
           background: var(--bg-main);
           overflow: hidden;
+          flex-shrink: 0;
         }
 
         .card-image {
@@ -245,6 +247,14 @@ class AnimeCard extends HTMLElement {
           -webkit-box-orient: vertical;
           overflow: hidden;
           margin: 0;
+          min-height: calc(1.35em * 2);
+        }
+
+        .meta-wrapper {
+          margin-top: auto;
+          display: flex;
+          flex-direction: column;
+          gap: 0.25rem;
         }
 
         :host(:hover) .title {
@@ -290,12 +300,14 @@ class AnimeCard extends HTMLElement {
       
       <div class="content">
         <h3 class="title" title="${title}">${title}</h3>
-        <div class="meta">
-            ${isAiring ? `<span class="airing-day">Airing ${airingDay || 'Soon'}</span>` : '<span>Completed</span>'}
-            <div class="meta-dot"></div>
-            <span>Ep ${released || 0} / ${episodes || '?'}</span>
+        <div class="meta-wrapper">
+          <div class="meta">
+              ${isAiring ? `<span class="airing-day">Airing ${airingDay || 'Soon'}</span>` : '<span>Completed</span>'}
+              <div class="meta-dot"></div>
+              <span>Ep ${released || 0} / ${episodes || '?'}</span>
+          </div>
+          ${countdownText ? `<div class="meta"><span class="countdown">Next: ${countdownText}</span></div>` : ''}
         </div>
-        ${countdownText ? `<div class="meta"><span class="countdown">Next: ${countdownText}</span></div>` : ''}
       </div>
     `;
     }

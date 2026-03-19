@@ -4022,6 +4022,17 @@ body.dark .watchlist-item {
     color: #f1f5f9;
     margin: 0 0 0.4rem;
     line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: calc(1.3em * 2);
+}
+
+.wl-quickbar {
+    margin-top: auto;
+    width: 100%;
 }
 
 .wl-card-meta {
