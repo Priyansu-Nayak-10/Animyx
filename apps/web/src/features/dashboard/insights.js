@@ -15,16 +15,20 @@ const GENRE_COLOR_MAP = Object.freeze({
   romance: "var(--insight-pink)",
   "sci-fi": "var(--insight-cyan)",
   mystery: "var(--insight-violet)",
-  drama: "var(--insight-orchid)"
+  drama: "var(--insight-orchid)",
+  horror: "var(--insight-rose)",
+  thriller: "var(--insight-rose)",
+  supernatural: "var(--insight-purple)"
 });
 
 const GENRE_FALLBACK_COLORS = Object.freeze([
   "var(--insight-purple)",
   "var(--insight-cyan)",
   "var(--insight-pink)",
-  "var(--insight-lavender)",
   "var(--insight-rose)",
-  "var(--insight-amber)"
+  "var(--insight-lavender)",
+  "var(--insight-amber)",
+  "var(--insight-violet)"
 ]);
 
 const LEVEL_TITLES = [
@@ -140,13 +144,13 @@ function formatWeekLabel(startDate) {
 
 function buildWeeklyTooltipHtml(label, watching, completed, planning) {
   const lines = [];
-  lines.push(`<div class="tooltip-title">Week: ${escapeHtml(label)}</div>`);
+  lines.push(`<div class="tooltip-header">${escapeHtml(label)}</div>`);
   const watchingTotal = watching?.totalEpisodes || 0;
   const completedTotal = completed?.totalAnime || 0;
   const planningTotal = planning?.totalAnime || 0;
-  if (watchingTotal > 0) lines.push(`<div class="tooltip-line"><span class="tooltip-dot dot-watch"></span><span>Watching: ${watchingTotal} episodes</span></div>`);
-  if (completedTotal > 0) lines.push(`<div class="tooltip-line"><span class="tooltip-dot dot-complete"></span><span>Completed: ${completedTotal} anime</span></div>`);
-  if (planningTotal > 0) lines.push(`<div class="tooltip-line"><span class="tooltip-dot dot-planning"></span><span>Watchlist: ${planningTotal} anime</span></div>`);
+  if (watchingTotal > 0) lines.push(`<div class="tooltip-row"><span class="tooltip-indicator watch"></span><span>${watchingTotal} episodes watched</span></div>`);
+  if (completedTotal > 0) lines.push(`<div class="tooltip-row"><span class="tooltip-indicator complete"></span><span>${completedTotal} series finished</span></div>`);
+  if (planningTotal > 0) lines.push(`<div class="tooltip-row"><span class="tooltip-indicator plan"></span><span>${planningTotal} added to plan</span></div>`);
   return lines.join("");
 }
 
