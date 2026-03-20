@@ -547,13 +547,26 @@ function initSettings({ toast, libraryStore, storage = globalThis.localStorage }
     toast?.show?.("Accent color updated ✓");
   }
 
-  function onClearLibrary() {
+  async function onClearLibrary() {
     const confirmed = window.confirm(
       "WARNING: This will permanently delete your entire library (watchlist, completed, plan-to-watch). This cannot be undone.\n\nAre you sure?"
     );
     if (!confirmed) return;
+
+    // 1. Clear local store immediately for snappy UX
     libraryStore.clear();
-    toast?.show?.("Library cleared successfully.");
+
+    // 2. Also delete from cloud so sync doesn't restore the data
+    try {
+      const res = await authFetch(apiUrl('/users/me/library'), { method: 'DELETE' });
+      if (res.ok) {
+        toast?.show?.("Library cleared successfully. \u2713");
+      } else {
+        toast?.show?.("Library cleared locally, but cloud sync failed. Your data may return.", "error");
+      }
+    } catch (_err) {
+      toast?.show?.("Library cleared locally. Could not reach server.", "error");
+    }
   }
 
   async function onResetLocal() {
