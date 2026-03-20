@@ -191,8 +191,44 @@ export function renderInsightGenreDonut(svgElement, entries) {
 
 export function renderDonutChart(container, segments, total, centerLabel, showLegend = true) {
   if (!container) return;
-  const svgMarkup = `<svg viewBox="0 0 120 120" style="width:100%; height:100%"><text x="60" y="60" text-anchor="middle">${total}</text></svg>`;
-  container.innerHTML = svgMarkup;
+  const cx = 60, cy = 60, outerR = 54, innerR = 38;
+  const uid = `dnt-${Math.random().toString(36).slice(2, 7)}`;
+  
+  const totalVal = Number(total || 0);
+  if (totalVal <= 0) {
+    container.innerHTML = `<svg viewBox="0 0 120 120" class="insight-donut-svg"><circle cx="${cx}" cy="${cy}" r="${outerR}" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="${outerR - innerR}" /><text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="middle" fill="var(--text-muted)" font-size="10">No Data</text></svg>`;
+    return;
+  }
+
+  let angle = -90;
+  const paths = segments.map((s, i) => {
+    const sweep = (Number(s.value || 0) / totalVal) * 360;
+    if (sweep <= 0) return "";
+    const path = describeDonutArc(cx, cy, outerR, innerR, angle, angle + sweep);
+    angle += sweep;
+    return `<path d="${path}" fill="${s.color || 'var(--brand-primary)'}" transform-origin="${cx}px ${cy}px" style="animation: donutGrow 0.6s ease-out forwards; animation-delay: ${i * 0.1}s; opacity: 0;" />`;
+  }).join("");
+
+  const centerArea = `
+    <circle cx="${cx}" cy="${cy}" r="${innerR - 2}" fill="rgba(20, 15, 40, 0.4)" />
+    <text x="${cx}" y="${cy - 4}" text-anchor="middle" fill="var(--text-primary)" font-size="14" font-weight="800">${escapeHtml(centerLabel || totalVal)}</text>
+    <text x="${cx}" y="${cy + 8}" text-anchor="middle" fill="var(--text-muted)" font-size="7" font-weight="600" letter-spacing="0.5">COMPLETED</text>
+  `;
+
+  container.innerHTML = `
+    <svg viewBox="0 0 120 120" class="insight-donut-svg" style="width:100%; height:100%;">
+      <defs>
+        <style>
+          @keyframes donutGrow {
+            from { opacity: 0; transform: scale(0.92); }
+            to { opacity: 1; transform: scale(1); }
+          }
+        </style>
+      </defs>
+      ${paths}
+      ${centerArea}
+    </svg>
+  `;
 }
 
 

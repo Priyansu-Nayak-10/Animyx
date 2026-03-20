@@ -777,10 +777,8 @@ function initCompletedBoard({ libraryStore, toast = null }) {
           <div class="cover-img-wrap" ${openAttr} data-id="${malId}">
             ${selectOverlay}
             <img class="cover-img" src="${escapeHtml(item?.image || "")}" alt="${escapeHtml(normalizeTitle(item))}">
-            <span class="cover-badge">★ ${currentRating > 0 ? currentRating.toFixed(1) : '--'}</span>
             <div class="cover-gradient"></div>
             <div class="trophy-stamp">COMPLETED</div>
-            ${currentRating > 0 ? `<div class="rating-overlay">${overlayStars}</div>` : ""}
           </div>
           <div class="cover-info" ${openAttr} data-id="${malId}">
             <h4 class="cover-title" title="${escapeHtml(normalizeTitle(item))}">${escapeHtml(normalizeTitle(item))}</h4>

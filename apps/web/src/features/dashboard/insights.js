@@ -413,7 +413,8 @@ export function initInsights({ libraryStore }) {
       const max = Math.max(...genreData.map(([, count]) => Number(count || 0)));
       refs.topGenres.innerHTML = genreData.map(([genre, count], idx) => {
         const width = Math.max(18, Math.round((Number(count || 0) / Math.max(1, max)) * 100));
-        return `<div class="genre-bar-item"><div class="genre-label">${escapeHtml(genre)}</div><div class="genre-track"><div class="genre-fill" style="width:${width}%;"></div></div><div class="genre-count">${count}</div></div>`;
+        const color = getGenreColor(genre, idx);
+        return `<div class="genre-bar-item"><div class="genre-label">${escapeHtml(genre)}</div><div class="genre-track"><div class="genre-fill" style="width:${width}%; background-color:${color}; color:${color};"></div></div><div class="genre-count">${count}</div></div>`;
       }).join("");
     }
   }
