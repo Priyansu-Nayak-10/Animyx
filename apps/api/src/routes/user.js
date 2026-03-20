@@ -367,6 +367,39 @@ router.get('/me/profile', async (req, res) => {
 
 /**
  * @swagger
+ * /api/users/me/library:
+ *   delete:
+ *     summary: Clear the entire library for the current user (watchlist and followed anime)
+ *     tags: [Library]
+ *     responses:
+ *       200:
+ *         description: Library cleared successfully
+ */
+router.delete('/me/library', async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Clear followed anime (watchlist/status/ratings) and anime follows (notifications)
+    const results = await Promise.all([
+      supabase.from('followed_anime').delete().eq('user_id', userId),
+      supabase.from('anime_follows').delete().eq('user_id', userId),
+      // Optionally reset recommendations since the basis (library) is gone
+      supabase.from('user_recommendations').upsert({ user_id: userId, recommendations: [] })
+    ]);
+
+    const errors = results.filter(r => r.error);
+    if (errors.length > 0) {
+      throw errors[0].error;
+    }
+
+    return apiResponse(res, { cleared: true }, 200, 'Library cleared successfully');
+  } catch (err) {
+    return apiError(res, 'Failed to clear library', 500, err);
+  }
+});
+
+/**
+ * @swagger
  * /api/users/me:
  *   delete:
  *     summary: Permanently delete the current user's account and all Animyx data
