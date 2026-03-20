@@ -131,15 +131,32 @@ function createApp() {
     const list = ["'self'"];
 
     const addOriginAndWs = (value) => {
+      if (!value || typeof value !== 'string') return;
+      const val = value.trim();
+      if (!val) return;
+
+      let origin = '';
+      let host = '';
+
       try {
-        const origin = new URL(value).origin;
-        list.push(origin);
-        const host = new URL(origin).host;
+        if (/^https?:\/\//i.test(val)) {
+          const url = new URL(val);
+          origin = url.origin;
+          host = url.host;
+        } else {
+          // Assume it's a domain name (like on Render)
+          host = val;
+          origin = `https://${host}`;
+        }
+
+        if (origin) list.push(origin);
         if (host) {
           list.push(`wss://${host}`);
           list.push(`ws://${host}`);
         }
-      } catch {}
+      } catch (err) {
+        console.warn(`[CSP] Failed to parse origin: ${val}`, err.message);
+      }
     };
 
     for (const o of allowedOrigins) addOriginAndWs(o);

@@ -100,6 +100,12 @@ CREATE TABLE IF NOT EXISTS push_subscriptions (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS user_recommendations (
+  user_id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  recommendations JSONB DEFAULT '[]'::jsonb,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 CREATE INDEX IF NOT EXISTS idx_followed_anime_user ON followed_anime(user_id);
 CREATE INDEX IF NOT EXISTS idx_followed_anime_mal ON followed_anime(mal_id);
 CREATE INDEX IF NOT EXISTS idx_followed_dub_unchecked ON followed_anime(last_dub_check_at) WHERE dub_available = false;

@@ -20,8 +20,9 @@ function initSocket(onNotification) {
   }
 
   socket = io(BACKEND_ORIGIN, {
-    transports: ['polling'],
-    upgrade: false,
+    transports: ['polling', 'websocket'],
+    upgrade: true,
+    secure: window.location.protocol === 'https:',
     reconnectionAttempts: 5,
     reconnectionDelay: 2000,
     auth: {

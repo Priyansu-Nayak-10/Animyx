@@ -569,10 +569,18 @@ router.get('/me/recommendations', validateQuery(PaginationSchema), async (req, r
       .eq('user_id', req.user.id)
       .maybeSingle();
 
-    if (error) throw error;
+    if (error) {
+      logger.error('Database error fetching recommendations', error, { userId: req.user.id });
+      throw error;
+    }
 
     const recs = Array.isArray(data?.recommendations) ? data.recommendations : [];
     const paginatedRecs = recs.slice(offset, offset + actualLimit);
+    
+    if (recs.length === 0) {
+      logger.info('No recommendations found for user', { userId: req.user.id });
+    }
+
     return res.status(200).json(paginatedResponse(paginatedRecs, recs.length, page, actualLimit));
   } catch (err) {
     return apiError(res, 'Failed to fetch recommendations', 500, err);
