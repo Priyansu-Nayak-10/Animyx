@@ -1,10 +1,9 @@
 const express = require('express');
-const axios = require('axios');
 const { jikanClient } = require('../utils');
 const supabase = require('../database/supabase');
-const { apiResponse, apiError, createPaginationQuery, createPaginationMeta, paginatedResponse } = require('../utils');
-const { validate } = require('../middleware/validate');
-const { validateQuery, PaginationSchema } = require('../middleware/schemas');
+const { apiResponse, apiError, createPaginationQuery, paginatedResponse } = require('../utils');
+const { requireEmailVerified } = require('../middleware/auth');
+const { validateQuery, validateBody, PaginationSchema, UserProfileSchema, UserSettingsSchema } = require('../middleware/schemas');
 const { recordActivity, getRecentActivities } = require('../services');
 
 const router = express.Router();
@@ -376,7 +375,7 @@ router.get('/me/profile', async (req, res) => {
  *       200:
  *         description: Account deleted
  */
-router.delete('/me', async (req, res) => {
+router.delete('/me', requireEmailVerified, async (req, res) => {
   try {
     const userId = req.user.id;
 
@@ -403,16 +402,7 @@ router.delete('/me', async (req, res) => {
   }
 });
 
-const profileValidator = validate({
-  body: {
-    name: { type: 'string', maxLength: 80 },
-    bio: { type: 'string', maxLength: 500 },
-    avatar: { type: 'string', maxLength: 1048576 }, // 1MB for base64
-    banner: { type: 'string', maxLength: 1048576 }, // 1MB for base64
-    mal: { type: 'string', maxLength: 255 },
-    al: { type: 'string', maxLength: 255 },
-  },
-});
+// Zod validation for profile updates
 
 /**
  * @swagger
@@ -438,14 +428,9 @@ const profileValidator = validate({
  *       400:
  *         description: Validation error
  */
-router.put('/me/profile', profileValidator, async (req, res) => {
+router.put('/me/profile', validateBody(UserProfileSchema), async (req, res) => {
   try {
-    const name = clampText(req.body?.name, 80);
-    const bio = clampText(req.body?.bio, 500);
-    const avatar = clampText(req.body?.avatar, 2048);
-    const banner = clampText(req.body?.banner, 2048);
-    const mal = clampText(req.body?.mal, 255);
-    const al = clampText(req.body?.al, 255);
+    const { name = '', bio = '', avatar = '', banner = '', mal = '', al = '' } = req.body || {};
     const { data, error } = await supabase
       .from('user_profiles')
       .upsert({
@@ -492,13 +477,7 @@ router.get('/me/settings', async (req, res) => {
   }
 });
 
-const settingsValidator = validate({
-  body: {
-    title_lang: { type: 'string', enum: ['english', 'romaji', 'japanese'] },
-    default_status: { type: 'string', enum: ['plan', 'watching', 'completed', 'dropped'] },
-    accent_color: { type: 'string', maxLength: 24 },
-  },
-});
+// Zod validation for settings updates
 
 /**
  * @swagger
@@ -525,23 +504,18 @@ const settingsValidator = validate({
  *       400:
  *         description: Validation error
  */
-router.put('/me/settings', settingsValidator, async (req, res) => {
+router.put('/me/settings', validateBody(UserSettingsSchema), async (req, res) => {
   try {
-    const dark_theme = Boolean(req.body?.dark_theme);
+    // req.body has been validated and parsed by Zod (UserSettingsSchema uses camelCase)
+    const dark_theme   = Boolean(req.body?.darkTheme);
     const notifications = Boolean(req.body?.notifications);
-    const autoplay = Boolean(req.body?.autoplay);
-    const data_saver = Boolean(req.body?.data_saver);
-    const title_lang = ['english', 'romaji', 'japanese'].includes(String(req.body?.title_lang || '').toLowerCase())
-      ? String(req.body.title_lang).toLowerCase()
-      : 'english';
-    const default_status = ['plan', 'watching', 'completed', 'dropped'].includes(String(req.body?.default_status || '').toLowerCase())
-      ? String(req.body.default_status).toLowerCase()
-      : 'plan';
-    // Only allow valid CSS hex colors (#RGB, #RRGGBB, #RRGGBBAA)
-    const rawAccent = String(req.body?.accent_color || '').trim();
-    const accent_color = /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$/.test(rawAccent)
-      ? rawAccent
-      : '';
+    const autoplay     = Boolean(req.body?.autoplay);
+    const data_saver   = Boolean(req.body?.dataSaver);
+    // Zod enum already validated titleLang and defaultStatus
+    const title_lang     = req.body?.titleLang    || 'english';
+    const default_status = req.body?.defaultStatus || 'plan';
+    // Zod regex already validated accentColor hex format
+    const accent_color = req.body?.accentColor || '';
 
     const { data, error } = await supabase
       .from('user_settings')

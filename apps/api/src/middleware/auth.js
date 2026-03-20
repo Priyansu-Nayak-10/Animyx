@@ -1,8 +1,13 @@
+'use strict';
+
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const { createClient } = require('@supabase/supabase-js');
 const { apiError, logger } = require('../utils');
 
+// ---------------------------------------------------------------------------
+// Supabase admin client (singleton)
+// ---------------------------------------------------------------------------
 let supabaseAdmin = null;
 function getSupabaseAdmin() {
   if (supabaseAdmin) return supabaseAdmin;
@@ -18,6 +23,9 @@ function getSupabaseAdmin() {
   return supabaseAdmin;
 }
 
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
 function readBearerToken(value) {
   if (!value || typeof value !== 'string') return null;
   const [scheme, token] = value.trim().split(/\s+/);
@@ -25,12 +33,24 @@ function readBearerToken(value) {
   return token;
 }
 
+/**
+ * Constant-time string comparison to prevent timing attacks.
+ */
+function safeEqual(a, b) {
+  if (typeof a !== 'string' || typeof b !== 'string') return false;
+  if (a.length !== b.length) return false;
+  return crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
+}
+
+// ---------------------------------------------------------------------------
+// Core token verification
+// ---------------------------------------------------------------------------
 async function verifyToken(token) {
   const supabaseUrl = String(process.env.SUPABASE_URL || '');
   const publicKey = process.env.SUPABASE_JWT_PUBLIC_KEY;
   const jwtSecret = process.env.JWT_SECRET || process.env.SUPABASE_JWT_SECRET;
 
-  // Try parsing the unverified header to determine algorithm
+  // Parse header without verifying to determine algorithm
   const decodedUnverified = jwt.decode(token, { complete: true });
   if (!decodedUnverified) throw new Error('Malformed token');
 
@@ -47,6 +67,7 @@ async function verifyToken(token) {
       return {
         id: verifiedPayload.sub,
         email: verifiedPayload.email || null,
+        emailVerified: Boolean(verifiedPayload.email_confirmed_at),
         claims: verifiedPayload
       };
     }
@@ -57,6 +78,7 @@ async function verifyToken(token) {
       return {
         id: verifiedPayload.sub,
         email: verifiedPayload.email || null,
+        emailVerified: Boolean(verifiedPayload.email_confirmed_at),
         claims: verifiedPayload
       };
     }
@@ -64,9 +86,10 @@ async function verifyToken(token) {
     lastError = err;
   }
 
-  // Fallback: ask Supabase to validate the access token using the service role key.
+  // Fallback: ask Supabase to validate using the service role key.
   const supabase = getSupabaseAdmin();
   if (!supabase) throw new Error('No JWT keys configured and Supabase admin client unavailable');
+
   const { data, error } = await supabase.auth.getUser(token);
   if (error || !data?.user) {
     const message = error?.message || lastError?.message || 'Unknown auth error';
@@ -80,24 +103,55 @@ async function verifyToken(token) {
   return {
     id: data.user.id,
     email: data.user.email || null,
+    emailVerified: Boolean(data.user.email_confirmed_at),
     claims: data.user
   };
 }
 
+// ---------------------------------------------------------------------------
+// Middleware: authenticate all requests
+// ---------------------------------------------------------------------------
 async function authenticate(req, res, next) {
   try {
     const token = readBearerToken(req.headers.authorization);
-    if (!token) return apiError(res, 'Unauthorized', 401);
+    if (!token) {
+      logger.warn('Auth: missing token', { route: req.originalUrl, ip: req.ip });
+      return apiError(res, 'Unauthorized', 401);
+    }
     req.user = await verifyToken(token);
     return next();
   } catch (err) {
     if (process.env.NODE_ENV !== 'test') {
-      logger.error('Authentication failed', { error: err.message, route: req.originalUrl });
+      logger.warn('Auth: token verification failed', {
+        error: err.message,
+        route: req.originalUrl,
+        ip: req.ip
+      });
     }
     return apiError(res, 'Unauthorized', 401);
   }
 }
 
+// ---------------------------------------------------------------------------
+// Middleware: require verified email before proceeding
+// ---------------------------------------------------------------------------
+function requireEmailVerified(req, res, next) {
+  if (!req.user?.emailVerified) {
+    logger.warn('Auth: unverified email attempted sensitive action', {
+      userId: req.user?.id,
+      route: req.originalUrl
+    });
+    return res.status(403).json({
+      success: false,
+      error: 'Email verification required. Please verify your email before proceeding.'
+    });
+  }
+  return next();
+}
+
+// ---------------------------------------------------------------------------
+// Socket.IO authentication
+// ---------------------------------------------------------------------------
 async function authenticateSocket(handshake) {
   const headerToken = readBearerToken(handshake?.headers?.authorization);
   const authToken = typeof handshake?.auth?.token === 'string'
@@ -108,4 +162,10 @@ async function authenticateSocket(handshake) {
   return verifyToken(token);
 }
 
-module.exports = { authenticate, authenticateSocket, verifyToken };
+module.exports = {
+  authenticate,
+  authenticateSocket,
+  verifyToken,
+  requireEmailVerified,
+  safeEqual
+};
