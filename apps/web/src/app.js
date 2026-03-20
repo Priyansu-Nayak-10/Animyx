@@ -91,7 +91,8 @@ const initAuthEvents = async () => {
   console.log('[Animyx] 🚀 Starting...');
 
   // ── Notification bell wiring ────────────────────────────────
-  const bellBtn = document.querySelector('.icon-btn');
+  // NOTE: Sidebar toggle/close is handled by bindNavigation() in core/utils.js
+  const bellBtn = document.getElementById('notif-bell-btn');
   const notifPanel = document.getElementById('notif-panel');
   const markAllBtn = document.getElementById('notif-mark-all-btn');
   const clearBtn = document.getElementById('notif-clear-btn');
@@ -113,7 +114,7 @@ const initAuthEvents = async () => {
 
   // Close panel when clicking outside
   document.addEventListener('click', (e) => {
-    if (notifPanel && !notifPanel.contains(e.target) && !e.target.closest('.icon-btn')) {
+    if (notifPanel && !notifPanel.contains(e.target) && e.target !== bellBtn && !bellBtn?.contains(e.target)) {
       notifPanel.classList.remove('open');
     }
   });
@@ -137,6 +138,117 @@ const initAuthEvents = async () => {
       await clearAllNotifications();
     });
   }
+
+  // ── Hero carousel ──────────────────────────────────────────
+  const heroPrevBtn = document.querySelector('.hero-prev');
+  const heroNextBtn = document.querySelector('.hero-next');
+  const heroSlides = document.querySelector('.hero-slides');
+
+  function getHeroSlideCount() {
+    return heroSlides ? heroSlides.children.length : 0;
+  }
+
+  let heroCurrentIndex = 0;
+  let heroAutoTimer = null;
+
+  function scrollHeroTo(index) {
+    const count = getHeroSlideCount();
+    if (!count) return;
+    heroCurrentIndex = ((index % count) + count) % count;
+    if (heroSlides) heroSlides.style.transform = `translateX(-${heroCurrentIndex * 100}%)`;
+    // Update indicators
+    document.querySelectorAll('.hero-indicator').forEach((dot, i) => {
+      dot.classList.toggle('active', i === heroCurrentIndex);
+    });
+  }
+
+  function startHeroAuto() {
+    clearInterval(heroAutoTimer);
+    heroAutoTimer = setInterval(() => scrollHeroTo(heroCurrentIndex + 1), 5000);
+  }
+
+  heroPrevBtn?.addEventListener('click', () => { scrollHeroTo(heroCurrentIndex - 1); startHeroAuto(); });
+  heroNextBtn?.addEventListener('click', () => { scrollHeroTo(heroCurrentIndex + 1); startHeroAuto(); });
+
+  // ── Upcoming refresh button ────────────────────────────────
+  const upcomingRefreshBtn = document.getElementById('upcoming-refresh-btn');
+  upcomingRefreshBtn?.addEventListener('click', () => {
+    window.dispatchEvent(new CustomEvent('Animyx:refresh-upcoming'));
+  });
+
+  // ── Activity-mode toggle (Insights) ───────────────────────
+  document.querySelectorAll('.activity-toggle-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.activity-toggle-btn').forEach(b => b.classList.remove('is-active'));
+      btn.classList.add('is-active');
+      const mode = btn.dataset.activityMode;
+      window.dispatchEvent(new CustomEvent('Animyx:activity-mode', { detail: { mode } }));
+    });
+  });
+
+  // ── Insights empty-state buttons ──────────────────────────
+  document.querySelectorAll('[data-empty-action]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const action = btn.dataset.emptyAction;
+      if (action === 'browse') window.dispatchEvent(new CustomEvent('Animyx:navigate', { detail: { view: 'season-view' } }));
+      else if (action === 'add') window.dispatchEvent(new CustomEvent('Animyx:navigate', { detail: { view: 'search-section' } }));
+    });
+  });
+
+  // ── Continue-watching carousel nav ────────────────────────
+  const continuePrev = document.getElementById('continue-watching-prev');
+  const continueNext = document.getElementById('continue-watching-next');
+  const continueTrack = document.querySelector('#continue-watching-list, .watchlist-scroll');
+
+  function scrollContinue(dir) {
+    if (!continueTrack) return;
+    continueTrack.scrollBy({ left: dir * 280, behavior: 'smooth' });
+  }
+
+  continuePrev?.addEventListener('click', () => scrollContinue(-1));
+  continueNext?.addEventListener('click', () => scrollContinue(1));
+
+  // ── Discover filter dropdowns ──────────────────────────────
+  function initDropdown(toggleId, listId, labelKey) {
+    const toggle = document.getElementById(toggleId);
+    const list = document.getElementById(listId);
+    if (!toggle || !list) return;
+
+    toggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = list.classList.toggle('open');
+      toggle.setAttribute('aria-expanded', String(isOpen));
+    });
+
+    list.querySelectorAll('[data-value]').forEach(item => {
+      item.addEventListener('click', () => {
+        const labelEl = toggle.querySelector(`.${labelKey}-label, span:first-child`);
+        if (labelEl) labelEl.textContent = item.textContent;
+        list.classList.remove('open');
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.dataset.selected = item.dataset.value;
+      });
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!list.contains(e.target) && e.target !== toggle) {
+        list.classList.remove('open');
+        toggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+
+  initDropdown('discover-genre-toggle', 'discover-genre-list', 'genre');
+  initDropdown('discover-type-toggle', 'discover-type-list', 'type');
+  initDropdown('discover-sort-toggle', 'discover-sort-list', 'sort');
+
+  // ── Discover episode-count segment buttons ─────────────────
+  document.querySelectorAll('.discover-seg-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.discover-seg-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
 
   // ── Theme toggle sync ──────────────────────────────────────
   const darkThemeToggle = document.getElementById('setting-dark-theme');
@@ -565,6 +677,13 @@ async function bootstrap() {
   });
 
   bindNavigation();
+
+  // Wire Animyx:navigate events dispatched by buttons (e.g., insights empty-state)
+  window.addEventListener('Animyx:navigate', (e) => {
+    const viewId = e?.detail?.view;
+    if (viewId) openView(viewId);
+  });
+
   libraryStore.init([]);
 
   // Sync status indicator wiring (green = synced, yellow = syncing, red = offline)
