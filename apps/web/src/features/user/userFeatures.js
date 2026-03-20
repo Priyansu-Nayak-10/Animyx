@@ -571,10 +571,18 @@ function initSettings({ toast, libraryStore, storage = globalThis.localStorage }
 
   async function onResetLocal() {
     const confirmed = window.confirm(
-      "Reset this device?\n\nThis will sign you out and clear cached data on this browser (library cache, offline sync DB, profile cache). Your cloud data will remain.\n\nContinue?"
+      "RESET & WIPE CLOUD DATA?\n\nThis will sign you out and PERMANENTLY DELETE ALL your cloud data (library, profile, settings). This device's cache will also be cleared.\n\nThis cannot be undone. Continue?"
     );
     if (!confirmed) return;
 
+    // 1. Wipe cloud data first
+    try {
+      await authFetch(apiUrl('/users/me/cloud-data'), { method: 'DELETE' });
+    } catch (_err) {
+      console.error("Cloud wipe failed during reset", _err);
+    }
+
+    // 2. Clear local and sign out
     try { await clearAnimyxAllData(); } catch (_) { }
     try { await supabase.auth.signOut(); } catch (_) { }
     window.location.replace('/pages/signin.html');
@@ -582,7 +590,7 @@ function initSettings({ toast, libraryStore, storage = globalThis.localStorage }
 
   async function onDeleteAccount() {
     const confirmed = window.confirm(
-      "DELETE ACCOUNT?\n\nThis permanently deletes your Animyx account and ALL synced data (library, profile, settings, notifications).\n\nThis cannot be undone.\n\nType OK in your head and click Cancel if unsure. Continue?"
+      "DELETE ENTIRE ACCOUNT?\n\nThis permanently deletes your Animyx login and ALL synced data (library, profile, settings, notifications).\n\nThis is the ultimate nuclear option and cannot be undone. Proceed?"
     );
     if (!confirmed) return;
 

@@ -400,6 +400,42 @@ router.delete('/me/library', async (req, res) => {
 
 /**
  * @swagger
+ * /api/users/me/cloud-data:
+ *   delete:
+ *     summary: Wipe all cloud data for the current user (profile, library, settings) without deleting the account
+ *     tags: [User]
+ *     responses:
+ *       200:
+ *         description: All cloud data wiped successfully
+ */
+router.delete('/me/cloud-data', async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // Wipe everything associated with the user, but keep the auth account
+    const results = await Promise.allSettled([
+      supabase.from('followed_anime').delete().eq('user_id', userId),
+      supabase.from('user_profiles').delete().eq('user_id', userId),
+      supabase.from('user_settings').delete().eq('user_id', userId),
+      supabase.from('notifications').delete().eq('user_id', userId),
+      supabase.from('push_subscriptions').delete().eq('user_id', userId),
+      supabase.from('anime_follows').delete().eq('user_id', userId),
+      supabase.from('user_recommendations').delete().eq('user_id', userId)
+    ]);
+
+    const failures = results.filter(r => r.status === 'rejected');
+    if (failures.length > 0) {
+      logger.error('Partial failure during cloud data wipe', failures[0].reason);
+    }
+
+    return apiResponse(res, { wiped: true }, 200, 'Cloud data wiped successfully');
+  } catch (err) {
+    return apiError(res, 'Failed to wipe cloud data', 500, err);
+  }
+});
+
+/**
+ * @swagger
  * /api/users/me:
  *   delete:
  *     summary: Permanently delete the current user's account and all Animyx data
@@ -419,7 +455,8 @@ router.delete('/me', requireEmailVerified, async (req, res) => {
       supabase.from('user_settings').delete().eq('user_id', userId),
       supabase.from('notifications').delete().eq('user_id', userId),
       supabase.from('push_subscriptions').delete().eq('user_id', userId),
-      supabase.from('anime_follows').delete().eq('user_id', userId)
+      supabase.from('anime_follows').delete().eq('user_id', userId),
+      supabase.from('user_recommendations').delete().eq('user_id', userId)
     ]);
 
     // Delete the auth user (requires service role key).
