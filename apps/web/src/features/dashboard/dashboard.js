@@ -359,19 +359,52 @@ export function initRecommendations({ store, libraryStore, selectors, toast = nu
 // ── Upcoming Widget Module ───────────────────────────────────────────────────
 
 export function initUpcomingWidget({ fetchImpl = fetch.bind(globalThis), storage = globalThis.localStorage, timers = globalThis }) {
-  const CACHE_KEY = "Animyx_dashboard_upcoming_v1", CACHE_TTL_MS = 12 * 60 * 60 * 1000, listEl = document.getElementById("dashboard-upcoming-list");
+  const CACHE_KEY = "Animyx_dashboard_upcoming_v1", CACHE_TTL_MS = 1 * 60 * 60 * 1000, listEl = document.getElementById("dashboard-upcoming-list");
+  const refreshBtn = document.getElementById("upcoming-refresh-btn");
+  const lastUpdatedEl = document.getElementById("upcoming-last-updated");
   if (!listEl) return { render() { }, destroy() { } };
   let upcomingTimer = 0, currentItems = [];
+
+  function updateLastUpdatedLabel() {
+    if (!lastUpdatedEl) return;
+    try {
+      const raw = storage?.getItem?.(CACHE_KEY);
+      if (raw) {
+        const c = JSON.parse(raw);
+        if (c.ts) {
+          const mins = Math.round((Date.now() - c.ts) / 60000);
+          lastUpdatedEl.textContent = mins < 1 ? 'Updated just now' : `Updated ${mins}m ago`;
+        }
+      }
+    } catch { lastUpdatedEl.textContent = ''; }
+  }
+
+  function setRefreshSpinning(spinning) {
+    if (!refreshBtn) return;
+    const icon = refreshBtn.querySelector('.material-icons');
+    if (!icon) return;
+    if (spinning) {
+      icon.style.animation = 'spin 0.7s linear infinite';
+      refreshBtn.disabled = true;
+      refreshBtn.style.opacity = '0.5';
+    } else {
+      icon.style.animation = '';
+      refreshBtn.disabled = false;
+      refreshBtn.style.opacity = '1';
+    }
+  }
 
   async function loadData({ force = false } = {}) {
     let cached = null, expired = true;
     try { const raw = storage?.getItem?.(CACHE_KEY); if (raw) { const c = JSON.parse(raw); if (Array.isArray(c.data)) { cached = c.data; expired = (Date.now() - c.ts >= CACHE_TTL_MS); } } } catch { }
-    if (cached && !force) { currentItems = cached; renderRows(); if (!expired) return; }
+    if (cached && !force) { currentItems = cached; renderRows(); updateLastUpdatedLabel(); if (!expired) return; }
     else { listEl.innerHTML = Array(6).fill('<div class="news-item is-skeleton"><div class="news-thumb skeleton-thumb"></div><div class="news-badge skeleton-badge"></div><div><h4 class="anime-card-title skeleton-title"></h4><div class="flex items-center gap-1 anime-card-meta skeleton-meta"></div></div></div>').join(""); }
+    setRefreshSpinning(true);
     try {
       const res = await fetchImpl(apiUrl("/anime/upcoming?limit=6"));
-      if (res.ok) { currentItems = (await res.json())?.data || []; renderRows(); storage?.setItem?.(CACHE_KEY, JSON.stringify({ ts: Date.now(), data: currentItems })); }
+      if (res.ok) { currentItems = (await res.json())?.data || []; renderRows(); storage?.setItem?.(CACHE_KEY, JSON.stringify({ ts: Date.now(), data: currentItems })); updateLastUpdatedLabel(); }
     } catch { if (!cached) listEl.innerHTML = '<div class="anime-card-meta">Unable to load upcoming anime.</div>'; }
+    finally { setRefreshSpinning(false); }
   }
 
   function renderRows() {
@@ -380,6 +413,20 @@ export function initUpcomingWidget({ fetchImpl = fetch.bind(globalThis), storage
       const malId = Number(item.mal_id || 0); let title = item.title_english || item.title || "Unknown Title";
       return `<div class="news-item upcoming-release-card" data-action="open-anime-modal" data-id="${malId}"><div class="news-thumb upcoming-release-poster">${item.images?.jpg?.image_url ? `<img class="news-thumb-img" src="${escapeHtml(item.images.jpg.image_url)}" alt="${escapeHtml(title)}" loading="lazy" />` : '<div class="news-thumb-fallback">🎬</div>'}</div><div class="upcoming-release-content"><h4 class="anime-card-title upcoming-release-title">${escapeHtml(title)}</h4><div class="anime-card-meta upcoming-release-meta"><span>${escapeHtml(String(item.aired?.string || "TBA").split("to")[0].trim())} • ${escapeHtml(item.studios?.[0]?.name || "Unknown Studio")}</span></div></div><div class="news-badge news-badge-mal upcoming-release-badge"><span class="material-icons upcoming-release-badge-icon">local_fire_department</span></div></div>`;
     }).join("");
+  }
+
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', () => loadData({ force: true }));
+    refreshBtn.addEventListener('mouseenter', () => { if (!refreshBtn.disabled) refreshBtn.style.color = 'var(--brand-primary)'; });
+    refreshBtn.addEventListener('mouseleave', () => { refreshBtn.style.color = 'var(--text-muted)'; });
+  }
+
+  // Inject spin keyframes if not already present
+  if (!document.getElementById('upcoming-refresh-spin-style')) {
+    const style = document.createElement('style');
+    style.id = 'upcoming-refresh-spin-style';
+    style.textContent = '@keyframes spin { to { transform: rotate(360deg); } }';
+    document.head.appendChild(style);
   }
 
   loadData(); upcomingTimer = timers.setInterval(() => loadData({ force: true }), CACHE_TTL_MS);
