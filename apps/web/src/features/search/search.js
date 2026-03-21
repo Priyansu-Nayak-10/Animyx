@@ -290,19 +290,27 @@ function initSearchAdvanced({
       const genres = escapeHtml((item.genres || []).slice(0, 3).join(", ") || "Unknown");
       const image = escapeHtml(String(item.poster || item.image || ""));
       
-      const totalEp = item.total_episodes || item.episodes || 0;
-      const releasedEp = item.released_episodes || item.episodesReleased || 0;
+      const totalEp = parseInt(item.total_episodes || item.episodes) || 0;
+      const releasedEp = parseInt(item.released_episodes || item.episodesReleased) || 0;
       const status = String(item.airing_status || item.status || "").toLowerCase();
-      
-      const epLabel = totalEp > 0
-        ? `Ep ${Math.min(releasedEp || totalEp, totalEp)} / ${totalEp}`
-        : (status.includes("airing") ? `Ep ${releasedEp || 0} (Airing)` : "Ep ?");
+      const isAiring = status.includes("airing");
+
+      let epLabel = "";
+      if (isAiring) {
+        if (totalEp > 0 && releasedEp > 0) epLabel = `Ep ${releasedEp} / ${totalEp}`;
+        else if (releasedEp > 0) epLabel = `Ep ${releasedEp}`;
+        else if (totalEp > 0) epLabel = `${totalEp} eps`;
+        else epLabel = "Ongoing";
+      } else {
+        epLabel = totalEp > 0 ? `${totalEp} eps` : "?";
+      }
+
       return `
         <div class="search-result-cell premium-card-wrapper">
           <div class="premium-cover-card" data-id="${malId}">
             <div class="cover-img-wrap" data-action="open-anime-modal" data-id="${malId}">
               <img class="cover-img" src="${image}" alt="${title}">
-              <span class="cover-badge">? ${scoreText}</span>
+              <span class="cover-badge">⭐ ${scoreText}</span>
               <div class="cover-gradient"></div>
             </div>
             <div class="cover-info" data-action="open-anime-modal" data-id="${malId}">
