@@ -25,7 +25,22 @@ const AnimeSearchSchema = z.object({
     .min(1, 'Limit must be at least 1')
     .max(50, 'Limit too high (max 50)')
     .optional()
-    .default(25)
+    .default(25),
+  // Discovery filter fields — must be explicitly listed so Zod does not strip them
+  genres: z.string().optional(),
+  tags: z.string().optional(),
+  type: z.string().optional(),
+  status: z.string().optional(),
+  rating: z.string().optional(),
+  min_score: z.coerce.number().optional(),
+  max_score: z.coerce.number().optional(),
+  min_episodes: z.coerce.number().int().optional(),
+  max_episodes: z.coerce.number().int().optional(),
+  order_by: z.string().optional(),
+  sort: z.string().optional(),
+  year: z.coerce.number().int().optional(),
+  year_from: z.coerce.number().int().optional(),
+  year_to: z.coerce.number().int().optional()
 });
 
 const AnimeSeasonSchema = z.object({

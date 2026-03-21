@@ -193,13 +193,18 @@ router.get('/search', checkCache(TTL_12H), validateQuery(AnimeSearchSchema), asy
             params.max_score = maxScore;
         }
 
+        // Episode count: pass directly to Jikan API for accurate server-side filtering
+        const minEpisodes = toPositiveInt(req.query.min_episodes, 0);
+        const maxEpisodes = toPositiveInt(req.query.max_episodes, 0);
+        if (minEpisodes > 0) params.min_episodes = minEpisodes;
+        if (maxEpisodes > 0) params.max_episodes = maxEpisodes;
+
         const data = await jikanClient.get(`${JIKAN}/anime`, { params });
         
         // Search Result Normalization pipeline run
         const normalizedData = processAnimeList(data.data);
 
-        const minEpisodes = toPositiveInt(req.query.min_episodes, 0);
-        const maxEpisodes = toPositiveInt(req.query.max_episodes, 0);
+        // Post-filter as a safety net for any anime with 0/unknown episodes that slipped through
         const hasEpisodeFilter = (minEpisodes > 0) || (maxEpisodes > 0);
         const filteredData = hasEpisodeFilter
             ? normalizedData.filter((row) => {
