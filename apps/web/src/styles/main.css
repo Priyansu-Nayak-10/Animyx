@@ -2249,6 +2249,32 @@ body.dark .border-dashed:hover {
     border-color: rgba(96, 165, 250, 0.8);
 }
 
+/* ── Per-status active colours ── */
+.premium-card-actions .status-pill.status-plan.active {
+    background: linear-gradient(135deg, #93c5fd 0%, #60a5fa 100%);
+    color: #0b1a2e;
+    border-color: rgba(147, 197, 253, 0.8);
+    box-shadow: 0 0 10px rgba(96, 165, 250, 0.35);
+}
+.premium-card-actions .status-pill.status-watching.active {
+    background: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
+    color: #fff;
+    border-color: rgba(96, 165, 250, 0.85);
+    box-shadow: 0 0 10px rgba(37, 99, 235, 0.35);
+}
+.premium-card-actions .status-pill.status-dropped.active {
+    background: linear-gradient(135deg, #fb923c 0%, #ea580c 100%);
+    color: #fff;
+    border-color: rgba(251, 146, 60, 0.8);
+    box-shadow: 0 0 10px rgba(234, 88, 12, 0.3);
+}
+.premium-card-actions .status-pill.status-completed.active {
+    background: linear-gradient(135deg, #4ade80 0%, #16a34a 100%);
+    color: #0b1a14;
+    border-color: rgba(74, 222, 128, 0.8);
+    box-shadow: 0 0 10px rgba(22, 163, 74, 0.3);
+}
+
 /* Cover-style cards for search/completed */
 .premium-cover-card {
     display: flex;
@@ -2373,6 +2399,32 @@ body.dark .border-dashed:hover {
     background: linear-gradient(135deg, #60a5fa 0%, var(--chart-blue) 100%);
     color: #0b1220;
     border-color: rgba(96, 165, 250, 0.8);
+}
+
+/* ── Per-status active colours for cover-actions (search/discover) ── */
+.cover-actions .status-pill.status-plan.active {
+    background: linear-gradient(135deg, #93c5fd 0%, #60a5fa 100%);
+    color: #0b1a2e;
+    border-color: rgba(147, 197, 253, 0.8);
+    box-shadow: 0 0 10px rgba(96, 165, 250, 0.35);
+}
+.cover-actions .status-pill.status-watching.active {
+    background: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
+    color: #fff;
+    border-color: rgba(96, 165, 250, 0.85);
+    box-shadow: 0 0 10px rgba(37, 99, 235, 0.35);
+}
+.cover-actions .status-pill.status-dropped.active {
+    background: linear-gradient(135deg, #fb923c 0%, #ea580c 100%);
+    color: #fff;
+    border-color: rgba(251, 146, 60, 0.8);
+    box-shadow: 0 0 10px rgba(234, 88, 12, 0.3);
+}
+.cover-actions .status-pill.status-completed.active {
+    background: linear-gradient(135deg, #4ade80 0%, #16a34a 100%);
+    color: #0b1a14;
+    border-color: rgba(74, 222, 128, 0.8);
+    box-shadow: 0 0 10px rgba(22, 163, 74, 0.3);
 }
 
 @keyframes badgePulse {
@@ -3714,7 +3766,33 @@ body.dark .anime-card-v2 {
 }
 
 .status-pill.active:hover {
-    background-color: #72c0ff;
+    filter: brightness(1.1);
+}
+
+/* ── Watchlist per-status active colours (wl-quick-right context) ── */
+.wl-quick-right .status-pill.status-plan.active {
+    background: linear-gradient(135deg, #93c5fd 0%, #60a5fa 100%);
+    color: #0b1a2e;
+    border-color: rgba(147, 197, 253, 0.75);
+    box-shadow: 0 0 8px rgba(96, 165, 250, 0.3);
+}
+.wl-quick-right .status-pill.status-watching.active {
+    background: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
+    color: #fff;
+    border-color: rgba(96, 165, 250, 0.8);
+    box-shadow: 0 0 8px rgba(37, 99, 235, 0.3);
+}
+.wl-quick-right .status-pill.status-dropped.active {
+    background: linear-gradient(135deg, #fb923c 0%, #ea580c 100%);
+    color: #fff;
+    border-color: rgba(251, 146, 60, 0.75);
+    box-shadow: 0 0 8px rgba(234, 88, 12, 0.25);
+}
+.wl-quick-right .status-pill.status-completed.active {
+    background: linear-gradient(135deg, #4ade80 0%, #16a34a 100%);
+    color: #0b1a14;
+    border-color: rgba(74, 222, 128, 0.75);
+    box-shadow: 0 0 8px rgba(22, 163, 74, 0.25);
 }
 
 /* --- WATCHLIST VIEW --- */

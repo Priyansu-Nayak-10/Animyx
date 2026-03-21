@@ -139,6 +139,9 @@
   grid-template-columns: 1fr;
   gap: 14px;
   margin-bottom: 14px;
+  /* Prevent grid tracks from being sized wider than the container */
+  overflow: hidden;
+  min-width: 0;
 }
 
 @media (min-width: 980px) {
@@ -153,6 +156,9 @@
   background: rgba(20, 15, 38, 0.35);
   backdrop-filter: blur(12px);
   padding: 12px 12px 10px;
+  /* Prevent expanding beyond grid track width */
+  min-width: 0;
+  overflow: hidden;
 }
 
 .wl-history-head {

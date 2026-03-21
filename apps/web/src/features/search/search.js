@@ -318,9 +318,9 @@ function initSearchAdvanced({
               <p class="cover-genres">${genres} · ${epLabel}</p>
             </div>
             <div class="cover-actions">
-              <button class="status-pill" type="button" data-search-action="add-plan" data-id="${malId}">Plan</button>
-              <button class="status-pill" type="button" data-search-action="add-watching" data-id="${malId}">Watching</button>
-              <button class="status-pill active" type="button" data-search-action="add-completed" data-id="${malId}">Completed</button>
+              <button class="status-pill status-plan" type="button" data-search-action="add-plan" data-id="${malId}">Plan</button>
+              <button class="status-pill status-watching" type="button" data-search-action="add-watching" data-id="${malId}">Watch</button>
+              <button class="status-pill status-completed" type="button" data-search-action="add-completed" data-id="${malId}">Done</button>
             </div>
           </div>
         </div>
@@ -867,6 +867,14 @@ function initSearchAdvanced({
     } else if (action === "add-completed") {
       libraryStore.upsert({ ...anime, status: STATUS.COMPLETED }, STATUS.COMPLETED);
       toast?.show?.("Marked as completed");
+    }
+    // Visually highlight the clicked status button and deactivate siblings
+    if (["add-plan", "add-watching", "add-completed"].includes(action)) {
+      const card = actionBtn.closest(".premium-cover-card");
+      if (card) {
+        card.querySelectorAll(".status-pill").forEach((btn) => btn.classList.remove("active"));
+        actionBtn.classList.add("active");
+      }
     }
   }
 
