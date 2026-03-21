@@ -118,7 +118,7 @@ class AnimeCard extends HTMLElement {
         const title = this.getAttribute('title') || 'Unknown Anime';
         const image = this.getAttribute('image') || '';
         const score = parseFloat(this.getAttribute('score'));
-        const scoreDisplay = (!isNaN(score) && score > 0) ? score.toFixed(2) : '--';
+        const scoreDisplay = (!isNaN(score) && score > 0) ? `⭐ ${score.toFixed(1)}` : '--';
         const episodes = parseInt(this.getAttribute('episodes')) || null;
         const released = parseInt(this.getAttribute('released-episodes')) || 0;
         const year = this.getAttribute('year') || '';
@@ -137,6 +137,23 @@ class AnimeCard extends HTMLElement {
         const isAiring = status.includes('airing');
 
         const countdownText = nextAt ? buildCountdownText(nextAt) : '';
+
+        // Episode display: for airing show "Ep {released} / {total}" or just "Ep {released}" if unknown
+        // For completed/others show total or "?" 
+        let episodeDisplay = '';
+        if (isAiring) {
+            if (episodes > 0 && released > 0) {
+                episodeDisplay = `Ep ${released} / ${episodes}`;
+            } else if (released > 0) {
+                episodeDisplay = `Ep ${released}`;
+            } else if (episodes > 0) {
+                episodeDisplay = `${episodes} eps`;
+            } else {
+                episodeDisplay = 'Ongoing';
+            }
+        } else {
+            episodeDisplay = episodes > 0 ? `${episodes} eps` : '?';
+        }
 
         this.shadowRoot.innerHTML = `
       <style>
@@ -228,6 +245,33 @@ class AnimeCard extends HTMLElement {
           z-index: 2;
         }
 
+        .score-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.2rem;
+          background: rgba(0,0,0,0.55);
+          backdrop-filter: blur(6px);
+          border: 1px solid rgba(168,85,247,0.3);
+          border-radius: 6px;
+          padding: 0.15rem 0.45rem;
+          font-size: 0.75rem;
+          font-weight: 700;
+          color: #f5f3ff;
+        }
+
+        .type-badge {
+          display: inline-flex;
+          align-items: center;
+          background: rgba(0,0,0,0.55);
+          backdrop-filter: blur(6px);
+          border: 1px solid rgba(255,255,255,0.1);
+          border-radius: 6px;
+          padding: 0.15rem 0.45rem;
+          font-size: 0.72rem;
+          font-weight: 600;
+          color: var(--text-secondary);
+        }
+
         .content {
           padding: 0.75rem;
           display: flex;
@@ -293,8 +337,8 @@ class AnimeCard extends HTMLElement {
         <img class="card-image" data-src="${image}" alt="${title}" loading="lazy" />
         <div class="image-overlay"></div>
         <div class="stats-overlay">
-          <stat-badge icon="star" value="${scoreDisplay}" color="var(--chart-purple)"></stat-badge>
-          <stat-badge icon="tag" value="${type || 'TV'}" color="var(--text-primary)"></stat-badge>
+          <span class="score-badge">${scoreDisplay}</span>
+          <span class="type-badge">${type || 'TV'}</span>
         </div>
       </div>
       
@@ -304,7 +348,7 @@ class AnimeCard extends HTMLElement {
           <div class="meta">
               ${isAiring ? `<span class="airing-day">Airing ${airingDay || 'Soon'}</span>` : '<span>Completed</span>'}
               <div class="meta-dot"></div>
-              <span>Ep ${released || 0} / ${episodes || '?'}</span>
+              <span>${episodeDisplay}</span>
           </div>
           ${countdownText ? `<div class="meta"><span class="countdown">Next: ${countdownText}</span></div>` : ''}
         </div>

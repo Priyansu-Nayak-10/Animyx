@@ -265,31 +265,81 @@ function renderWeeklyActivityChart(container, items) {
 function renderPersonaRadar(svg, genreCount) {
   if (!svg) return;
   const dimensions = [
-    { label: "Action", keys: ["Action", "Adventure", "Sports"] },
-    { label: "Intellect", keys: ["Mystery", "Psychological", "Sci-Fi", "Suspense"] },
-    { label: "Emotion", keys: ["Drama", "Romance", "Slice of Life"] },
-    { label: "Wit", keys: ["Comedy", "Parody"] },
-    { label: "Wonder", keys: ["Fantasy", "Supernatural", "Magic"] }
+    { label: "Action", keys: ["Action", "Adventure", "Sports"], color: "#ef4444" },
+    { label: "Intellect", keys: ["Mystery", "Psychological", "Sci-Fi", "Suspense"], color: "#3b82f6" },
+    { label: "Emotion", keys: ["Drama", "Romance", "Slice of Life"], color: "#ec4899" },
+    { label: "Wit", keys: ["Comedy", "Parody"], color: "#f59e0b" },
+    { label: "Wonder", keys: ["Fantasy", "Supernatural", "Magic"], color: "#8b5cf6" }
   ];
   const scores = dimensions.map(d => Math.min(100, (d.keys.reduce((s, k) => s + (genreCount[k] || 0), 0) * 20)));
   const cx = 100, cy = 100, r = 70;
   const angleStep = (Math.PI * 2) / dimensions.length;
+  const uid = `radar-${Math.random().toString(36).slice(2,6)}`;
 
-  let gridHtml = [20, 40, 60, 80, 100].map(level => {
-    const points = dimensions.map((_, i) => `${cx + (r * level / 100) * Math.cos(i * angleStep - Math.PI / 2)},${cy + (r * level / 100) * Math.sin(i * angleStep - Math.PI / 2)}`).join(" ");
+  // Determine dominant dimension
+  const maxScore = Math.max(...scores);
+  const dominantIdx = scores.indexOf(maxScore);
+  const dominantColor = dimensions[dominantIdx]?.color || "#8b5cf6";
+
+  const gridHtml = [20, 40, 60, 80, 100].map(level => {
+    const points = dimensions.map((_, i) =>
+      `${cx + (r * level / 100) * Math.cos(i * angleStep - Math.PI / 2)},${cy + (r * level / 100) * Math.sin(i * angleStep - Math.PI / 2)}`
+    ).join(" ");
     return `<polygon points="${points}" class="radar-grid-line" />`;
   }).join("");
 
   const axesHtml = dimensions.map((d, i) => {
-    const x = cx + r * Math.cos(i * angleStep - Math.PI / 2), y = cy + r * Math.sin(i * angleStep - Math.PI / 2);
-    const lx = cx + (r + 15) * Math.cos(i * angleStep - Math.PI / 2), ly = cy + (r + 15) * Math.sin(i * angleStep - Math.PI / 2);
-    return `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" class="radar-axis-line" /><text x="${lx}" y="${ly}" class="radar-label" text-anchor="middle" alignment-baseline="middle">${d.label}</text>`;
+    const x = cx + r * Math.cos(i * angleStep - Math.PI / 2);
+    const y = cy + r * Math.sin(i * angleStep - Math.PI / 2);
+    const lx = cx + (r + 16) * Math.cos(i * angleStep - Math.PI / 2);
+    const ly = cy + (r + 16) * Math.sin(i * angleStep - Math.PI / 2);
+    const isTop = i === dominantIdx;
+    return `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" class="radar-axis-line" />`
+      + `<text x="${lx}" y="${ly}" class="radar-label${isTop ? ' radar-label-dominant' : ''}" text-anchor="middle" alignment-baseline="middle" style="${isTop ? `fill:${d.color};font-weight:700;` : ''}">` 
+      + `${d.label}</text>`;
   }).join("");
 
-  const polyPoints = scores.map((s, i) => `${cx + (r * Math.max(10, s) / 100) * Math.cos(i * angleStep - Math.PI / 2)},${cy + (r * Math.max(10, s) / 100) * Math.sin(i * angleStep - Math.PI / 2)}`).join(" ");
-  svg.innerHTML = `${gridHtml}${axesHtml}<polygon points="${polyPoints}" class="radar-polygon" />`;
+  const polyPoints = scores.map((s, i) =>
+    `${cx + (r * Math.max(8, s) / 100) * Math.cos(i * angleStep - Math.PI / 2)},${cy + (r * Math.max(8, s) / 100) * Math.sin(i * angleStep - Math.PI / 2)}`
+  ).join(" ");
 
-  const personaType = { "Action": "The Adrenaline Seeker", "Intellect": "The Strategic Mind", "Emotion": "The Soul Searcher", "Wit": "The Joy Bringer", "Wonder": "The Dream Weaver" }[dimensions[scores.indexOf(Math.max(...scores))].label] || "Balanced Explorer";
+  // Dot markers per vertex
+  const dotHtml = scores.map((s, i) => {
+    const vx = cx + (r * Math.max(8, s) / 100) * Math.cos(i * angleStep - Math.PI / 2);
+    const vy = cy + (r * Math.max(8, s) / 100) * Math.sin(i * angleStep - Math.PI / 2);
+    return `<circle cx="${vx.toFixed(2)}" cy="${vy.toFixed(2)}" r="3.5" fill="${dimensions[i].color}" opacity="0.9" filter="url(#${uid}-glow)" />`;
+  }).join("");
+
+  svg.innerHTML = `
+    <defs>
+      <radialGradient id="${uid}-fill" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="${dominantColor}" stop-opacity="0.5"/>
+        <stop offset="100%" stop-color="${dominantColor}" stop-opacity="0.1"/>
+      </radialGradient>
+      <filter id="${uid}-glow" x="-40%" y="-40%" width="180%" height="180%">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="2.5" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+      <style>
+        @keyframes ${uid}-appear { from { opacity:0; transform: scale(0.85); } to { opacity:1; transform: scale(1); } }
+        .${uid}-poly { transform-origin: ${cx}px ${cy}px; animation: ${uid}-appear 0.5s cubic-bezier(0.34
+
+,1.56,0.64,1) forwards; }
+      </style>
+    </defs>
+    ${gridHtml}
+    ${axesHtml}
+    <polygon points="${polyPoints}" class="radar-polygon ${uid}-poly" fill="url(#${uid}-fill)" stroke="${dominantColor}" stroke-opacity="0.9" filter="url(#${uid}-glow)" />
+    ${dotHtml}
+  `;
+
+  const personaType = {
+    "Action": "The Adrenaline Seeker",
+    "Intellect": "The Strategic Mind",
+    "Emotion": "The Soul Searcher",
+    "Wit": "The Joy Bringer",
+    "Wonder": "The Dream Weaver"
+  }[dimensions[dominantIdx].label] || "Balanced Explorer";
   const personaEl = document.getElementById("insight-persona-type");
   if (personaEl) personaEl.textContent = personaType;
 }
@@ -396,12 +446,23 @@ export function initInsights({ libraryStore }) {
     if (refs.xpCurrent) refs.xpCurrent.textContent = String(ps.xp); if (refs.xpNext) refs.xpNext.textContent = String(ps.nextLevelXp); if (refs.xpBar) refs.xpBar.style.width = `${ps.progress}%`;
     renderWeeklyActivityChart(refs.weeklyActivity, items); renderPersonaRadar(refs.radarSvg, insights.genreDistribution.all); renderStudioSpotlight(refs.studioList, insights.studioCount, items); renderDiscoveryIntelligence(refs, insights.genreDistribution);
     const breakdown = insights.statusBreakdown;
+    if (refs.completed) refs.completed.textContent = String(breakdown.completed);
+    if (refs.watching) refs.watching.textContent = String(breakdown.watching);
+    if (refs.plan) refs.plan.textContent = String(breakdown.plan);
     if (refs.siCountCompleted) refs.siCountCompleted.textContent = String(breakdown.completed);
     if (refs.siCountWatching) refs.siCountWatching.textContent = String(breakdown.watching);
     if (refs.siCountPlan) refs.siCountPlan.textContent = String(breakdown.plan);
     const totalLib = (breakdown.completed || 0) + (breakdown.watching || 0) + (breakdown.plan || 0);
     const completionPct = totalLib > 0 ? Math.round(((breakdown.completed || 0) / totalLib) * 100) : 0;
     if (refs.completionRate) refs.completionRate.textContent = `${completionPct}%`;
+    if (refs.avgRatingSi) refs.avgRatingSi.textContent = insights.averageUserRating;
+    if (refs.topGenreStat) {
+      const topG = insights.genreDistribution.sorted[0];
+      refs.topGenreStat.textContent = topG ? topG[0] : "No data";
+    }
+    if (refs.longestStreak) refs.longestStreak.textContent = `${insights.completionStreak} day${insights.completionStreak === 1 ? '' : 's'}`;
+    if (refs.favoriteStudio) refs.favoriteStudio.textContent = insights.favoriteStudio || "No data";
+    if (refs.lastCompletedAnime) refs.lastCompletedAnime.textContent = insights.lastCompletedAnime;
     renderDonutChart(refs.statusChart, [
       { label: "Completed", value: breakdown.completed, color: "var(--insight-purple)" },
       { label: "Watching", value: breakdown.watching, color: "var(--insight-cyan)" },
@@ -417,7 +478,24 @@ export function initInsights({ libraryStore }) {
         return `<div class="genre-bar-item"><div class="genre-label">${escapeHtml(genre)}</div><div class="genre-track"><div class="genre-fill" style="width:${width}%; background-color:${color}; color:${color};"></div></div><div class="genre-count">${count}</div></div>`;
       }).join("");
     }
-  }
+    // Recent Activity feed
+    if (refs.recentActivity) {
+      const MAX_ACTIVITY = 8;
+      const acts = insights.recentActivity.slice(0, MAX_ACTIVITY);
+      if (!acts.length) {
+        refs.recentActivity.innerHTML = '<div class="activity-empty"><span class="material-icons">history_toggle_off</span><p>No recent activity yet</p></div>';
+      } else {
+        const now = Date.now();
+        refs.recentActivity.innerHTML = acts.map(entry => {
+          const diff = now - entry.timestamp;
+          const m = Math.floor(diff / 60000);
+          const relTime = m < 1 ? 'Just now' : m < 60 ? `${m}m ago` : m < 1440 ? `${Math.floor(m/60)}h ago` : `${Math.floor(m/1440)}d ago`;
+          const statusClass = String(entry.status || '').toLowerCase();
+          return `<div class="activity-timeline-item"><div class="activity-dot activity-dot-${statusClass}"></div><div class="activity-timeline-body"><span class="activity-timeline-title">${escapeHtml(entry.title)}</span><div class="activity-timeline-meta"><span class="activity-status-tag ${statusClass}">${escapeHtml(entry.status)}</span><span>${relTime}</span></div></div></div>`;
+        }).join('');
+      }
+    }
+  }  // end render()
 
   const unsubscribe = libraryStore.subscribe(render);
   render();

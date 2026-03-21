@@ -1,4 +1,4 @@
-﻿import { STATUS } from "../../store.js";
+import { STATUS } from "../../store.js";
 import { BACKEND_URL, withAuthHeaders } from "../../config.js";
 
 const SEARCH_PAGE_SIZE = 25;
@@ -401,6 +401,54 @@ function initSearchAdvanced({
     setDiscoverDropdownOpen(kind, !isAlreadyOpen);
   }
 
+  const accentForGenre = (name) => {
+    const key = String(name || "").trim().toLowerCase();
+    const mapping = {
+      action: "244, 63, 94",
+      adventure: "251, 146, 60",
+      cars: "245, 158, 11",
+      comedy: "250, 204, 21",
+      dementia: "148, 163, 184",
+      demons: "251, 113, 133",
+      drama: "251, 113, 133",
+      ecchi: "232, 121, 249",
+      fantasy: "168, 85, 247",
+      game: "45, 212, 191",
+      harem: "244, 114, 182",
+      historical: "214, 158, 46",
+      horror: "190, 18, 60",
+      isekai: "99, 102, 241",
+      josei: "236, 72, 153",
+      kids: "34, 197, 94",
+      magic: "139, 92, 246",
+      "martial arts": "249, 115, 22",
+      mecha: "34, 211, 238",
+      military: "163, 230, 53",
+      music: "34, 197, 94",
+      mystery: "96, 165, 250",
+      parody: "190, 242, 100",
+      police: "56, 189, 248",
+      psychological: "196, 181, 253",
+      romance: "251, 113, 133",
+      samurai: "248, 113, 113",
+      school: "99, 102, 241",
+      "sci-fi": "34, 211, 238",
+      seinen: "148, 163, 184",
+      shoujo: "244, 114, 182",
+      "shoujo ai": "199, 210, 254",
+      shounen: "251, 146, 60",
+      "shounen ai": "252, 165, 165",
+      "slice of life": "34, 197, 94",
+      space: "56, 189, 248",
+      sports: "34, 197, 94",
+      "super power": "129, 140, 248",
+      supernatural: "139, 92, 246",
+      thriller: "148, 163, 184",
+      vampire: "244, 63, 94"
+    };
+    return mapping[key] || "167, 139, 250";
+  };
+
   function renderGenreSummary() {
     if (!refs.genreSummary) return;
     const selectedIds = Array.isArray(ui.filters.genres) ? ui.filters.genres : [];
@@ -409,8 +457,13 @@ function initSearchAdvanced({
       refs.genreSummary.innerHTML = '<span class="discover-chip discover-chip-muted">Select genres</span>';
       return;
     }
-    const primary = selected.slice(0, 2).map((g) => `<span class="discover-chip">${escapeHtml(g.name)}</span>`).join("");
-    const remaining = selected.length - 2;
+    const MAX_VISIBLE = 4;
+    const primary = selected.slice(0, MAX_VISIBLE).map((g) => {
+      const rgb = accentForGenre(g.name);
+      const style = rgb ? `style="background:rgba(${rgb},0.18);border-color:rgba(${rgb},0.45);color:rgba(${rgb},1);"` : "";
+      return `<span class="discover-chip discover-chip-colored" ${style}>${escapeHtml(g.name)}</span>`;
+    }).join("");
+    const remaining = selected.length - MAX_VISIBLE;
     const tail = remaining > 0 ? `<span class="discover-chip discover-chip-muted">+${remaining}</span>` : "";
     refs.genreSummary.innerHTML = primary + tail;
   }
@@ -419,53 +472,7 @@ function initSearchAdvanced({
     if (!refs.genreMenu) return;
     const selectedIds = new Set(Array.isArray(ui.filters.genres) ? ui.filters.genres : []);
 
-    const accentForGenre = (name) => {
-      const key = String(name || "").trim().toLowerCase();
-      const mapping = {
-        action: "244, 63, 94",
-        adventure: "251, 146, 60",
-        cars: "245, 158, 11",
-        comedy: "250, 204, 21",
-        dementia: "148, 163, 184",
-        demons: "251, 113, 133",
-        drama: "251, 113, 133",
-        ecchi: "232, 121, 249",
-        fantasy: "168, 85, 247",
-        game: "45, 212, 191",
-        harem: "244, 114, 182",
-        historical: "214, 158, 46",
-        horror: "190, 18, 60",
-        isekai: "99, 102, 241",
-        josei: "236, 72, 153",
-        kids: "34, 197, 94",
-        magic: "139, 92, 246",
-        "martial arts": "249, 115, 22",
-        mecha: "34, 211, 238",
-        military: "163, 230, 53",
-        music: "34, 197, 94",
-        mystery: "96, 165, 250",
-        parody: "190, 242, 100",
-        police: "56, 189, 248",
-        psychological: "196, 181, 253",
-        romance: "251, 113, 133",
-        samurai: "248, 113, 113",
-        school: "99, 102, 241",
-        "sci-fi": "34, 211, 238",
-        seinen: "148, 163, 184",
-        shoujo: "244, 114, 182",
-        "shoujo ai": "199, 210, 254",
-        shounen: "251, 146, 60",
-        "shounen ai": "252, 165, 165",
-        "slice of life": "34, 197, 94",
-        space: "56, 189, 248",
-        sports: "34, 197, 94",
-        "super power": "129, 140, 248",
-        supernatural: "139, 92, 246",
-        thriller: "148, 163, 184",
-        vampire: "244, 63, 94"
-      };
-      return mapping[key] || "167, 139, 250";
-    };
+    // accentForGenre is now a shared const defined above
 
     refs.genreMenu.innerHTML = `
       <div class="discover-menu-grid">
