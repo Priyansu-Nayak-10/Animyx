@@ -13,7 +13,7 @@ import './components/AnimeCard.js';
 import { initSocket, createApiClient, createDataStore, initLibraryCloudSync, syncService } from './core/appCore.js';
 import * as selectors from './core/appCore.js';
 import { loadNotifications, onSocketNotification, clearAllNotifications } from './features/notifications/notifications.js';
-import { getState, setState, persistKey, createLibraryStore } from './store.js';
+import { getState, setState, restoreKey, persistKey, createLibraryStore } from './store.js';
 import { authFetch, apiUrl } from './config.js';
 import { initInsights, initDashboardModules, initMilestones, initTrackerFeed } from './features/dashboard/dashboard.js';
 import { initSearchAdvanced } from './features/search/search.js';
