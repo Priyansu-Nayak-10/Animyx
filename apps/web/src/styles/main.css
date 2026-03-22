@@ -2154,8 +2154,8 @@ body.dark .border-dashed:hover {
 .promo-description {
     font-size: 0.9rem;
     color: var(--text-secondary);
-    line-height: 1.5;
-    margin-bottom: 0.5rem;
+    line-height: 1.4;
+    margin-bottom: 0.35rem;
 }
 
 .promo-card .stat-header {
@@ -2987,15 +2987,15 @@ body.dark #dashboard-view .news-list.custom-scrollbar::-webkit-scrollbar-thumb {
 }
 
 .promo-card {
-    padding: 0.9rem 1rem;
+    padding: 0.75rem 0.9rem;
     border-radius: var(--radius-lg);
     background: var(--surface-glass);
     box-shadow: var(--shadow-md);
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    min-height: 88px;
-    gap: 0.15rem;
+    min-height: 76px;
+    gap: 0.1rem;
 }
 
 

@@ -111,6 +111,14 @@ export function topGenresWithOthers(items, limit = 3) {
   return head;
 }
 
+function getGenreSnapshotEntries(items = [], limit = 3) {
+  const libraryItems = Array.isArray(items) ? items : [];
+  const completed = libraryItems.filter((item) => String(item?.status || "").toLowerCase() === "completed");
+  const completedEntries = topGenresWithOthers(completed, limit);
+  if (completedEntries.length) return completedEntries;
+  return topGenresWithOthers(libraryItems, limit);
+}
+
 export function topGenreNames(items) {
   const counts = new Map();
   items.forEach((item) => {
@@ -453,12 +461,14 @@ export function initRecommendations({ store, libraryStore, selectors, toast = nu
     if (refs.personalityDesc) refs.personalityDesc.textContent = personality.desc;
     if (refs.quickTopGenres) refs.quickTopGenres.innerHTML = genres.length ? genres.map(([g]) => { const c = getGenreConfig(g); return `<div class="genre-chip" style="--accent: ${c.color}"><span class="material-icons">${c.icon}</span><span>${escapeHtml(g)}</span></div>`; }).join("") : '<span class="anime-card-meta">No genre data yet</span>';
     if (refs.dashboardGenreSvg && refs.dashboardGenreLegend) {
-      const entries = topGenresWithOthers(completed, 3);
-      if (!entries.length) { refs.dashboardGenreSvg.innerHTML = `<g transform="translate(100,100)"><circle r="95" fill="none" stroke="rgba(167, 139, 250, 0.14)" stroke-width="20" stroke-dasharray="10 10"></circle><text x="0" y="5" text-anchor="middle" fill="var(--text-muted)" font-size="0.8rem">No Data</text></g>`; refs.dashboardGenreLegend.innerHTML = '<div class="anime-card-meta" style="margin-bottom:0; text-align: center; width: 100%;">Complete anime to see distribution.</div>'; }
+      const entries = getGenreSnapshotEntries(libraryItems, 3);
+      const hasCompletedGenres = topGenresWithOthers(completed, 3).length > 0;
+      if (!entries.length) { refs.dashboardGenreSvg.innerHTML = `<g transform="translate(100,100)"><circle r="95" fill="none" stroke="rgba(167, 139, 250, 0.14)" stroke-width="20" stroke-dasharray="10 10"></circle><text x="0" y="5" text-anchor="middle" fill="var(--text-muted)" font-size="0.8rem">No Data</text></g>`; refs.dashboardGenreLegend.innerHTML = '<div class="anime-card-meta" style="margin-bottom:0; text-align: center; width: 100%;">Add genre-rich anime to see your distribution.</div>'; }
       else {
         renderGenreDonut(refs.dashboardGenreSvg, entries);
         const total = entries.reduce((s, [, c]) => s + Number(c || 0), 0), palette = ["var(--chart-purple)", "var(--chart-blue)", "var(--chart-cyan)", "var(--chart-green)", "var(--chart-orange)", "var(--chart-pink)"];
-        refs.dashboardGenreLegend.innerHTML = entries.map(([n, c], i) => `<div class="legend-item"><span class="legend-dot" style="background: ${palette[i % palette.length]}"></span><div class="legend-label"><span class="anime-card-meta" style="margin-bottom:0;color:var(--text-primary); font-weight:600;">${escapeHtml(n)}</span><span class="anime-card-meta" style="margin-bottom:0;font-size:0.6rem;">${Math.round((Number(c || 0)/total)*100)}%</span></div></div>`).join('');
+        const helperCopy = hasCompletedGenres ? "" : '<div class="anime-card-meta" style="margin-bottom:0; text-align:center; width:100%;">Showing all saved anime until you complete more series.</div>';
+        refs.dashboardGenreLegend.innerHTML = `${entries.map(([n, c], i) => `<div class="legend-item"><span class="legend-dot" style="background: ${palette[i % palette.length]}"></span><div class="legend-label"><span class="anime-card-meta" style="margin-bottom:0;color:var(--text-primary); font-weight:600;">${escapeHtml(n)}</span><span class="anime-card-meta" style="margin-bottom:0;font-size:0.6rem;">${Math.round((Number(c || 0)/total)*100)}%</span></div></div>`).join('')}${helperCopy}`;
       }
     }
     const rows = (backendRecs?.length) ? backendRecs : (() => { const topGenresList = topGenreNames(libraryItems), eid = new Set(libraryItems.map(i => Number(i?.malId || 0))); return selectors.getCombinedDiscoveryState(store.getState()).filter(a => !eid.has(Number(a?.malId || 0))).sort((l,r) => { const lm = (l?.genres || []).filter(g => topGenresList.includes(g)).length, rm = (r?.genres || []).filter(g => topGenresList.includes(g)).length; return rm !== lm ? rm - lm : Number(r?.score || 0) - Number(l?.score || 0); }).slice(0, 10); })();
@@ -618,8 +628,8 @@ export function initDashboardModules(ctx) {
 
   // Trigger data fetches for dashboard components that depend on store state
   Promise.allSettled([
-    getAiringAnime().then(res => ctx?.store?.dispatch({ type: 'SET_AIRING', payload: res.data || [] })),
-    getTrendingAnime().then(res => ctx?.store?.dispatch({ type: 'SET_TRENDING', payload: res.data || [] }))
+    getAiringAnime().then(res => ctx?.store?.set?.("airing", Array.isArray(res?.data) ? res.data : [])),
+    getTrendingAnime().then(res => ctx?.store?.set?.("trending", Array.isArray(res?.data) ? res.data : []))
   ]);
 
   return Object.freeze({
