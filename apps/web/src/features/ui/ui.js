@@ -67,59 +67,81 @@ function initChartTooltips({ tooltipId = "chart-tooltip" } = {}) {
   const tooltip = document.getElementById(tooltipId);
   if (!tooltip) return { destroy() {} };
   const decoder = document.createElement("textarea");
+  let rafId = 0;
+  let pendingEvent = null;
+  let activeTarget = null;
 
   function decodeHtml(value) {
     decoder.innerHTML = String(value || "");
     return decoder.value;
   }
 
-  function onMouseMove(e) {
-    const target = e.target.closest(".donut-slice, .genre-bar-item, .insight-legend-item, .si-legend-item, .legend-item, .activity-segment");
+  function renderTooltip(eventPayload) {
+    const rawTarget = eventPayload?.target;
+    if (rawTarget?.closest?.(".insight-activity-chart, .activity-chart-panel")) {
+      if (activeTarget) {
+        activeTarget = null;
+        tooltip.classList.remove("active");
+      }
+      return;
+    }
+
+    const target = rawTarget?.closest?.(".donut-slice, .genre-bar-item, .insight-legend-item, .si-legend-item, .legend-item");
     if (!target) {
+      activeTarget = null;
       tooltip.classList.remove("active");
       return;
     }
 
-    const html = target.getAttribute("data-tooltip-html");
-    const text = target.getAttribute("data-tooltip");
+    const html = target.getAttribute("data-tooltip-html") || "";
+    const text = target.getAttribute("data-tooltip") || "";
     if (!html && !text) {
+      activeTarget = null;
       tooltip.classList.remove("active");
       return;
     }
 
-    if (html) {
-      tooltip.innerHTML = decodeHtml(html);
-      tooltip.classList.add("is-rich");
-    } else {
-      tooltip.textContent = text;
-      tooltip.classList.remove("is-rich");
+    if (activeTarget !== target) {
+      activeTarget = target;
+      if (html) {
+        tooltip.innerHTML = decodeHtml(html);
+        tooltip.classList.add("is-rich");
+      } else {
+        tooltip.textContent = text;
+        tooltip.classList.remove("is-rich");
+      }
     }
     tooltip.classList.add("active");
 
-    if (target.classList.contains("activity-segment")) {
-      const rect = target.getBoundingClientRect();
-      const width = tooltip.offsetWidth;
-      const height = tooltip.offsetHeight;
-      const centerX = rect.left + rect.width / 2;
-      const topY = rect.top - height - 12;
-      const maxX = window.innerWidth - width - 12;
-      const minX = 12;
-      const minY = 12;
-      tooltip.style.left = `${Math.min(Math.max(centerX - width / 2, minX), maxX)}px`;
-      tooltip.style.top = `${Math.max(topY, minY)}px`;
-    } else {
-      const x = e.clientX + 15;
-      const y = e.clientY - 35;
-      const width = tooltip.offsetWidth;
-      const height = tooltip.offsetHeight;
-      const maxX = window.innerWidth - width - 20;
-      const minY = 20;
-      tooltip.style.left = `${Math.min(x, maxX)}px`;
-      tooltip.style.top = `${Math.max(y, minY)}px`;
-    }
+    const x = Number(eventPayload?.clientX || 0) + 15;
+    const y = Number(eventPayload?.clientY || 0) - 35;
+    const width = tooltip.offsetWidth;
+    const maxX = window.innerWidth - width - 20;
+    const minY = 20;
+    tooltip.style.left = `${Math.min(x, maxX)}px`;
+    tooltip.style.top = `${Math.max(y, minY)}px`;
+  }
+
+  function onMouseMove(e) {
+    pendingEvent = {
+      clientX: e.clientX,
+      clientY: e.clientY,
+      target: e.target
+    };
+    if (rafId) return;
+    rafId = requestAnimationFrame(() => {
+      rafId = 0;
+      renderTooltip(pendingEvent);
+    });
   }
 
   function onMouseLeave() {
+    pendingEvent = null;
+    activeTarget = null;
+    if (rafId) {
+      cancelAnimationFrame(rafId);
+      rafId = 0;
+    }
     tooltip.classList.remove("active");
   }
 
@@ -130,6 +152,7 @@ function initChartTooltips({ tooltipId = "chart-tooltip" } = {}) {
     destroy() {
       document.removeEventListener("mousemove", onMouseMove);
       document.removeEventListener("mouseleave", onMouseLeave);
+      if (rafId) cancelAnimationFrame(rafId);
       tooltip.classList.remove("active");
     }
   });

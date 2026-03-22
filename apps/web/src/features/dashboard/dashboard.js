@@ -485,6 +485,21 @@ export function initRecommendations({ store, libraryStore, selectors, toast = nu
   let recRefreshTimer = 0;
   let fetchInFlight = null;
   let libraryRefreshTimer = 0;
+  const normalizeGenres = (genres) => (Array.isArray(genres) ? genres
+    .map((genre) => {
+      if (typeof genre === "string") return genre.trim();
+      if (genre && typeof genre === "object") return String(genre.name || genre.title || genre.genre || "").trim();
+      return "";
+    })
+    .filter(Boolean) : []);
+  const getRecommendationId = (anime) => Number(anime?.malId || anime?.mal_id || 0);
+  const renderRecommendationCard = (anime) => {
+    const id = getRecommendationId(anime);
+    const title = escapeHtml(anime?.title || "");
+    const genresText = escapeHtml(normalizeGenres(anime?.genres).slice(0, 3).join(", ") || "Genre TBD");
+    const image = escapeHtml(anime?.image || "");
+    return `<article class="reco-card" data-id="${id}"><div class="reco-thumb-wrap"><img class="reco-thumb" src="${image}" alt="${title}" loading="lazy"></div><div class="reco-body"><h4 class="reco-title" title="${title}">${title}</h4><p class="reco-genres" title="${genresText}">${genresText}</p><div class="reco-actions"><button class="reco-add-btn" type="button" data-reco-action="add-plan" data-id="${id}">Add to Plan</button></div></div></article>`;
+  };
 
   async function fetchRecs() {
     if (fetchInFlight) return fetchInFlight;
@@ -524,7 +539,9 @@ export function initRecommendations({ store, libraryStore, selectors, toast = nu
       }
     }
     const rows = (backendRecs?.length) ? backendRecs : (() => { const topGenresList = topGenreNames(libraryItems), eid = new Set(libraryItems.map(i => Number(i?.malId || 0))); return selectors.getCombinedDiscoveryState(store.getState()).filter(a => !eid.has(Number(a?.malId || 0))).sort((l,r) => { const lm = (l?.genres || []).filter(g => topGenresList.includes(g)).length, rm = (r?.genres || []).filter(g => topGenresList.includes(g)).length; return rm !== lm ? rm - lm : Number(r?.score || 0) - Number(l?.score || 0); }).slice(0, 10); })();
-    if (refs.recommendedList) refs.recommendedList.innerHTML = rows.length ? rows.map((a) => `<div class="reco-card" data-id="${Number(a?.malId || a?.mal_id || 0)}"><div class="reco-thumb-wrap"><img class="reco-thumb" src="${escapeHtml(a?.image || "")}" alt="${escapeHtml(a?.title || "")}"></div><div class="reco-body"><div class="reco-title" title="${escapeHtml(a?.title || "")}">${escapeHtml(a?.title || "")}</div><div class="reco-genres">${(a?.genres || []).slice(0, 3).join(", ") || "Genre TBD"}</div><button class="reco-add-btn" type="button" data-reco-action="add-plan" data-id="${Number(a?.malId || a?.mal_id || 0)}">Add to Plan</button></div></div>`).join("") : `<div class="tracker-empty" style="text-align: center; padding: 2rem 1rem;"><span class="material-icons" style="font-size: 2.5rem; color: var(--text-gray-600); margin-bottom: 0.5rem;">auto_awesome</span><p class="anime-card-meta">Add anime to your watchlist to unlock personalized recommendations.</p></div>`;
+    if (refs.recommendedList) refs.recommendedList.innerHTML = rows.length
+      ? rows.map(renderRecommendationCard).join("")
+      : `<div class="tracker-empty reco-empty-state"><span class="material-icons reco-empty-icon">auto_awesome</span><p class="anime-card-meta">Add anime to your watchlist to unlock personalized recommendations.</p></div>`;
   }
 
   function onClick(e) {

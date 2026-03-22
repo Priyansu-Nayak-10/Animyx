@@ -165,20 +165,18 @@ class AnimeCard extends HTMLElement {
           border-radius: 16px;
           overflow: hidden;
           background: var(--bg-card, #181A2A);
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           border: 1px solid var(--border-glass, rgba(255, 255, 255, 0.06));
           box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
           height: 100%;
           min-height: 100%;
           outline: none;
-          filter: saturate(1.02);
         }
 
         :host(:hover), :host(:focus-visible) {
           transform: translateY(-6px);
           box-shadow: 0 16px 32px -10px rgba(0, 0, 0, 0.55), 0 6px 12px -8px rgba(0, 0, 0, 0.35);
           border-color: var(--brand-accent, rgba(250, 204, 21, 0.4));
-          filter: saturate(1.08);
         }
 
         :host(:focus-visible) {
@@ -251,7 +249,6 @@ class AnimeCard extends HTMLElement {
           align-items: center;
           gap: 0.2rem;
           background: rgba(0,0,0,0.55);
-          backdrop-filter: blur(6px);
           border: 1px solid rgba(168,85,247,0.3);
           border-radius: 6px;
           padding: 0.15rem 0.45rem;
@@ -264,7 +261,6 @@ class AnimeCard extends HTMLElement {
           display: inline-flex;
           align-items: center;
           background: rgba(0,0,0,0.55);
-          backdrop-filter: blur(6px);
           border: 1px solid rgba(255,255,255,0.1);
           border-radius: 6px;
           padding: 0.15rem 0.45rem;

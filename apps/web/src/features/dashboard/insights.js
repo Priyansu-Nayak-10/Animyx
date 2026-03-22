@@ -263,11 +263,24 @@ function renderWeeklyActivityChart(container, items) {
   }
 
   if (chart && tooltip) {
+    let rafId = 0;
+    let pendingPointerEvent = null;
+    let activeColumn = null;
+    let activeSegment = null;
+
+    const setHoveredColumn = (column) => {
+      if (activeColumn === column) return;
+      if (activeColumn) activeColumn.classList.remove("is-hovered");
+      activeColumn = column || null;
+      chart.classList.toggle("is-hovering", Boolean(activeColumn));
+      if (activeColumn) activeColumn.classList.add("is-hovered");
+    };
+
     const hideTooltip = () => {
       tooltip.style.opacity = "0";
       tooltip.classList.remove("is-rich");
-      chart.classList.remove("is-hovering");
-      chart.querySelectorAll(".activity-column.is-hovered").forEach((node) => node.classList.remove("is-hovered"));
+      activeSegment = null;
+      setHoveredColumn(null);
     };
 
     const positionTooltip = (event) => {
@@ -284,11 +297,10 @@ function renderWeeklyActivityChart(container, items) {
       tooltip.style.top = `${nextTop}px`;
     };
 
-    chart.onpointermove = (event) => {
+    const renderPointerMove = (event) => {
       const segment = event.target.closest(".activity-segment");
       const column = event.target.closest(".activity-column");
-      chart.classList.toggle("is-hovering", Boolean(column));
-      chart.querySelectorAll(".activity-column").forEach((node) => node.classList.toggle("is-hovered", node === column));
+      setHoveredColumn(column);
 
       if (!segment) {
         hideTooltip();
@@ -301,13 +313,36 @@ function renderWeeklyActivityChart(container, items) {
         return;
       }
 
-      tooltip.innerHTML = tooltipHtml;
+      if (activeSegment !== segment) {
+        activeSegment = segment;
+        tooltip.innerHTML = tooltipHtml;
+      }
       tooltip.classList.add("is-rich");
       tooltip.style.opacity = "1";
       positionTooltip(event);
     };
 
-    chart.onpointerleave = hideTooltip;
+    chart.onpointermove = (event) => {
+      pendingPointerEvent = {
+        clientX: event.clientX,
+        clientY: event.clientY,
+        target: event.target
+      };
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = 0;
+        renderPointerMove(pendingPointerEvent);
+      });
+    };
+
+    chart.onpointerleave = () => {
+      pendingPointerEvent = null;
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+        rafId = 0;
+      }
+      hideTooltip();
+    };
   }
 }
 
