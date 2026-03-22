@@ -7695,7 +7695,7 @@ body.dark .tracker-item-title {
     top: 4.7rem;
     right: 1.5rem;
     width: 320px;
-    max-height: 480px;
+    max-height: 340px;
     background: var(--bg-card);
     border: 1px solid var(--glass-bg);
     border-radius: var(--radius-xl);
