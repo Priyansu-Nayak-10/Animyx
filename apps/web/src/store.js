@@ -3,8 +3,6 @@
  * Lightweight reactive state store for Animyx frontend.
  */
 
-import { KEY_SETTINGS, KEY_PROFILE, KEY_LIBRARY } from './shared/storageKeys.js';
-
 // ─── Initial State ────────────────────────────────────────────────────────────
 const initialState = {
   // Auth
@@ -13,8 +11,8 @@ const initialState = {
 
   // UI
   activeView: 'dashboard',   // 'dashboard' | 'library' | 'search' | 'insights' | 'account'
-  theme: 'dark',
-  accentColor: '#1E90FF',
+  theme: 'dark',             // 'dark' | 'light'
+  accentColor: 'var(--brand-primary)',
   sidebarCollapsed: false,
   modalOpen: null,           // null | 'animeDetail' | 'settings' | ...
 
@@ -115,13 +113,13 @@ window.addEventListener('storage', (e) => {
   }
 
   // Handle settings changes from another tab
-  if (e.key === KEY_SETTINGS) {
+  if (e.key === 'Animyx_settings_v1') {
     try {
       const settings = e.newValue ? JSON.parse(e.newValue) : null;
       if (settings) {
         setState({
-          theme: 'dark',
-          accentColor: '#1E90FF'
+          theme: settings.darkTheme ? 'dark' : 'light',
+          accentColor: settings.accentColor || 'var(--brand-primary)'
         });
         window.dispatchEvent(new CustomEvent('Animyx:settings-sync', { detail: settings }));
       }
@@ -130,7 +128,7 @@ window.addEventListener('storage', (e) => {
   }
 
   // Handle profile changes from another tab
-  if (e.key === KEY_PROFILE) {
+  if (e.key === 'Animyx_profile_v1') {
     try {
       const profile = e.newValue ? JSON.parse(e.newValue) : null;
       if (profile) {
@@ -141,7 +139,7 @@ window.addEventListener('storage', (e) => {
   }
 
   // Handle library changes from another tab
-  if (e.key === KEY_LIBRARY) {
+  if (e.key === 'Animyx_library_v3') {
     try {
       const items = e.newValue ? JSON.parse(e.newValue) : [];
       if (Array.isArray(items)) {
@@ -159,73 +157,17 @@ const STATUS = Object.freeze({
   DROPPED: "dropped"
 });
 
-const STORAGE_KEY = KEY_LIBRARY;
-const LIBRARY_SCHEMA_VERSION = 1;
-const LIBRARY_SCHEMA_KEY = `${STORAGE_KEY}:schema`;
+const STORAGE_KEY = "Animyx_library_v3";
 
 function clone(data) {
   if (typeof structuredClone === "function") return structuredClone(data);
   return JSON.parse(JSON.stringify(data));
 }
 
-function safeStringify(value) {
-  try {
-    return JSON.stringify(value);
-  } catch {
-    return "";
-  }
-}
-
-function normalizeStatusValue(value) {
-  const raw = String(value || "").trim().toLowerCase();
-  if (raw === STATUS.WATCHING || raw === STATUS.COMPLETED || raw === STATUS.DROPPED) return raw;
-  return STATUS.PLAN;
-}
-
-function normalizeGenres(value) {
-  return (Array.isArray(value) ? value : [])
-    .map((genre) => (typeof genre === "string" ? genre : genre?.name))
-    .map((genre) => String(genre || "").trim())
-    .filter(Boolean);
-}
-
-function normalizeTitles(value) {
-  return Array.isArray(value) ? value.filter(Boolean) : [];
-}
-
-function normalizeLibraryItem(item = {}) {
-  const progress = Math.max(0, Number(item?.progress ?? item?.watchedEpisodes ?? 0));
-  const watchedEpisodes = Math.max(0, Number(item?.watchedEpisodes ?? progress));
-  const episodes = Math.max(0, Number(item?.episodes ?? item?.total_episodes ?? 0));
-  return {
-    ...item,
-    malId: Number(item?.malId || item?.mal_id || 0),
-    title: String(item?.title || item?.title_english || "").trim(),
-    title_english: String(item?.title_english || "").trim(),
-    titles: normalizeTitles(item?.titles),
-    image: String(item?.image || item?.poster || "").trim(),
-    status: normalizeStatusValue(item?.status),
-    progress,
-    watchedEpisodes,
-    episodes,
-    genres: normalizeGenres(item?.genres),
-    studio: String(item?.studio || "").trim(),
-    duration: String(item?.duration || "").trim(),
-    year: Number(item?.year || 0) || 0,
-    score: Number(item?.score || 0) || 0,
-    userRating: Number.isFinite(Number(item?.userRating)) && Number(item?.userRating) > 0 ? Math.min(10, Math.max(1, Number(item.userRating))) : null,
-    updatedAt: Number(item?.updatedAt || 0) || 0,
-    watchlistAddedAt: Number(item?.watchlistAddedAt || 0) || 0,
-    watchProgressAt: Number(item?.watchProgressAt || 0) || 0,
-    completedAt: Number(item?.completedAt || 0) || 0,
-    ratingUpdatedAt: Number(item?.ratingUpdatedAt || 0) || 0
-  };
-}
-
 function createLibraryStore(options = {}) {
   const storageKey = options.storageKey || STORAGE_KEY;
   const storage = options.storage || globalThis.localStorage;
-  const normalizeItem = typeof options.normalizeItem === "function" ? options.normalizeItem : normalizeLibraryItem;
+  const normalizeItem = typeof options.normalizeItem === "function" ? options.normalizeItem : (item) => item;
 
   let items = [];
   let initialized = false;
@@ -239,7 +181,6 @@ function createLibraryStore(options = {}) {
   function persist() {
     if (!storage?.setItem) return;
     storage.setItem(storageKey, JSON.stringify(items));
-    storage.setItem(LIBRARY_SCHEMA_KEY, String(LIBRARY_SCHEMA_VERSION));
   }
 
   function load() {
@@ -256,15 +197,9 @@ function createLibraryStore(options = {}) {
   function init(defaultLibrary = []) {
     const stored = load();
     const source = stored.length ? stored : (Array.isArray(defaultLibrary) ? defaultLibrary : []);
-    const normalized = source.map((item) => normalizeItem(item));
-    const existingSchemaVersion = Number(storage?.getItem?.(LIBRARY_SCHEMA_KEY) || 0) || 0;
-    const migrationNeeded = existingSchemaVersion < LIBRARY_SCHEMA_VERSION;
-    const shapeChanged = safeStringify(source) !== safeStringify(normalized);
-    items = normalized;
+    items = source.map((item) => normalizeItem(item));
     initialized = true;
-    if (migrationNeeded || shapeChanged || stored.length !== source.length) {
-      persist();
-    }
+    persist();
     notify();
     return clone(items);
   }

@@ -1,12 +1,26 @@
 import { STATUS } from "../../store.js";
 import { BACKEND_URL, withAuthHeaders } from "../../config.js";
-import { escapeHtml, renderEmptyState, renderLoadingState, renderErrorState } from "../../shared/components.js";
-import { debounce } from "../../core/perf.js";
 
 const SEARCH_PAGE_SIZE = 25;
 const LARGE_RENDER_THRESHOLD = 100;
 const RENDER_CHUNK_SIZE = 40;
 
+function escapeHtml(value) {
+  return String(value || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function debounce(fn, delayMs) {
+  let timer = 0;
+  return (...args) => {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), delayMs);
+  };
+}
 
 function normalizeSearchText(value) {
   return String(value || "")
@@ -258,24 +272,16 @@ function initSearchAdvanced({
     };
   }
 
-  function getLibraryStatusMap() {
-    const rows = Array.isArray(libraryStore?.getAll?.()) ? libraryStore.getAll() : [];
-    return new Map(
-      rows
-        .map((row) => [Number(row?.malId || 0), String(row?.status || "").toLowerCase()])
-        .filter(([malId]) => malId > 0)
-    );
-  }
-
   function buildResultCards(items) {
     if (!items.length) {
-      return renderEmptyState({
-        icon: 'search_off',
-        title: 'No results found',
-        message: 'Try adjusting your filters or search query.'
-      });
+      return `
+        <div class="tracker-empty" style="grid-column: 1 / -1; margin: 4rem auto; text-align: center;">
+          <span class="material-icons" style="font-size: 4rem; color: var(--text-gray-600); margin-bottom: 1rem;">search_off</span>
+          <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">No results found</h3>
+          <p class="anime-card-meta">Try adjusting your filters or search query.</p>
+        </div>
+      `;
     }
-    const libraryStatusMap = getLibraryStatusMap();
     return items.map((item) => {
       const score = Number(item?.score || 0);
       const scoreText = Number.isFinite(score) && score > 0 ? score.toFixed(1) : "N/A";
@@ -283,10 +289,6 @@ function initSearchAdvanced({
       const title = escapeHtml(String(item.title || "Unknown"));
       const genres = escapeHtml((item.genres || []).slice(0, 3).join(", ") || "Unknown");
       const image = escapeHtml(String(item.poster || item.image || ""));
-      const libraryStatus = libraryStatusMap.get(malId) || "";
-      const planActive = libraryStatus === STATUS.PLAN ? " active" : "";
-      const watchingActive = libraryStatus === STATUS.WATCHING ? " active" : "";
-      const completedActive = libraryStatus === STATUS.COMPLETED ? " active" : "";
       
       const totalEp = parseInt(item.total_episodes || item.episodes) || 0;
       const releasedEp = parseInt(item.released_episodes || item.episodesReleased) || 0;
@@ -316,9 +318,9 @@ function initSearchAdvanced({
               <p class="cover-genres">${genres} · ${epLabel}</p>
             </div>
             <div class="cover-actions">
-              <button class="status-pill status-plan${planActive}" type="button" data-search-action="add-plan" data-id="${malId}" aria-pressed="${planActive ? "true" : "false"}">Plan</button>
-              <button class="status-pill status-watching${watchingActive}" type="button" data-search-action="add-watching" data-id="${malId}" aria-pressed="${watchingActive ? "true" : "false"}">Watch</button>
-              <button class="status-pill status-completed${completedActive}" type="button" data-search-action="add-completed" data-id="${malId}" aria-pressed="${completedActive ? "true" : "false"}">Done</button>
+              <button class="status-pill status-plan" type="button" data-search-action="add-plan" data-id="${malId}">Plan</button>
+              <button class="status-pill status-watching" type="button" data-search-action="add-watching" data-id="${malId}">Watch</button>
+              <button class="status-pill status-completed" type="button" data-search-action="add-completed" data-id="${malId}">Done</button>
             </div>
           </div>
         </div>
@@ -772,28 +774,32 @@ function initSearchAdvanced({
 
     // Discover is a precision tool: no homepage rails or auto-search.
     if (!ui.hasSearched && !loading && !error && getSearchDataset().length === 0) {
-      refs.results.innerHTML = renderEmptyState({
-        icon: 'search',
-        title: 'Ready to Explore?',
-        message: 'Start typing a title or apply filters to search.',
-        extraClass: 'grid-span-full card'
-      });
+      refs.results.innerHTML = `
+        <div class="empty-state card" style="grid-column: 1 / -1;">
+          <p class="anime-card-meta">Start typing a title or apply filters to search.</p>
+        </div>
+      `;
       if (refs.resultCount) refs.resultCount.textContent = "";
       if (refs.pagination) refs.pagination.innerHTML = "";
       return;
     }
 
     if (loading) {
-      refs.results.innerHTML = renderLoadingState(Math.min(ui.pageSize, 10), 'card');
+      refs.results.innerHTML = Array.from({ length: Math.min(ui.pageSize, 10) }).map(() => `
+        <article class="anime-card-v2" style="pointer-events: none;">
+          <div class="anime-modal-skeleton" style="width: 100%; aspect-ratio: 2/3; border-radius: 0.5rem; margin-bottom: 0.75rem;"></div>
+          <div class="anime-card-content">
+            <div class="anime-modal-skeleton anime-modal-line-skeleton short" style="height: 14px; margin-bottom: 8px;"></div>
+            <div class="anime-modal-skeleton anime-modal-line-skeleton" style="height: 12px; width: 60%;"></div>
+          </div>
+        </article>
+      `).join("");
       renderFooter(0, meta);
       return;
     }
 
     if (error) {
-      refs.results.innerHTML = renderErrorState({
-        message: error,
-        extraClass: 'grid-span-full card'
-      });
+      refs.results.innerHTML = `<div class="empty-state card"><p class="anime-card-meta">${escapeHtml(error)}</p></div>`;
       renderFooter(0, meta);
       return;
     }
@@ -1087,9 +1093,6 @@ function initSearchAdvanced({
   const unsubscribe = store.subscribe(() => {
     render();
   });
-  const unsubscribeLibrary = libraryStore?.subscribe?.(() => {
-    render();
-  });
 
   render();
 
@@ -1101,7 +1104,6 @@ function initSearchAdvanced({
       document.removeEventListener("click", onDocumentClick);
       document.removeEventListener("keydown", onDocumentKeydown);
       unsubscribe();
-      unsubscribeLibrary?.();
       refs.globalSearchInput?.removeEventListener("input", onGlobalInput);
       refs.globalSearchInput?.removeEventListener("keydown", onGlobalKeydown);
       refs.globalSearchInput?.removeEventListener("focus", onGlobalFocus);

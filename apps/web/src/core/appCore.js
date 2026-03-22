@@ -2,7 +2,6 @@ import { createApiClient, API_BASE, DEFAULT_LIVE_UPCOMING_ENDPOINT } from './api
 import { authFetch, apiUrl, BACKEND_ORIGIN, getAccessToken } from '../config.js';
 import { getClientId, supabase } from './utils.js';
 import { getState, setState } from '../store.js';
-import { KEY_PROFILE, KEY_SETTINGS } from '../shared/storageKeys.js';
 
 // ---------------------------------------------------------------------------
 // Socket
@@ -32,23 +31,27 @@ function initSocket(onNotification) {
   });
 
   socket.on('connect', () => {
+    console.log('[Socket] Connected — id:', socket.id);
     socket.emit('subscribe');
   });
 
   socket.on('notification', (data) => {
+    console.log('[Socket] Notification received:', data);
     if (typeof onNotification === 'function') {
       onNotification(data);
     }
   });
 
-  socket.on('disconnect', () => {
+  socket.on('disconnect', (reason) => {
+    console.log('[Socket] Disconnected:', reason);
   });
 
   socket.on('connect_error', (err) => {
     console.warn('[Socket] Connection error:', err.message);
   });
 
-  socket.on('reconnect', () => {
+  socket.on('reconnect', (attempt) => {
+    console.log(`[Socket] Reconnected after ${attempt} attempt(s)`);
     socket.emit('subscribe');
   });
 
@@ -129,6 +132,14 @@ function createDataStore(initialState = {}, options = {}) {
       errorTransitions[key] = { from, to };
     });
 
+    console.groupCollapsed(
+      `[DataStore] ${meta.type || "update"}${meta.key ? `:${meta.key}` : ""}`
+    );
+    console.log("changedKeys", changed);
+    if (Object.keys(loadingTransitions).length) console.log("loadingTransitions", loadingTransitions);
+    if (Object.keys(errorTransitions).length) console.log("errorTransitions", errorTransitions);
+    if (meta.type === "set" || meta.type === "patch") console.log("payload", meta.payload);
+    console.groupEnd();
   }
 
   function flushNotify() {
@@ -373,6 +384,8 @@ class SyncService {
     const userId = this.currentUser?.id;
     if (!userId) return;
 
+    console.log('[SyncService] 📡 Subscribing to real-time updates...');
+
     // 1. Library Sync Channel
     const libraryChannel = supabase
       .channel(`sync:library:${userId}`)
@@ -495,6 +508,7 @@ class SyncService {
   handleProfileChange(payload) {
     if (payload.eventType === 'DELETE') return;
 
+    console.log('[SyncService] Profile change received');
     const data = payload.new;
     const profile = {
       name: data.name,
@@ -506,7 +520,7 @@ class SyncService {
     };
 
     // Update localStorage to trigger UI refresh (if userFeatures is listening)
-    localStorage.setItem(KEY_PROFILE, JSON.stringify(profile));
+    localStorage.setItem('Animyx_profile_v1', JSON.stringify(profile));
 
     // Dispatch custom event for UI components
     window.dispatchEvent(new CustomEvent('Animyx:profile-sync', { detail: profile }));
@@ -515,23 +529,24 @@ class SyncService {
   handleSettingsChange(payload) {
     if (payload.eventType === 'DELETE') return;
 
+    console.log('[SyncService] Settings change received');
     const data = payload.new;
     const settings = {
-      darkTheme: true,
+      darkTheme: data.dark_theme,
       notifications: data.notifications,
       autoplay: data.autoplay,
       dataSaver: data.data_saver,
       titleLang: data.title_lang,
       defaultStatus: data.default_status,
-      accentColor: '#1E90FF'
+      accentColor: data.accent_color
     };
 
-    localStorage.setItem(KEY_SETTINGS, JSON.stringify(settings));
+    localStorage.setItem('Animyx_settings_v1', JSON.stringify(settings));
 
     // Update global store
     setState({
-      theme: 'dark',
-      accentColor: '#1E90FF'
+      theme: settings.darkTheme ? 'dark' : 'light',
+      accentColor: settings.accentColor
     });
 
     window.dispatchEvent(new CustomEvent('Animyx:settings-sync', { detail: settings }));
@@ -718,6 +733,7 @@ async function backfillMissingImages(store) {
   const missing = items.filter((item) => !item.image);
 
   if (missing.length === 0) return;
+  console.log(`[CloudSync] Backfilling images for ${missing.length} items...`);
 
   let updatedAny = false;
   for (const item of missing) {

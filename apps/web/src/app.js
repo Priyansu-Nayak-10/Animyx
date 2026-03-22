@@ -10,24 +10,21 @@ import './features/auth/sessionBootstrap.js';
 
 // ── All imports must be at the top of an ES module ───────────
 import './components/AnimeCard.js';
-import { initSocket, createApiClient, createDataStore, initLibraryCloudSync, syncService } from './core/appCore.js';
-import * as selectors from './core/appCore.js';
+import { initSocket, createApiClient } from './core/appCore.js';
 import { loadNotifications, onSocketNotification, clearAllNotifications } from './features/notifications/notifications.js';
-import { getState, setState, restoreKey, persistKey, createLibraryStore } from './store.js';
+import { getState, setState, restoreKey, persistKey } from './store.js';
 import { authFetch, apiUrl } from './config.js';
-import { initInsights, initDashboardModules, initMilestones, initTrackerFeed } from './features/dashboard/dashboard.js';
+import { createDataStore, initLibraryCloudSync, syncService } from './core/appCore.js';
+import * as selectors from './core/appCore.js';
+import { createLibraryStore } from './store.js';
+import { initInsights } from './features/dashboard/dashboard.js';
 import { initSearchAdvanced } from './features/search/search.js';
 import { initSeasonBrowser } from './features/season/seasonBrowser.js';
 import { initUI } from './features/ui/ui.js';
 import { initLibraryUI } from './features/library/library.js';
+import { initDashboardModules, initMilestones, initTrackerFeed } from './features/dashboard/dashboard.js';
 import { initProfile, initSettings, initExport, initImport } from './features/user/userFeatures.js';
 import { normalizeAnime, dedupeAnimeList, bindNavigation, openView, initSectionReveal, initImageBlurUp } from './core/utils.js';
-import { KEY_SETTINGS } from './shared/storageKeys.js';
-
-const ONE_PIECE_THEME = Object.freeze({
-  theme: 'dark',
-  accentColor: '#1E90FF'
-});
 
 // --- Production Console Cleaner & PWA Setup ---
 if (!window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')) {
@@ -44,52 +41,54 @@ if ('serviceWorker' in navigator) {
 }
 
 // ── Restore persisted preferences ────────────────────────────
-try {
-  const rawSettings = localStorage.getItem(KEY_SETTINGS);
-  const parsedSettings = rawSettings ? JSON.parse(rawSettings) : {};
-  localStorage.setItem(KEY_SETTINGS, JSON.stringify({
-    ...parsedSettings,
-    darkTheme: true,
-    accentColor: ONE_PIECE_THEME.accentColor
-  }));
-  localStorage.setItem('Animyx_theme', ONE_PIECE_THEME.theme);
-  localStorage.removeItem('Animyx:theme');
-  localStorage.removeItem('Animyx:accentColor');
-} catch { }
-setState({ theme: ONE_PIECE_THEME.theme, accentColor: ONE_PIECE_THEME.accentColor });
+// Prioritize unified settings object
+const settingsRaw = localStorage.getItem('Animyx_settings_v1');
+if (settingsRaw) {
+  try {
+    const s = JSON.parse(settingsRaw);
+    if (s.darkTheme !== undefined) setState({ theme: s.darkTheme ? 'dark' : 'light' });
+    if (s.accentColor) setState({ accentColor: s.accentColor });
+  } catch { }
+} else {
+  // Fallback to individual legacy keys
+  restoreKey('theme');
+  restoreKey('accentColor');
+}
 
 restoreKey('currentUser');
 
 // Ensure changes are persisted back to their respective keys
+persistKey('theme');
+persistKey('accentColor');
 persistKey('currentUser');
 
 // ── Apply theme + accent ──────────────────────────────────────
-const applyTheme = () => {
-  const next = 'dark';
+const applyTheme = (theme) => {
+  const next = theme === 'light' ? 'light' : 'dark';
   document.documentElement.setAttribute('data-theme', next);
-  document.body.classList.add('dark');
+  document.body.classList.toggle('dark', next === 'dark');
   // Sync with localStorage for legacy / fallback
   try {
     localStorage.setItem('Animyx_theme', next);
   } catch { }
 };
 
-const applyAccent = () => {
-  const nextColor = ONE_PIECE_THEME.accentColor;
+const applyAccent = (color) => {
+  const allowedAccents = new Set(['#8b5cf6', '#7c3aed', '#6d28d9', '#a78bfa', '#c4b5fd', '#9333ea', '#7e22ce', '#581c87']);
+  const nextColor = allowedAccents.has(String(color || '').toLowerCase()) ? String(color).toLowerCase() : '#8b5cf6';
   const root = document.documentElement;
   root.style.setProperty('--brand-primary', nextColor);
   root.style.setProperty('--accent', nextColor); // legacy fallback
-  root.style.setProperty('--chart-purple', nextColor);
 };
 
 // Initial application from synced state
-applyTheme();
-applyAccent();
+applyTheme(getState('theme') || 'dark');
+applyAccent(getState('accentColor') || '#8b5cf6');
 
 // ── Bootstrap on DOMContentLoaded ─────────────────────────────
 const initAuthEvents = async () => {
   await (window.__Animyx_AUTH_READY || Promise.resolve());
-
+  console.log('[Animyx] 🚀 Starting...');
 
   // ── Notification bell wiring ────────────────────────────────
   // NOTE: Sidebar toggle/close is handled by bindNavigation() in core/utils.js
@@ -254,9 +253,7 @@ const initAuthEvents = async () => {
   // ── Theme toggle sync ──────────────────────────────────────
   const darkThemeToggle = document.getElementById('setting-dark-theme');
   const syncThemeToggleState = () => {
-    if (!darkThemeToggle) return;
-    darkThemeToggle.checked = true;
-    darkThemeToggle.disabled = true;
+    if (darkThemeToggle) darkThemeToggle.checked = getState('theme') !== 'light';
   };
   if (darkThemeToggle) {
     syncThemeToggleState();
@@ -281,8 +278,10 @@ const initAuthEvents = async () => {
     });
   } else {
     // No authenticated user — skip socket to avoid subscribing with wrong ID
+    console.info('[Animyx] No user session — socket not connected.');
   }
 
+  console.log('[Animyx] ✅ Ready');
 };
 
 if (document.readyState === 'loading') {
@@ -565,78 +564,6 @@ function createDataController({ api, store }) {
 // bindNavigation, openView, and initSectionReveal are now in:
 // public/src/core/navigation.js and public/src/core/sectionReveal.js
 
-function initAppLiveRefresh({ controller, notificationsEnabled = false } = {}) {
-  let dashboardRefreshTimer = 0;
-  let notificationsRefreshTimer = 0;
-  let dashboardInFlight = null;
-  let notificationsInFlight = null;
-
-  async function refreshDashboard() {
-    if (dashboardInFlight) return dashboardInFlight;
-    dashboardInFlight = (async () => {
-      await controller.loadDashboardData();
-      await controller.loadLiveUpcoming();
-    })();
-    try {
-      return await dashboardInFlight;
-    } finally {
-      dashboardInFlight = null;
-    }
-  }
-
-  async function refreshNotifications() {
-    if (!notificationsEnabled) return;
-    if (notificationsInFlight) return notificationsInFlight;
-    notificationsInFlight = loadNotifications();
-    try {
-      return await notificationsInFlight;
-    } finally {
-      notificationsInFlight = null;
-    }
-  }
-
-  function refreshForeground() {
-    if (document.visibilityState !== "visible") return;
-    void refreshDashboard();
-    void refreshNotifications();
-  }
-
-  function refreshOnline() {
-    void refreshDashboard();
-    void refreshNotifications();
-  }
-
-  window.addEventListener("focus", refreshForeground, { passive: true });
-  document.addEventListener("visibilitychange", refreshForeground, { passive: true });
-  window.addEventListener("online", refreshOnline, { passive: true });
-  window.addEventListener("Animyx:library-sync-received", refreshForeground, { passive: true });
-
-  dashboardRefreshTimer = window.setInterval(() => {
-    if (document.visibilityState !== "visible") return;
-    void refreshDashboard();
-  }, 5 * 60 * 1000);
-
-  if (notificationsEnabled) {
-    notificationsRefreshTimer = window.setInterval(() => {
-      if (document.visibilityState !== "visible") return;
-      void refreshNotifications();
-    }, 60 * 1000);
-  }
-
-  return Object.freeze({
-    refreshDashboard,
-    refreshNotifications,
-    destroy() {
-      window.removeEventListener("focus", refreshForeground);
-      document.removeEventListener("visibilitychange", refreshForeground);
-      window.removeEventListener("online", refreshOnline);
-      window.removeEventListener("Animyx:library-sync-received", refreshForeground);
-      if (dashboardRefreshTimer) window.clearInterval(dashboardRefreshTimer);
-      if (notificationsRefreshTimer) window.clearInterval(notificationsRefreshTimer);
-    }
-  });
-}
-
 function initDebugDiagnosticsPanel({ api, store, libraryStore, timers = globalThis }) {
   const card = document.createElement("aside");
   card.setAttribute("aria-live", "polite");
@@ -857,10 +784,7 @@ async function bootstrap() {
   }
 
   await controller.loadDashboardData();
-  await controller.loadLiveUpcoming();
   controller.startAiringRefresh();
-  controller.startLiveUpcomingRefresh();
-  modules.push(initAppLiveRefresh({ controller, notificationsEnabled: Boolean(user?.id) }));
 
   if (params.get("debug") === "1") {
     modules.push(initDebugDiagnosticsPanel({ api, store, libraryStore }));
@@ -868,7 +792,6 @@ async function bootstrap() {
 
   window.addEventListener("beforeunload", () => {
     controller.stopAiringRefresh();
-    controller.stopLiveUpcomingRefresh();
     modules.forEach((mod) => mod?.destroy?.());
   }, { once: true });
 }

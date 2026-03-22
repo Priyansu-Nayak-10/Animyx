@@ -6,8 +6,7 @@
 
 import { authFetch, apiUrl, BACKEND_ORIGIN, getAccessToken } from "../../config.js";
 import { STATUS } from "../../store.js";
-import { getTopOngoingAnikoto } from "../../core/appCore.js";
-import { getAiringAnime, getTrendingAnime } from "../../services/animeService.js";
+import { getTopOngoingAnikoto } from "../../core/appCore.js"; // Will point to core.js after next step
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -29,21 +28,21 @@ export const DONUT_PALETTE = [
 ];
 
 const GENRE_META = {
-  action: { icon: "local_fire_department", color: "#1e90ff" },
-  adventure: { icon: "explore", color: "#38bdf8" },
-  comedy: { icon: "sentiment_very_satisfied", color: "#facc15" },
-  drama: { icon: "theater_comedy", color: "#0077be" },
-  fantasy: { icon: "auto_fix_high", color: "#06b6d4" },
-  romance: { icon: "favorite", color: "#f43f5e" },
-  "sci-fi": { icon: "rocket_launch", color: "#38bdf8" },
-  slice: { icon: "local_cafe", color: "#22c55e" },
-  mystery: { icon: "search", color: "#0ea5e9" },
-  thriller: { icon: "bolt", color: "#0284c7" },
-  horror: { icon: "psychology", color: "#0f172a" },
-  sports: { icon: "sports_baseball", color: "#22c55e" },
-  supernatural: { icon: "visibility", color: "#1e90ff" },
-  isekai: { icon: "vpn_key", color: "#38bdf8" },
-  mecha: { icon: "smart_toy", color: "#9fbad6" }
+  action: { icon: "local_fire_department", color: "#8b5cf6" },
+  adventure: { icon: "explore", color: "#a78bfa" },
+  comedy: { icon: "sentiment_very_satisfied", color: "#c4b5fd" },
+  drama: { icon: "theater_comedy", color: "#7c3aed" },
+  fantasy: { icon: "auto_fix_high", color: "#9333ea" },
+  romance: { icon: "favorite", color: "#d8b4fe" },
+  "sci-fi": { icon: "rocket_launch", color: "#a78bfa" },
+  slice: { icon: "local_cafe", color: "#c4b5fd" },
+  mystery: { icon: "search", color: "#6d28d9" },
+  thriller: { icon: "bolt", color: "#7e22ce" },
+  horror: { icon: "psychology", color: "#581c87" },
+  sports: { icon: "sports_baseball", color: "#9333ea" },
+  supernatural: { icon: "visibility", color: "#8b5cf6" },
+  isekai: { icon: "vpn_key", color: "#a78bfa" },
+  mecha: { icon: "smart_toy", color: "#b7abd9" }
 };
 
 // ── Utilities ────────────────────────────────────────────────────────────────
@@ -111,14 +110,6 @@ export function topGenresWithOthers(items, limit = 3) {
   return head;
 }
 
-function getGenreSnapshotEntries(items = [], limit = 3) {
-  const libraryItems = Array.isArray(items) ? items : [];
-  const completed = libraryItems.filter((item) => String(item?.status || "").toLowerCase() === "completed");
-  const completedEntries = topGenresWithOthers(completed, limit);
-  if (completedEntries.length) return completedEntries;
-  return topGenresWithOthers(libraryItems, limit);
-}
-
 export function topGenreNames(items) {
   const counts = new Map();
   items.forEach((item) => {
@@ -138,87 +129,6 @@ export function derivePersonality(stats) {
   return { name: "Rising Otaku", desc: "Your library is growing with a balanced watch pace." };
 }
 
-function pluralize(count, singular, plural = `${singular}s`) {
-  const value = Math.max(0, Number(count || 0));
-  return `${value} ${value === 1 ? singular : plural}`;
-}
-
-function buildDidYouKnowFact(items = [], stats = {}) {
-  const libraryItems = Array.isArray(items) ? items : [];
-  if (!libraryItems.length) {
-    return {
-      text: "Start building your library and this card will surface a personalized anime fact.",
-      sub: "Powered by your watch history"
-    };
-  }
-
-  const normalized = libraryItems.map((item) => ({
-    ...item,
-    title: String(item?.title || "Unknown Title").trim(),
-    year: Number(item?.year || 0) || 0,
-    episodes: Math.max(0, Number(item?.episodes || 0)),
-    progress: Math.max(0, Number(item?.progress ?? item?.watchedEpisodes ?? 0)),
-    genres: Array.isArray(item?.genres) ? item.genres.map((genre) => String(typeof genre === "string" ? genre : genre?.name || "").trim()).filter(Boolean) : [],
-    studio: String(item?.studio || "").trim(),
-    updatedAt: Math.max(0, Number(item?.updatedAt || 0))
-  }));
-
-  const withYear = normalized.filter((item) => item.year > 0);
-  if (withYear.length) {
-    const oldest = withYear.reduce((best, item) => {
-      if (!best) return item;
-      if (item.year < best.year) return item;
-      return best;
-    }, null);
-    if (oldest) {
-      return {
-        text: `${oldest.title} is the oldest anime in your library, first released in ${oldest.year}.`,
-        sub: "Earliest title in your collection"
-      };
-    }
-  }
-
-  const genreCounts = new Map();
-  normalized.forEach((item) => {
-    item.genres.forEach((genre) => {
-      genreCounts.set(genre, (genreCounts.get(genre) || 0) + 1);
-    });
-  });
-  if (genreCounts.size) {
-    const [topGenre, topGenreCount] = [...genreCounts.entries()].sort((a, b) => b[1] - a[1])[0];
-    return {
-      text: `${topGenre} is your signature lane right now, showing up in ${pluralize(topGenreCount, "anime")}.`,
-      sub: "Most common genre in your library"
-    };
-  }
-
-  const completedCount = Math.max(0, Number(stats?.completed || 0));
-  if (completedCount > 0) {
-    return {
-      text: `You have already completed ${pluralize(completedCount, "series")}, which is a strong watch history in the making.`,
-      sub: "Based on your completed library"
-    };
-  }
-
-  const mostProgressed = normalized.reduce((best, item) => {
-    if (!best) return item;
-    if (item.progress > best.progress) return item;
-    if (item.progress === best.progress && item.updatedAt > best.updatedAt) return item;
-    return best;
-  }, null);
-  if (mostProgressed && mostProgressed.progress > 0) {
-    return {
-      text: `${mostProgressed.title} is your most-progressed title so far at episode ${mostProgressed.progress}.`,
-      sub: "Current progress highlight"
-    };
-  }
-
-  return {
-    text: `Your library already tracks ${pluralize(normalized.length, "anime")}; add a few more and this card will get even smarter.`,
-    sub: "Library overview"
-  };
-}
-
 // ── Shared UI Helpers ────────────────────────────────────────────────────────
 
 function getGenreConfig(genreName) {
@@ -226,7 +136,7 @@ function getGenreConfig(genreName) {
   for (const [key, val] of Object.entries(GENRE_META)) {
     if (norm.includes(key)) return val;
   }
-  return { icon: "local_offer", color: "#1e90ff" };
+  return { icon: "local_offer", color: "#8b5cf6" };
 }
 
 export function renderGenreDonut(svgElement, entries, opts = {}) {
@@ -260,7 +170,7 @@ export function renderInsightGenreDonut(svgElement, entries) {
   if (!svgElement) return;
   const total = entries.reduce((s, c) => s + Number(c[1] || 0), 0);
   if (!total) {
-    svgElement.innerHTML = `<g opacity="0.7"><circle cx="110" cy="110" r="98" fill="none" stroke="rgba(56, 189, 248, 0.18)" stroke-width="24" stroke-dasharray="10 8"></circle></g><text x="110" y="110" text-anchor="middle" fill="var(--text-muted)">No data</text>`;
+    svgElement.innerHTML = `<g opacity="0.7"><circle cx="110" cy="110" r="98" fill="none" stroke="rgba(167, 139, 250, 0.18)" stroke-width="24" stroke-dasharray="10 8"></circle></g><text x="110" y="110" text-anchor="middle" fill="var(--text-muted)">No data</text>`;
     return;
   }
   const cx = 110, cy = 110, outerR = 100, innerR = 60;
@@ -274,7 +184,7 @@ export function renderInsightGenreDonut(svgElement, entries) {
     const sweep = (Number(count) / total) * 360;
     const path = describeDonutArc(cx, cy, outerR, innerR, angle, angle + sweep);
     angle += sweep;
-    return `<path class="pie-slice" d="${path}" fill="url(#${uid}-ig${i})" />`;
+    return `<path d="${path}" fill="url(#${uid}-ig${i})" />`;
   }).join('');
   svgElement.innerHTML = `<defs>${gradientDefs}</defs>${slices}`;
 }
@@ -395,8 +305,6 @@ export function initTrackerFeed({ libraryStore, milestones = null }) {
   const listEl = document.getElementById("tracker-feed-list"), countBadge = document.getElementById("tracker-count-badge"), liveBadge = document.getElementById("tracker-live-badge");
   if (!listEl) return { destroy() { }, addEvent() { } };
   let backendItems = [], localItems = [];
-  let backendRefreshTimer = 0;
-  let refreshInFlight = null;
 
   function renderRows(items) {
     if (!items.length) { listEl.innerHTML = '<div class="tracker-empty"><span class="material-icons">sensors_off</span><p>No active synchronization data.</p></div>'; return; }
@@ -417,8 +325,6 @@ export function initTrackerFeed({ libraryStore, milestones = null }) {
   }
 
   async function fetchBackend() {
-    if (refreshInFlight) return refreshInFlight;
-    refreshInFlight = (async () => {
     try {
       const allItems = []; let page = 1, hasMore = true;
       while (hasMore) {
@@ -432,93 +338,25 @@ export function initTrackerFeed({ libraryStore, milestones = null }) {
       milestones?.onNotificationsLoaded?.(backendItems);
     } catch { try { backendItems = JSON.parse(localStorage.getItem(TRACKER_NOTIF_CACHE_KEY) || "[]"); } catch { backendItems = []; } }
     render();
-    })();
-    try {
-      return await refreshInFlight;
-    } finally {
-      refreshInFlight = null;
-    }
   }
-
-  function refreshOnFocus() { void fetchBackend(); }
-  function refreshOnOnline() { void fetchBackend(); }
-  function refreshOnVisible() {
-    if (document.visibilityState === "visible") void fetchBackend();
-  }
-  function refreshOnSync() { void fetchBackend(); }
 
   const unsub = libraryStore.subscribe?.(render);
-  window.addEventListener("focus", refreshOnFocus, { passive: true });
-  window.addEventListener("online", refreshOnOnline, { passive: true });
-  document.addEventListener("visibilitychange", refreshOnVisible, { passive: true });
-  window.addEventListener("Animyx:library-sync-received", refreshOnSync, { passive: true });
-  backendRefreshTimer = window.setInterval(() => {
-    if (document.visibilityState !== "visible") return;
-    void fetchBackend();
-  }, 60_000);
-
   render(); void fetchBackend();
-  return Object.freeze({
-    render,
-    addEvent(ed) {
-      backendItems.unshift({ type: ed.type || "SEQUEL_ANNOUNCED", message: ed.message || "New update", created_at: new Date().toISOString() });
-      milestones?.onNotificationsLoaded?.(backendItems);
-      render();
-    },
-    destroy() {
-      unsub?.();
-      window.removeEventListener("focus", refreshOnFocus);
-      window.removeEventListener("online", refreshOnOnline);
-      document.removeEventListener("visibilitychange", refreshOnVisible);
-      window.removeEventListener("Animyx:library-sync-received", refreshOnSync);
-      if (backendRefreshTimer) window.clearInterval(backendRefreshTimer);
-    }
-  });
+  return Object.freeze({ render, addEvent(ed) { backendItems.unshift({ type: ed.type || "SEQUEL_ANNOUNCED", message: ed.message || "New update", created_at: new Date().toISOString() }); milestones?.onNotificationsLoaded?.(backendItems); render(); }, destroy() { unsub?.(); } });
 }
 
 // ── Recommendations Module ───────────────────────────────────────────────────
 
 export function initRecommendations({ store, libraryStore, selectors, toast = null }) {
   const dashboardRoot = document.getElementById("dashboard-view") || document;
-  const refs = { recommendedList: document.getElementById("recommended-list"), quickTotal: document.getElementById("quick-total"), quickPlan: document.getElementById("quick-plan"), quickGenres: document.getElementById("quick-genres"), quickTopGenres: document.getElementById("quick-top-genres"), personalityName: document.getElementById("anime-personality-name"), personalityDesc: document.getElementById("anime-personality-desc"), dashboardGenreSvg: document.getElementById("completed-genre-pie"), dashboardGenreLegend: dashboardRoot.querySelector(".stats-container .legend"), promoTriviaText: document.getElementById("promo-trivia-text"), promoTriviaSub: document.getElementById("promo-trivia-sub") };
+  const refs = { recommendedList: document.getElementById("recommended-list"), quickTotal: document.getElementById("quick-total"), quickPlan: document.getElementById("quick-plan"), quickGenres: document.getElementById("quick-genres"), quickTopGenres: document.getElementById("quick-top-genres"), personalityName: document.getElementById("anime-personality-name"), personalityDesc: document.getElementById("anime-personality-desc"), dashboardGenreSvg: document.getElementById("completed-genre-pie"), dashboardGenreLegend: dashboardRoot.querySelector(".stats-container .legend") };
   let backendRecs = null;
-  let recRefreshTimer = 0;
-  let fetchInFlight = null;
-  let libraryRefreshTimer = 0;
-  const normalizeGenres = (genres) => (Array.isArray(genres) ? genres
-    .map((genre) => {
-      if (typeof genre === "string") return genre.trim();
-      if (genre && typeof genre === "object") return String(genre.name || genre.title || genre.genre || "").trim();
-      return "";
-    })
-    .filter(Boolean) : []);
-  const getRecommendationId = (anime) => Number(anime?.malId || anime?.mal_id || 0);
-  const renderRecommendationCard = (anime) => {
-    const id = getRecommendationId(anime);
-    const title = escapeHtml(anime?.title || "");
-    const genresText = escapeHtml(normalizeGenres(anime?.genres).slice(0, 3).join(", ") || "Genre TBD");
-    const image = escapeHtml(anime?.image || "");
-    return `<article class="reco-card" data-id="${id}"><div class="reco-thumb-wrap"><img class="reco-thumb" src="${image}" alt="${title}" loading="lazy"></div><div class="reco-body"><h4 class="reco-title" title="${title}">${title}</h4><p class="reco-genres" title="${genresText}">${genresText}</p><div class="reco-actions"><button class="reco-add-btn" type="button" data-reco-action="add-plan" data-id="${id}">Add to Plan</button></div></div></article>`;
-  };
 
   async function fetchRecs() {
-    if (fetchInFlight) return fetchInFlight;
-    fetchInFlight = (async () => {
     try {
       const res = await authFetch(apiUrl("/user/me/recommendations"));
-      if (res.ok) {
-        backendRecs = (await res.json())?.data || [];
-        if (backendRecs.length) render();
-      }
-    } catch {
-      backendRecs = [];
-    }
-    })();
-    try {
-      return await fetchInFlight;
-    } finally {
-      fetchInFlight = null;
-    }
+      if (res.ok) { backendRecs = (await res.json())?.data || []; if (backendRecs.length) render(); }
+    } catch { backendRecs = []; }
   }
 
   function render() {
@@ -526,41 +364,20 @@ export function initRecommendations({ store, libraryStore, selectors, toast = nu
     if (refs.quickTotal) refs.quickTotal.textContent = String(stats.total);
     if (refs.quickPlan) refs.quickPlan.textContent = String(stats.plan);
     if (refs.quickGenres) refs.quickGenres.textContent = String(genres.length);
-    const didYouKnow = buildDidYouKnowFact(libraryItems, stats);
-    if (refs.promoTriviaText) refs.promoTriviaText.textContent = didYouKnow.text;
-    if (refs.promoTriviaSub) refs.promoTriviaSub.textContent = didYouKnow.sub;
     if (refs.personalityName) refs.personalityName.textContent = personality.name;
     if (refs.personalityDesc) refs.personalityDesc.textContent = personality.desc;
     if (refs.quickTopGenres) refs.quickTopGenres.innerHTML = genres.length ? genres.map(([g]) => { const c = getGenreConfig(g); return `<div class="genre-chip" style="--accent: ${c.color}"><span class="material-icons">${c.icon}</span><span>${escapeHtml(g)}</span></div>`; }).join("") : '<span class="anime-card-meta">No genre data yet</span>';
     if (refs.dashboardGenreSvg && refs.dashboardGenreLegend) {
-      const entries = getGenreSnapshotEntries(libraryItems, 3);
-      const hasCompletedGenres = topGenresWithOthers(completed, 3).length > 0;
-      if (!entries.length) { refs.dashboardGenreSvg.innerHTML = `<g transform="translate(100,100)"><circle r="95" fill="none" stroke="rgba(56, 189, 248, 0.14)" stroke-width="20" stroke-dasharray="10 10"></circle><text x="0" y="5" text-anchor="middle" fill="var(--text-muted)" font-size="0.8rem">No Data</text></g>`; refs.dashboardGenreLegend.innerHTML = '<div class="anime-card-meta" style="margin-bottom:0; text-align: center; width: 100%;">Add genre-rich anime to see your distribution.</div>'; }
+      const entries = topGenresWithOthers(completed, 3);
+      if (!entries.length) { refs.dashboardGenreSvg.innerHTML = `<g transform="translate(100,100)"><circle r="95" fill="none" stroke="rgba(167, 139, 250, 0.14)" stroke-width="20" stroke-dasharray="10 10"></circle><text x="0" y="5" text-anchor="middle" fill="var(--text-muted)" font-size="0.8rem">No Data</text></g>`; refs.dashboardGenreLegend.innerHTML = '<div class="anime-card-meta" style="margin-bottom:0; text-align: center; width: 100%;">Complete anime to see distribution.</div>'; }
       else {
         renderGenreDonut(refs.dashboardGenreSvg, entries);
         const total = entries.reduce((s, [, c]) => s + Number(c || 0), 0), palette = ["var(--chart-purple)", "var(--chart-blue)", "var(--chart-cyan)", "var(--chart-green)", "var(--chart-orange)", "var(--chart-pink)"];
-        const helperCopy = hasCompletedGenres ? "" : '<div class="anime-card-meta" style="margin-bottom:0; text-align:center; width:100%;">Showing all saved anime until you complete more series.</div>';
-        refs.dashboardGenreLegend.innerHTML = `${entries.map(([n, c], i) => `<div class="legend-item"><span class="legend-dot" style="background: ${palette[i % palette.length]}"></span><div class="legend-label"><span class="anime-card-meta" style="margin-bottom:0;color:var(--text-primary); font-weight:600;">${escapeHtml(n)}</span><span class="anime-card-meta" style="margin-bottom:0;font-size:0.6rem;">${Math.round((Number(c || 0)/total)*100)}%</span></div></div>`).join('')}${helperCopy}`;
+        refs.dashboardGenreLegend.innerHTML = entries.map(([n, c], i) => `<div class="legend-item"><span class="legend-dot" style="background: ${palette[i % palette.length]}"></span><div class="legend-label"><span class="anime-card-meta" style="margin-bottom:0;color:var(--text-primary); font-weight:600;">${escapeHtml(n)}</span><span class="anime-card-meta" style="margin-bottom:0;font-size:0.6rem;">${Math.round((Number(c || 0)/total)*100)}%</span></div></div>`).join('');
       }
     }
-    const rows = (backendRecs?.length)
-      ? backendRecs
-      : (() => {
-        const topGenresList = topGenreNames(libraryItems), eid = new Set(libraryItems.map(i => Number(i?.malId || 0)));
-        return selectors.getCombinedDiscoveryState(store.getState())
-          .filter(a => !eid.has(Number(a?.malId || 0)))
-          .sort((l, r) => {
-            const leftGenres = normalizeGenres(l?.genres);
-            const rightGenres = normalizeGenres(r?.genres);
-            const leftMatches = leftGenres.filter((g) => topGenresList.includes(g)).length;
-            const rightMatches = rightGenres.filter((g) => topGenresList.includes(g)).length;
-            return rightMatches !== leftMatches ? rightMatches - leftMatches : Number(r?.score || 0) - Number(l?.score || 0);
-          })
-          .slice(0, 10);
-      })();
-    if (refs.recommendedList) refs.recommendedList.innerHTML = rows.length
-      ? rows.map(renderRecommendationCard).join("")
-      : `<div class="tracker-empty reco-empty-state"><span class="material-icons reco-empty-icon">auto_awesome</span><p class="anime-card-meta">Add anime to your watchlist to unlock personalized recommendations.</p></div>`;
+    const rows = (backendRecs?.length) ? backendRecs : (() => { const topGenresList = topGenreNames(libraryItems), eid = new Set(libraryItems.map(i => Number(i?.malId || 0))); return selectors.getCombinedDiscoveryState(store.getState()).filter(a => !eid.has(Number(a?.malId || 0))).sort((l,r) => { const lm = (l?.genres || []).filter(g => topGenresList.includes(g)).length, rm = (r?.genres || []).filter(g => topGenresList.includes(g)).length; return rm !== lm ? rm - lm : Number(r?.score || 0) - Number(l?.score || 0); }).slice(0, 10); })();
+    if (refs.recommendedList) refs.recommendedList.innerHTML = rows.length ? rows.map((a) => `<div class="reco-card" data-id="${Number(a?.malId || a?.mal_id || 0)}"><div class="reco-thumb-wrap"><img class="reco-thumb" src="${escapeHtml(a?.image || "")}" alt="${escapeHtml(a?.title || "")}"></div><div class="reco-body"><div class="reco-title" title="${escapeHtml(a?.title || "")}">${escapeHtml(a?.title || "")}</div><div class="reco-genres">${(a?.genres || []).slice(0, 3).join(", ") || "Genre TBD"}</div><button class="reco-add-btn" type="button" data-reco-action="add-plan" data-id="${Number(a?.malId || a?.mal_id || 0)}">Add to Plan</button></div></div>`).join("") : `<div class="tracker-empty" style="text-align: center; padding: 2rem 1rem;"><span class="material-icons" style="font-size: 2.5rem; color: var(--text-gray-600); margin-bottom: 0.5rem;">auto_awesome</span><p class="anime-card-meta">Add anime to your watchlist to unlock personalized recommendations.</p></div>`;
   }
 
   function onClick(e) {
@@ -569,52 +386,10 @@ export function initRecommendations({ store, libraryStore, selectors, toast = nu
     if (anime) { libraryStore.upsert({ ...anime, status: "plan" }, "plan"); toast?.show?.("Added to watchlist"); }
   }
 
-  function scheduleBackendRefresh(delayMs = 1200) {
-    if (libraryRefreshTimer) window.clearTimeout(libraryRefreshTimer);
-    libraryRefreshTimer = window.setTimeout(() => {
-      libraryRefreshTimer = 0;
-      void fetchRecs();
-    }, Math.max(250, Number(delayMs) || 1200));
-  }
-
-  function refreshOnFocus() { void fetchRecs(); }
-  function refreshOnOnline() { void fetchRecs(); }
-  function refreshOnVisible() {
-    if (document.visibilityState === "visible") void fetchRecs();
-  }
-  function refreshOnSync() { void fetchRecs(); }
-
   refs.recommendedList?.addEventListener("click", onClick);
-  const unsubs = [
-    store.subscribe(render),
-    libraryStore.subscribe(() => {
-      render();
-      scheduleBackendRefresh();
-    })
-  ];
-  window.addEventListener("focus", refreshOnFocus, { passive: true });
-  window.addEventListener("online", refreshOnOnline, { passive: true });
-  document.addEventListener("visibilitychange", refreshOnVisible, { passive: true });
-  window.addEventListener("Animyx:library-sync-received", refreshOnSync, { passive: true });
-  recRefreshTimer = window.setInterval(() => {
-    if (document.visibilityState !== "visible") return;
-    void fetchRecs();
-  }, 5 * 60_000);
-
+  const unsubs = [store.subscribe(render), libraryStore.subscribe(render)];
   render(); fetchRecs();
-  return Object.freeze({
-    render,
-    destroy() {
-      refs.recommendedList?.removeEventListener("click", onClick);
-      unsubs.forEach(fn => fn());
-      window.removeEventListener("focus", refreshOnFocus);
-      window.removeEventListener("online", refreshOnOnline);
-      document.removeEventListener("visibilitychange", refreshOnVisible);
-      window.removeEventListener("Animyx:library-sync-received", refreshOnSync);
-      if (recRefreshTimer) window.clearInterval(recRefreshTimer);
-      if (libraryRefreshTimer) window.clearTimeout(libraryRefreshTimer);
-    }
-  });
+  return Object.freeze({ render, destroy() { refs.recommendedList?.removeEventListener("click", onClick); unsubs.forEach(fn => fn()); } });
 }
 
 // ── Upcoming Widget Module ───────────────────────────────────────────────────
@@ -755,12 +530,6 @@ export function initDashboardModules(ctx) {
   const recommendations = initRecommendations(ctx);
   const upcomingWidget = initUpcomingWidget(ctx);
   const clipCard = initClipCard(ctx);
-
-  // Trigger data fetches for dashboard components that depend on store state
-  Promise.allSettled([
-    getAiringAnime().then(res => ctx?.store?.set?.("airing", Array.isArray(res?.data) ? res.data : [])),
-    getTrendingAnime().then(res => ctx?.store?.set?.("trending", Array.isArray(res?.data) ? res.data : []))
-  ]);
 
   return Object.freeze({
     heroCarousel, recommendations, upcomingWidget, clipCard,

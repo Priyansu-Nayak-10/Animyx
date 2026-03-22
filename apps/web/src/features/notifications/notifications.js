@@ -1,8 +1,7 @@
-import { getNotifications, markNotificationRead, clearNotifications as clearNotificationsApi } from '../../services/notificationService.js';
+import { authFetch, apiUrl } from '../../config.js';
 
 let notifications = [];
 let unreadCount = 0;
-let refreshInFlight = null;
 
 const getBadgeEl = () => document.getElementById('notif-badge');
 const getListEl = () => document.getElementById('notif-list');
@@ -120,15 +119,13 @@ function showToast(notification) {
 }
 
 export async function loadNotifications() {
-  if (refreshInFlight) return refreshInFlight;
-  refreshInFlight = (async () => {
   try {
     const allNotifications = [];
     let page = 1;
     let hasMore = true;
 
     while (hasMore) {
-      const res = await getNotifications(page, 100);
+      const res = await authFetch(apiUrl(`/notifications/me?page=${page}&limit=100`));
       if (!res.ok) throw new Error(`Request failed (${res.status})`);
       const json = await res.json();
       const items = Array.isArray(json?.data) ? json.data : [];
@@ -154,12 +151,6 @@ export async function loadNotifications() {
   } catch (error) {
     console.error('[Notifications] Load failed:', error);
   }
-  })();
-  try {
-    return await refreshInFlight;
-  } finally {
-    refreshInFlight = null;
-  }
 }
 
 export function onSocketNotification(notification) {
@@ -172,7 +163,7 @@ export function onSocketNotification(notification) {
 
 export async function markRead(id) {
   try {
-    await markNotificationRead(id);
+    await authFetch(apiUrl(`/notifications/${id}/read`), { method: 'PATCH' });
     const found = notifications.find((entry) => entry.id === id);
     if (found && !found.is_read) {
       found.is_read = true;
@@ -187,7 +178,7 @@ export async function markRead(id) {
 
 export async function clearAllNotifications() {
   try {
-    await clearNotificationsApi();
+    await authFetch(apiUrl('/notifications/me/clear'), { method: 'DELETE' });
     notifications = [];
     unreadCount = 0;
     renderList();

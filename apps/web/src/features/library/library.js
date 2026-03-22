@@ -1,6 +1,5 @@
 import { STATUS } from "../../store.js";
 import { resolveEpisodes, resolveEpisodesNumeric } from "../../core/utils.js";
-import { escapeHtml, renderEmptyState } from "../../shared/components.js";
 
 const TYPE_FILTERS = Object.freeze({
   ALL: "all",
@@ -19,7 +18,14 @@ const WATCHLIST_RENDER_CHUNK_SIZE = 40;
 const COMPLETED_LARGE_LIST_THRESHOLD = 100;
 const COMPLETED_RENDER_CHUNK_SIZE = 50;
 
-
+function escapeHtml(value) {
+  return String(value || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
 
 function normalizeTitle(item) {
   // Prefer English title using the same priority logic as the rest of the app:
@@ -425,12 +431,7 @@ function initWatchlistBoard({ libraryStore, toast = null }) {
       const emptyText = uiState.statusFilter === STATUS_FILTERS.ALL
         ? "No titles in your watchlist yet."
         : `No ${uiState.statusFilter} titles right now.`;
-      watchlistBoard.innerHTML = renderEmptyState({
-        icon: 'collections_bookmark',
-        title: 'Watchlist Empty',
-        message: emptyText,
-        extraClass: 'grid-span-full'
-      });
+      watchlistBoard.innerHTML = `<div class="empty-column">${escapeHtml(emptyText)}</div>`;
       renderPremiumWatchingCard();
       return;
     }
@@ -530,8 +531,7 @@ function initWatchlistBoard({ libraryStore, toast = null }) {
       const next = String(actionBtn.getAttribute("data-status") || "").toLowerCase();
       if (![STATUS.WATCHING, STATUS.PLAN, STATUS_DROPPED, STATUS.COMPLETED].includes(next)) return;
       const ids = Array.from(selected.values());
-      if (typeof libraryStore.setStatusMany === "function") libraryStore.setStatusMany(ids, next);
-      else ids.forEach((id) => libraryStore.setStatus(id, next));
+      ids.forEach((id) => libraryStore.setStatus(id, next));
       toast?.show?.(`Updated ${ids.length} titles`);
       selected.clear();
       uiState.selectMode = false;
@@ -543,8 +543,7 @@ function initWatchlistBoard({ libraryStore, toast = null }) {
       const ids = Array.from(selected.values());
       const confirmed = window.confirm(`Remove ${ids.length} selected title(s) from your library?`);
       if (!confirmed) return;
-      if (typeof libraryStore.removeMany === "function") libraryStore.removeMany(ids);
-      else ids.forEach((id) => libraryStore.remove(id));
+      ids.forEach((id) => libraryStore.remove(id));
       toast?.show?.(`Removed ${ids.length} title(s)`);
       selected.clear();
       uiState.selectMode = false;
@@ -814,12 +813,7 @@ function initCompletedBoard({ libraryStore, toast = null }) {
     renderSeq += 1;
     const currentRender = renderSeq;
     if (!rows.length) {
-      completedList.innerHTML = renderEmptyState({
-        icon: 'emoji_events',
-        title: 'No Completed Anime',
-        message: 'No completed anime yet.',
-        extraClass: 'grid-span-full'
-      });
+      completedList.innerHTML = '<div class="empty-state card"><p class="anime-card-meta">No completed anime yet.</p></div>';
       return;
     }
 
@@ -919,7 +913,7 @@ function initCompletedBoard({ libraryStore, toast = null }) {
     if (action === "bulk-status") {
       if (!selected.size) return;
       const next = String(button.getAttribute("data-status") || "").toLowerCase();
-      if (![STATUS.PLAN, STATUS.WATCHING, STATUS.DROPPED, STATUS.COMPLETED].includes(next)) return;
+      if (![STATUS.WATCHING, STATUS_DROPPED, STATUS.COMPLETED].includes(next)) return;
       const ids = Array.from(selected.values());
       if (typeof libraryStore.setStatusMany === "function") libraryStore.setStatusMany(ids, next);
       else ids.forEach((id) => libraryStore.setStatus(id, next));

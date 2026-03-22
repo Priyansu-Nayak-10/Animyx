@@ -96,7 +96,7 @@
           <button class="sidebar-toggle-btn" type="button" aria-label="Open navigation" aria-expanded="false" data-sidebar-toggle>
             <span class="material-icons">menu</span>
           </button>
-          <div class="search-wrapper search-wrapper--relative">
+          <div class="search-wrapper" style="position: relative;">
             <span class="material-icons search-icon">search</span>
             <input id="global-search-input" class="search-input" placeholder="Search anime titles..."
               type="text" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="search-suggestions" aria-autocomplete="list" />
@@ -119,7 +119,7 @@
               <span id="header-username" class="username">Priya</span>
             </div>
             <div class="profile-img-container">
-              <img alt="Profile" class="profile-img" id="header-profile-img" loading="lazy" decoding="async"
+              <img alt="Profile" class="profile-img" id="header-profile-img"
                 src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZIUjpzoTljfbNTeGmRQKuBDx6E6cXNLOTQbK6rcfrP_rs28dFFZ75JwW4sHvRfNIXCQc9oUfnfUraGWQWCNuMpLg5D2L37XNwpH3vBzWdVdBQanEdpvD-o464S-lnVRcvaM__u2qTA1s9j87J6fYLrhu7SMz0cf6qEoJ4fnGyjwEAFwueD6Br16uNo4kVoV9Kh9GHeA3UHfbKyQ-0rzPbPXVM609W9FDgusNOamiiZFmIO95W5FQhieq_6J8-_ccpUMoAvbOSgn05" />
             </div>
           </div>
@@ -145,7 +145,7 @@
               </div>
 
               <div class="stats-grid">
-                <div class="card clip-placeholder-card clip-placeholder-card--empty group">
+                <div class="card clip-placeholder-card group" style="border: 2px dashed var(--surface-border-strong);">
                   <span class="placeholder-text" style="color: var(--text-muted); font-weight: 600; font-size: 0.75rem;">
                     Insert Your Favorite Clip
                   </span>
@@ -271,7 +271,7 @@
               <div id="premium-watching-container"></div>
               <div class="card recommendations-container">
                 <h3 class="card-title">Recommended For You</h3>
-                <div id="recommended-list" class="recommendations-list recommendations-list--bounded custom-scrollbar">
+                <div id="recommended-list" class="recommendations-list custom-scrollbar" style="max-height: 420px;">
                 </div>
               </div>
 
@@ -280,9 +280,8 @@
                 <p class="promo-description" id="promo-trivia-text">
                   Do you know that Naruto is the oldest anime in your active history from 2002?
                 </p>
-                <p class="anime-card-meta stat-header" id="promo-trivia-sub">
-                  From your anime history
-                </p>
+                <p class="anime-card-meta stat-header" id="promo-trivia-sub">From your
+                  anime history</p>
               </div>
               <div class="card quick-stats-card">
                 <div class="card-header" style="margin-bottom: 1rem;">
@@ -681,7 +680,7 @@
                 </div>
                 <p class="panel-description">Top animation studios by your interaction and ratings.</p>
               </div>
-              <div class="insight-panel full-width">
+              <div class="insight-panel">
                 <div class="panel-header-row">
                   <h3 class="panel-title">
                     <span class="panel-icon">🕒</span>
@@ -715,7 +714,7 @@
                 <div class="profile-avatar-section">
                   <div class="profile-avatar-ring">
                     <!-- Clean SVG Placeholder instead of broken external URL -->
-                    <img id="profile-avatar-img" loading="lazy" decoding="async"
+                    <img id="profile-avatar-img"
                       src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2364748b'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/></svg>"
                       alt="Profile" class="profile-avatar-img" />
                     <button class="edit-avatar-btn" id="edit-avatar-btn" title="Change avatar">
@@ -849,24 +848,31 @@
 
               <div class="setting-row">
                 <div class="setting-info">
-                  <span class="setting-title">One Piece Theme</span>
-                  <span class="setting-desc">Animyx now uses a fixed ocean-inspired theme across the app.</span>
+                  <span class="setting-title">Dark Theme</span>
+                  <span class="setting-desc">Use dark mode everywhere.</span>
                 </div>
                 <label class="toggle-switch">
-                  <input type="checkbox" id="setting-dark-theme" checked disabled>
+                  <input type="checkbox" id="setting-dark-theme" checked>
                   <span class="toggle-slider"></span>
                 </label>
               </div>
 
               <div class="setting-row" style="margin-top:1.5rem;">
                 <div class="setting-info">
-                  <span class="setting-title">Theme Accent</span>
-                  <span class="setting-desc">Ocean blue is the only active accent for this theme.</span>
+                  <span class="setting-title">Accent Color</span>
+                  <span class="setting-desc">Personalize the app's highlight color.</span>
                 </div>
                 <div class="accent-color-picker" id="accent-color-picker">
-                  <button class="accent-swatch active" data-color="#1e90ff" style="background:#1e90ff;"
-                    disabled aria-disabled="true"
-                    title="Ocean Blue"></button>
+                  <button class="accent-swatch active" data-color="#8b5cf6" style="background:#8b5cf6;"
+                    title="Violet"></button>
+                  <button class="accent-swatch" data-color="#7c3aed" style="background:#7c3aed;"
+                    title="Royal Purple"></button>
+                  <button class="accent-swatch" data-color="#6d28d9" style="background:#6d28d9;" title="Deep Purple"></button>
+                  <button class="accent-swatch" data-color="#a78bfa" style="background:#a78bfa;" title="Lavender"></button>
+                  <button class="accent-swatch" data-color="#c4b5fd" style="background:#c4b5fd;" title="Soft Lilac"></button>
+                  <button class="accent-swatch" data-color="#9333ea" style="background:#9333ea;" title="Orchid"></button>
+                  <button class="accent-swatch" data-color="#7e22ce" style="background:#7e22ce;" title="Grape"></button>
+                  <button class="accent-swatch" data-color="#581c87" style="background:#581c87;" title="Plum"></button>
                 </div>
               </div>
 
@@ -1057,7 +1063,7 @@
                 <!-- Progress Line -->
                 <div class="upload-status-progress-track">
                   <div id="mal-progress-bar"
-                    style="height:100%; width:0%; background: #1e90ff; transition: width 0.3s ease;"></div>
+                    style="height:100%; width:0%; background: #8b5cf6; transition: width 0.3s ease;"></div>
                 </div>
                 <p id="mal-status-message"
                   style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0;">Ready to upload.</p>
@@ -1065,7 +1071,7 @@
 
               <div style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: center;">
                 <button id="mal-import-btn" class="premium-export-btn"
-                  style="background: linear-gradient(135deg, #1e90ff 0%, #38bdf8 100%);" disabled>
+                  style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);" disabled>
                   <span class="material-icons">cloud_upload</span> Start Import
                 </button>
               </div>
@@ -1105,7 +1111,8 @@
             </div>
           </div>
 
-          <div id="season-anime-grid" class="anime-grid anime-grid--season">
+          <div id="season-anime-grid" class="anime-grid"
+            style="min-height: 400px; position: relative; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.5rem;">
             <!-- Loading skeleton or Anime cards go here -->
           </div>
         </div>

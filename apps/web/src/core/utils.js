@@ -1,6 +1,5 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../config.js';
-import { KEY_LIBRARY, KEY_PROFILE, KEY_SETTINGS } from '../shared/storageKeys.js';
 
 // ---------------------------------------------------------------------------
 // Client ID (previously core/clientId.js)
@@ -351,9 +350,9 @@ export function dedupeAnimeList(list) {
 
 const USER_SCOPED_LOCALSTORAGE_KEYS = [
   // Library & user objects
-  KEY_LIBRARY,
-  KEY_PROFILE,
-  KEY_SETTINGS,
+  'Animyx_library_v3',
+  'Animyx_profile_v1',
+  'Animyx_settings_v1',
 
   // Dashboard caches / misc
   'Animyx_live_news_cache_v1',

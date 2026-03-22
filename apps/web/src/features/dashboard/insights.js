@@ -144,13 +144,13 @@ function formatWeekLabel(startDate) {
 
 function buildWeeklyTooltipHtml(label, watching, completed, planning) {
   const lines = [];
-  lines.push(`<div class="tooltip-title">${escapeHtml(label)}</div>`);
+  lines.push(`<div class="tooltip-header">${escapeHtml(label)}</div>`);
   const watchingTotal = watching?.totalEpisodes || 0;
   const completedTotal = completed?.totalAnime || 0;
   const planningTotal = planning?.totalAnime || 0;
-  if (watchingTotal > 0) lines.push(`<div class="tooltip-line"><span class="tooltip-dot dot-watch"></span><span>${watchingTotal} episodes watched</span></div>`);
-  if (completedTotal > 0) lines.push(`<div class="tooltip-line"><span class="tooltip-dot dot-complete"></span><span>${completedTotal} series finished</span></div>`);
-  if (planningTotal > 0) lines.push(`<div class="tooltip-line"><span class="tooltip-dot dot-planning"></span><span>${planningTotal} added to plan</span></div>`);
+  if (watchingTotal > 0) lines.push(`<div class="tooltip-row"><span class="tooltip-indicator watch"></span><span>${watchingTotal} episodes watched</span></div>`);
+  if (completedTotal > 0) lines.push(`<div class="tooltip-row"><span class="tooltip-indicator complete"></span><span>${completedTotal} series finished</span></div>`);
+  if (planningTotal > 0) lines.push(`<div class="tooltip-row"><span class="tooltip-indicator plan"></span><span>${planningTotal} added to plan</span></div>`);
   return lines.join("");
 }
 
@@ -250,99 +250,15 @@ function renderWeeklyActivityChart(container, items) {
   const chart = container.querySelector(".insight-activity-chart");
   const panel = container.closest(".activity-chart-panel");
   const toggleButtons = panel?.querySelectorAll("[data-activity-mode]");
-  const tooltip = document.getElementById("chart-tooltip");
   if (chart && toggleButtons?.length) {
     toggleButtons.forEach((btn) => {
-      btn.onclick = () => {
+      btn.addEventListener("click", () => {
         const mode = btn.getAttribute("data-activity-mode") || "absolute";
         toggleButtons.forEach((node) => node.classList.toggle("is-active", node === btn));
         chart.setAttribute("data-activity-mode", mode);
         chart.innerHTML = buildRows(mode);
-      };
-    });
-  }
-
-  if (chart && tooltip) {
-    let rafId = 0;
-    let pendingPointerEvent = null;
-    let activeColumn = null;
-    let activeSegment = null;
-
-    const setHoveredColumn = (column) => {
-      if (activeColumn === column) return;
-      if (activeColumn) activeColumn.classList.remove("is-hovered");
-      activeColumn = column || null;
-      chart.classList.toggle("is-hovering", Boolean(activeColumn));
-      if (activeColumn) activeColumn.classList.add("is-hovered");
-    };
-
-    const hideTooltip = () => {
-      tooltip.style.opacity = "0";
-      tooltip.classList.remove("is-rich");
-      activeSegment = null;
-      setHoveredColumn(null);
-    };
-
-    const positionTooltip = (event) => {
-      const tooltipWidth = tooltip.offsetWidth || 220;
-      const tooltipHeight = tooltip.offsetHeight || 80;
-      const viewportWidth = window.innerWidth || document.documentElement.clientWidth || 0;
-      const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
-      const nextLeft = Math.min(
-        Math.max(tooltipWidth / 2 + 12, event.clientX),
-        Math.max(tooltipWidth / 2 + 12, viewportWidth - (tooltipWidth / 2) - 12)
-      );
-      const nextTop = Math.max(tooltipHeight + 16, Math.min(event.clientY - 12, viewportHeight - 12));
-      tooltip.style.left = `${nextLeft}px`;
-      tooltip.style.top = `${nextTop}px`;
-    };
-
-    const renderPointerMove = (event) => {
-      const segment = event.target.closest(".activity-segment");
-      const column = event.target.closest(".activity-column");
-      setHoveredColumn(column);
-
-      if (!segment) {
-        hideTooltip();
-        return;
-      }
-
-      const tooltipHtml = String(segment.getAttribute("data-tooltip-html") || "").trim();
-      if (!tooltipHtml) {
-        hideTooltip();
-        return;
-      }
-
-      if (activeSegment !== segment) {
-        activeSegment = segment;
-        tooltip.innerHTML = tooltipHtml;
-      }
-      tooltip.classList.add("is-rich");
-      tooltip.style.opacity = "1";
-      positionTooltip(event);
-    };
-
-    chart.onpointermove = (event) => {
-      pendingPointerEvent = {
-        clientX: event.clientX,
-        clientY: event.clientY,
-        target: event.target
-      };
-      if (rafId) return;
-      rafId = requestAnimationFrame(() => {
-        rafId = 0;
-        renderPointerMove(pendingPointerEvent);
       });
-    };
-
-    chart.onpointerleave = () => {
-      pendingPointerEvent = null;
-      if (rafId) {
-        cancelAnimationFrame(rafId);
-        rafId = 0;
-      }
-      hideTooltip();
-    };
+    });
   }
 }
 
@@ -353,7 +269,7 @@ function renderPersonaRadar(svg, genreCount) {
     { label: "Intellect", keys: ["Mystery", "Psychological", "Sci-Fi", "Suspense"], color: "#3b82f6" },
     { label: "Emotion", keys: ["Drama", "Romance", "Slice of Life"], color: "#ec4899" },
     { label: "Wit", keys: ["Comedy", "Parody"], color: "#f59e0b" },
-    { label: "Wonder", keys: ["Fantasy", "Supernatural", "Magic"], color: "#1e90ff" }
+    { label: "Wonder", keys: ["Fantasy", "Supernatural", "Magic"], color: "#8b5cf6" }
   ];
   const scores = dimensions.map(d => Math.min(100, (d.keys.reduce((s, k) => s + (genreCount[k] || 0), 0) * 20)));
   const cx = 100, cy = 100, r = 70;
@@ -363,7 +279,7 @@ function renderPersonaRadar(svg, genreCount) {
   // Determine dominant dimension
   const maxScore = Math.max(...scores);
   const dominantIdx = scores.indexOf(maxScore);
-  const dominantColor = dimensions[dominantIdx]?.color || "#1e90ff";
+  const dominantColor = dimensions[dominantIdx]?.color || "#8b5cf6";
 
   const gridHtml = [20, 40, 60, 80, 100].map(level => {
     const points = dimensions.map((_, i) =>
@@ -406,7 +322,9 @@ function renderPersonaRadar(svg, genreCount) {
       </filter>
       <style>
         @keyframes ${uid}-appear { from { opacity:0; transform: scale(0.85); } to { opacity:1; transform: scale(1); } }
-        .${uid}-poly { transform-origin: ${cx}px ${cy}px; animation: ${uid}-appear 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+        .${uid}-poly { transform-origin: ${cx}px ${cy}px; animation: ${uid}-appear 0.5s cubic-bezier(0.34
+
+,1.56,0.64,1) forwards; }
       </style>
     </defs>
     ${gridHtml}
@@ -493,15 +411,6 @@ function renderDiscoveryIntelligence(refs, genreDistribution) {
   }
 }
 
-function buildGenreAnalysisText(genreDistribution) {
-  const sorted = Array.isArray(genreDistribution?.sorted) ? genreDistribution.sorted : [];
-  const primary = sorted[0];
-  const secondary = sorted[1];
-  if (!primary) return "Complete anime to unlock genre insights.";
-  if (!secondary) return `${primary[0]} currently defines your watch profile.`;
-  return `${primary[0]} leads your taste profile, with ${secondary[0]} close behind.`;
-}
-
 export function initInsights({ libraryStore }) {
   const refs = {
     view: document.getElementById("insights-view"), emptyOverlay: document.getElementById("insights-empty-overlay"),
@@ -525,8 +434,6 @@ export function initInsights({ libraryStore }) {
     const items = libraryStore.getAll();
     if (!items?.length) { 
       refs.view?.classList.add("is-empty"); if (refs.emptyOverlay) refs.emptyOverlay.hidden = false;
-      if (refs.genreAnalysisText) refs.genreAnalysisText.textContent = "Complete anime to unlock genre insights.";
-      if (refs.topGenres) refs.topGenres.innerHTML = "";
       renderDonutChart(refs.statusChart, [], 0, "", false); renderInsightGenreDonut(refs.genreChart, []); return;
     }
     refs.view?.classList.remove("is-empty"); if (refs.emptyOverlay) refs.emptyOverlay.hidden = true;
@@ -562,23 +469,18 @@ export function initInsights({ libraryStore }) {
       { label: "Plan", value: breakdown.plan, color: "var(--insight-lavender)" }
     ], totalLib, `${completionPct}%`, false);
     renderInsightGenreDonut(refs.genreChart, insights.genreDistribution.sorted);
-    if (refs.genreAnalysisText) refs.genreAnalysisText.textContent = buildGenreAnalysisText(insights.genreDistribution);
     if (refs.topGenres) {
       const genreData = insights.genreDistribution.sorted;
-      if (!genreData.length) {
-        refs.topGenres.innerHTML = '<div class="anime-card-meta">No genre data yet.</div>';
-      } else {
-        const max = Math.max(...genreData.map(([, count]) => Number(count || 0)));
-        refs.topGenres.innerHTML = genreData.map(([genre, count], idx) => {
-          const width = Math.max(18, Math.round((Number(count || 0) / Math.max(1, max)) * 100));
-          const color = getGenreColor(genre, idx);
-          return `<div class="genre-bar-item"><div class="genre-label">${escapeHtml(genre)}</div><div class="genre-track"><div class="genre-fill" style="width:${width}%; background-color:${color}; color:${color};"></div></div><div class="genre-count">${count}</div></div>`;
-        }).join("");
-      }
+      const max = Math.max(...genreData.map(([, count]) => Number(count || 0)));
+      refs.topGenres.innerHTML = genreData.map(([genre, count], idx) => {
+        const width = Math.max(18, Math.round((Number(count || 0) / Math.max(1, max)) * 100));
+        const color = getGenreColor(genre, idx);
+        return `<div class="genre-bar-item"><div class="genre-label">${escapeHtml(genre)}</div><div class="genre-track"><div class="genre-fill" style="width:${width}%; background-color:${color}; color:${color};"></div></div><div class="genre-count">${count}</div></div>`;
+      }).join("");
     }
     // Recent Activity feed
     if (refs.recentActivity) {
-      const MAX_ACTIVITY = 4;
+      const MAX_ACTIVITY = 8;
       const acts = insights.recentActivity.slice(0, MAX_ACTIVITY);
       if (!acts.length) {
         refs.recentActivity.innerHTML = '<div class="activity-empty"><span class="material-icons">history_toggle_off</span><p>No recent activity yet</p></div>';
@@ -589,38 +491,13 @@ export function initInsights({ libraryStore }) {
           const m = Math.floor(diff / 60000);
           const relTime = m < 1 ? 'Just now' : m < 60 ? `${m}m ago` : m < 1440 ? `${Math.floor(m/60)}h ago` : `${Math.floor(m/1440)}d ago`;
           const statusClass = String(entry.status || '').toLowerCase();
-          return `<div class="activity-timeline-item"><div class="activity-dot activity-dot-${statusClass}"></div><div class="activity-timeline-body"><span class="activity-timeline-title">${escapeHtml(entry.title)}</span><div class="activity-timeline-meta"><span class="activity-status-tag ${statusClass}">${escapeHtml(entry.status)}</span><span style="display:inline-flex;align-items:center;gap:3px;"><span class="material-icons" style="font-size:12px;">schedule</span>${relTime}</span></div></div></div>`;
+          return `<div class="activity-timeline-item"><div class="activity-dot activity-dot-${statusClass}"></div><div class="activity-timeline-body"><span class="activity-timeline-title">${escapeHtml(entry.title)}</span><div class="activity-timeline-meta"><span class="activity-status-tag ${statusClass}">${escapeHtml(entry.status)}</span><span>${relTime}</span></div></div></div>`;
         }).join('');
       }
     }
   }  // end render()
 
   const unsubscribe = libraryStore.subscribe(render);
-  const refreshOnVisible = () => {
-    if (typeof document !== "undefined" && document.visibilityState === "hidden") return;
-    render();
-  };
-  const refreshOnSync = () => render();
-  const refreshTimer = window.setInterval(() => {
-    if (typeof document !== "undefined" && document.visibilityState === "hidden") return;
-    render();
-  }, 60_000);
-
-  window.addEventListener("focus", refreshOnVisible, { passive: true });
-  window.addEventListener("online", refreshOnVisible, { passive: true });
-  document.addEventListener("visibilitychange", refreshOnVisible, { passive: true });
-  window.addEventListener("Animyx:library-sync-received", refreshOnSync, { passive: true });
-
   render();
-  return Object.freeze({
-    render,
-    destroy() {
-      unsubscribe();
-      window.removeEventListener("focus", refreshOnVisible);
-      window.removeEventListener("online", refreshOnVisible);
-      document.removeEventListener("visibilitychange", refreshOnVisible);
-      window.removeEventListener("Animyx:library-sync-received", refreshOnSync);
-      window.clearInterval(refreshTimer);
-    }
-  });
+  return Object.freeze({ render, destroy() { unsubscribe(); } });
 }

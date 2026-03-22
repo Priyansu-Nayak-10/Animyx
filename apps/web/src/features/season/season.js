@@ -1,20 +1,24 @@
 import { normalizeAnime, dedupeAnimeList } from '../../core/utils.js';
 import { STATUS } from '../../store.js';
-import { renderLoadingState, renderEmptyState } from '../../shared/components.js';
 
 export function renderAnimeGrid(container, animeList, loading = false) {
   if (loading) {
-    container.innerHTML = renderLoadingState(12, 'card');
+    container.innerHTML = Array.from({ length: 12 })
+      .map(() => `
+        <div class="anime-card skeleton" style="height: 320px; border-radius: 8px; background: rgba(167,139,250,0.08); animation: pulse 1.5s infinite;"></div>
+      `)
+      .join("");
     return;
   }
 
   if (!animeList || animeList.length === 0) {
-    container.innerHTML = renderEmptyState({
-      icon: 'explore_off',
-      title: "Something's empty here...",
-      message: 'No anime found for this specific criteria.',
-      extraClass: 'grid-span-full'
-    });
+    container.innerHTML = `
+      <div class="empty-state" style="text-align:center; padding: 60px 20px; color: var(--text-muted); width: 100%; grid-column: 1 / -1;">
+        <span class="material-icons" style="font-size: 3.5rem; margin-bottom: 16px; display:inline-block; opacity: 0.5;">explore_off</span>
+        <h3 style="font-size: 1.2rem; margin: 0 0 8px 0; color: var(--text-primary);">Something's empty here...</h3>
+        <p style="margin: 0;">No anime found for this specific criteria.</p>
+      </div>
+    `;
     return;
   }
 
@@ -22,16 +26,12 @@ export function renderAnimeGrid(container, animeList, loading = false) {
     const hoverStyle = document.createElement("style");
     hoverStyle.id = "grid-hover-style";
     hoverStyle.textContent = `
-      .anime-grid-cell {
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-      }
+      .anime-card .poster-container { overflow: hidden; }
+      .anime-card:hover .poster-image { transform: scale(1.05); }
       .anime-grid-cell .add-hover-cover {
         position: absolute;
         inset: 0;
-        background: linear-gradient(to top, rgba(4, 17, 29, 0.92), transparent 60%);
+        background: linear-gradient(to top, rgba(46,16,101,0.88), transparent 60%);
         opacity: 0;
         transition: opacity 0.2s ease;
         display: flex;
@@ -44,9 +44,9 @@ export function renderAnimeGrid(container, animeList, loading = false) {
       }
       .anime-grid-cell:hover .add-hover-cover { opacity: 1; }
       .grid-add-btn {
-        background: linear-gradient(135deg, var(--brand-primary), var(--chart-blue));
-        color: var(--text-on-accent);
-        border: 1px solid rgba(56, 189, 248, 0.22);
+        background: linear-gradient(135deg, var(--purple-500), var(--purple-700));
+        color: white;
+        border: none;
         padding: 8px;
         border-radius: 6px;
         font-weight: 600;
@@ -60,7 +60,6 @@ export function renderAnimeGrid(container, animeList, loading = false) {
         width: 100%;
         transform: translateY(10px);
       }
-      .grid-add-icon { font-size: 18px; }
       .anime-grid-cell:hover .grid-add-btn { transform: translateY(0); }
       .grid-add-btn:hover { filter: brightness(1.2); }
     `;
@@ -80,7 +79,7 @@ export function renderAnimeGrid(container, animeList, loading = false) {
       const airingDay = anime.airing_day || '';
 
       return `
-      <div class="anime-grid-cell">
+      <div class="anime-grid-cell" style="position: relative; display: flex; flex-direction: column;">
         <anime-card
           mal-id="${malId}"
           title="${title}"
@@ -96,7 +95,7 @@ export function renderAnimeGrid(container, animeList, loading = false) {
         ></anime-card>
         <div class="add-hover-cover">
           <button class="grid-add-btn" data-action="add-library" data-id="${malId}">
-            <span class="material-icons grid-add-icon">add</span> Add to List
+            <span class="material-icons" style="font-size: 18px;">add</span> Add to List
           </button>
         </div>
       </div>
@@ -118,11 +117,11 @@ export function bindHoverPreviews(containerElement, getAnimeDataFn) {
   let hideTimeout;
 
   containerElement.addEventListener('mouseover', (e) => {
-    const card = e.target.closest('anime-card');
+    const card = e.target.closest('.anime-card');
     if (!card) return;
 
     clearTimeout(hideTimeout);
-    const malId = String(card.getAttribute('mal-id') || '');
+    const malId = String(card.dataset.id);
     const data = getAnimeDataFn(malId);
     if (!data) return;
 
@@ -140,10 +139,7 @@ export function bindHoverPreviews(containerElement, getAnimeDataFn) {
     const synopsis = data.synopsis ? data.synopsis.replace('[Written by MAL Rewrite]', '').trim() : 'No synopsis available.';
     const tags = (data.genres || [])
       .slice(0, 4)
-      .map((genre) => {
-        const name = typeof genre === 'string' ? genre : genre?.name;
-        return name ? `<span class="preview-tag" data-genre="${name}">${name}</span>` : '';
-      })
+      .map((genre) => `<span class="preview-tag" data-genre="${genre.name}">${genre.name}</span>`)
       .join('');
 
     previewEl.innerHTML = `
@@ -177,7 +173,7 @@ export function bindHoverPreviews(containerElement, getAnimeDataFn) {
   });
 
   containerElement.addEventListener('mouseout', (e) => {
-    const card = e.target.closest('anime-card');
+    const card = e.target.closest('.anime-card');
     if (!card) return;
     hideTimeout = setTimeout(() => {
       previewEl.classList.remove('active');

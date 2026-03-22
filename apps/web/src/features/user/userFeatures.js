@@ -1,16 +1,9 @@
-import {
-  getProfile, updateProfile,
-  getSettings, updateSettings,
-  getPushPublicKey, subscribePush, unsubscribePush,
-  deleteCloudLibrary, deleteCloudData, deleteAccount as deleteAccountApi,
-  importMal
-} from '../../services/userService.js';
-import { KEY_PROFILE, KEY_SETTINGS } from '../../shared/storageKeys.js';
+import { apiUrl, authFetch } from '../../config.js';
 import { setState } from '../../store.js';
 import { supabase } from '../../core/utils.js';
 import { clearAnimyxAllData } from '../../core/utils.js';
-const PROFILE_STORAGE_KEY = KEY_PROFILE;
-const SETTINGS_STORAGE_KEY = KEY_SETTINGS;
+const PROFILE_STORAGE_KEY = "Animyx_profile_v1";
+const SETTINGS_STORAGE_KEY = "Animyx_settings_v1";
 const DEFAULT_AVATAR_URL =
   "https://lh3.googleusercontent.com/aida-public/AB6AXuCZIUjpzoTljfbNTeGmRQKuBDx6E6cXNLOTQbK6rcfrP_rs28dFFZ75JwW4sHvRfNIXCQc9oUfnfUraGWQWCNuMpLg5D2L37XNwpH3vBzWdVdBQanEdpvD-o464S-lnVRcvaM__u2qTA1s9j87J6fYLrhu7SMz0cf6qEoJ4fnGyjwEAFwueD6Br16uNo4kVoV9Kh9GHeA3UHfbKyQ-0rzPbPXVM609W9FDgusNOamiiZFmIO95W5FQhieq_6J8-_ccpUMoAvbOSgn05";
 
@@ -84,7 +77,7 @@ function getTopGenre(libraryStore) {
 // ──────────────────────────────────────────────────
 function getUserId() {
   try {
-    const rawUser = globalThis.localStorage?.getItem(KEY_CURRENT_USER);
+    const rawUser = globalThis.localStorage?.getItem('Animyx:currentUser');
     if (rawUser) {
       const u = JSON.parse(rawUser);
       if (u && u.id) return u.id;
@@ -97,7 +90,7 @@ async function fetchCloudProfile(storage) {
   const uid = getUserId();
   if (!uid) return;
   try {
-    const res = await getProfile();
+    const res = await authFetch(apiUrl('/users/me/profile'));
     if (res.ok) {
       const { data } = await res.json();
       if (data && Object.keys(data).length > 0) {
@@ -109,7 +102,7 @@ async function fetchCloudProfile(storage) {
 
 function readProfile(storage) {
   try {
-    const rawUser = globalThis.localStorage?.getItem(KEY_CURRENT_USER);
+    const rawUser = globalThis.localStorage?.getItem('Animyx:currentUser');
     const sessionUser = rawUser ? JSON.parse(rawUser) : {};
 
     const rawProfile = storage?.getItem?.(PROFILE_STORAGE_KEY);
@@ -133,7 +126,11 @@ async function writeProfile(storage, data) {
   const uid = getUserId();
   if (!uid) return;
   try {
-    await updateProfile(data);
+    await authFetch(apiUrl('/users/me/profile'), {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
   } catch (err) { console.warn("Profile cloud save failed", err); }
 }
 
@@ -168,12 +165,15 @@ function applyBannerToPage(src) {
 }
 
 function applyAccentColor(color) {
-  const themeColor = "#1e90ff";
+  if (!color) return;
   const root = document.documentElement;
-  root.style.setProperty("--brand-primary", themeColor);
-  root.style.setProperty("--accent", themeColor);
-  root.style.setProperty("--primary", themeColor);
-  root.style.setProperty("--chart-purple", themeColor);
+  root.style.setProperty("--brand-primary", color);
+  root.style.setProperty("--brand-secondary", color); // fallback to same for simplicity
+  root.style.setProperty("--brand-accent", color);
+  root.style.setProperty("--brand-glow", color);
+  root.style.setProperty("--accent", color); // legacy/shared
+  root.style.setProperty("--primary", color); // legacy internal
+  root.style.setProperty("--chart-purple", color); // Make charts follow accent
 }
 
 // ──────────────────────────────────────────────────
@@ -238,10 +238,9 @@ function initProfile({ toast, libraryStore, storage = globalThis.localStorage } 
   fetchCloudProfile(storage).then(() => render());
 
   // Listen for real-time sync events
-  const onProfileSync = () => {
+  window.addEventListener('Animyx:profile-sync', () => {
     render();
-  };
-  window.addEventListener('Animyx:profile-sync', onProfileSync);
+  });
 
   function onSave() {
     const profile = readProfile(storage);
@@ -282,35 +281,15 @@ function initProfile({ toast, libraryStore, storage = globalThis.localStorage } 
     reader.readAsDataURL(file);
   }
 
-  function onEditAvatarClick() {
-    refs.avatarFile?.click();
-  }
-
-  function onEditBannerClick() {
-    refs.bannerFile?.click();
-  }
-
   refs.saveBtn?.addEventListener("click", onSave);
-  refs.editAvatarBtn?.addEventListener("click", onEditAvatarClick);
+  refs.editAvatarBtn?.addEventListener("click", () => refs.avatarFile?.click());
   refs.avatarFile?.addEventListener("change", onAvatarChange);
-  refs.editBannerBtn?.addEventListener("click", onEditBannerClick);
+  refs.editBannerBtn?.addEventListener("click", () => refs.bannerFile?.click());
   refs.bannerFile?.addEventListener("change", onBannerChange);
-  const unsubscribeLibrary = libraryStore?.subscribe?.(() => renderStats());
 
   render();
 
-  return Object.freeze({
-    render,
-    destroy() {
-      window.removeEventListener('Animyx:profile-sync', onProfileSync);
-      refs.saveBtn?.removeEventListener("click", onSave);
-      refs.editAvatarBtn?.removeEventListener("click", onEditAvatarClick);
-      refs.avatarFile?.removeEventListener("change", onAvatarChange);
-      refs.editBannerBtn?.removeEventListener("click", onEditBannerClick);
-      refs.bannerFile?.removeEventListener("change", onBannerChange);
-      unsubscribeLibrary?.();
-    }
-  });
+  return Object.freeze({ render, destroy() { } });
 }
 
 // ──────────────────────────────────────────────────
@@ -336,32 +315,42 @@ const DEFAULT_SETTINGS = Object.freeze({
   dataSaver: false,
   titleLang: "english",
   defaultStatus: "plan",
-  accentColor: "#1e90ff"
+  accentColor: "#8b5cf6"
 });
 
-const THEME_ACCENT = "#1e90ff";
+const PURPLE_ACCENT_SWATCHES = Object.freeze([
+  "#8b5cf6",
+  "#7c3aed",
+  "#6d28d9",
+  "#a78bfa",
+  "#c4b5fd",
+  "#9333ea",
+  "#7e22ce",
+  "#581c87"
+]);
 
 function normalizeAccentColor(color) {
-  return THEME_ACCENT;
+  const normalized = String(color || "").trim().toLowerCase();
+  return PURPLE_ACCENT_SWATCHES.find((swatch) => swatch === normalized) || DEFAULT_SETTINGS.accentColor;
 }
 
 async function fetchCloudSettings(storage) {
   const uid = getUserId();
   if (!uid) return;
   try {
-    const res = await getSettings();
+    const res = await authFetch(apiUrl('/users/me/settings'));
     if (res.ok) {
       const { data } = await res.json();
       if (data && Object.keys(data).length > 0) {
         // Map snake_case to camelCase
         const mapped = {
-          darkTheme: true,
+          darkTheme: data.dark_theme,
           notifications: data.notifications,
           autoplay: data.autoplay,
           dataSaver: data.data_saver,
           titleLang: data.title_lang,
           defaultStatus: data.default_status,
-          accentColor: THEME_ACCENT
+          accentColor: data.accent_color
         };
         storage?.setItem?.(SETTINGS_STORAGE_KEY, JSON.stringify(mapped));
       }
@@ -373,7 +362,7 @@ function readSettings(storage) {
   try {
     const raw = storage?.getItem?.(SETTINGS_STORAGE_KEY);
     const parsed = raw ? { ...DEFAULT_SETTINGS, ...JSON.parse(raw) } : { ...DEFAULT_SETTINGS };
-    return { ...parsed, darkTheme: true, accentColor: THEME_ACCENT };
+    return { ...parsed, accentColor: normalizeAccentColor(parsed.accentColor) };
   } catch { return { ...DEFAULT_SETTINGS }; }
 }
 
@@ -385,21 +374,26 @@ async function writeSettings(storage, data) {
   try {
     // Map camelCase back to snake_case for DB
     const mapped = {
-      dark_theme: true,
+      dark_theme: data.darkTheme,
       notifications: data.notifications,
       autoplay: data.autoplay,
       data_saver: data.dataSaver,
       title_lang: data.titleLang,
       default_status: data.defaultStatus,
-      accent_color: THEME_ACCENT
+      accent_color: normalizeAccentColor(data.accentColor)
     };
-    await updateSettings(mapped);
+    await authFetch(apiUrl('/users/me/settings'), {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(mapped)
+    });
   } catch (err) { console.warn("Settings cloud save failed", err); }
 }
 
 function applyDarkTheme(enabled) {
-  document.body.classList.add("dark");
-  document.documentElement.setAttribute('data-theme', 'dark');
+  const isDark = Boolean(enabled);
+  document.body.classList.toggle("dark", isDark);
+  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
 }
 
 function applyDataSaver(enabled) {
@@ -423,22 +417,19 @@ function initSettings({ toast, libraryStore, storage = globalThis.localStorage }
 
   function render() {
     const s = readSettings(storage);
-    if (refs.darkTheme) {
-      refs.darkTheme.checked = true;
-      refs.darkTheme.disabled = true;
-    }
+    if (refs.darkTheme) refs.darkTheme.checked = Boolean(s.darkTheme);
     if (refs.notifications) refs.notifications.checked = Boolean(s.notifications);
     if (refs.autoplay) refs.autoplay.checked = Boolean(s.autoplay);
     if (refs.dataSaver) refs.dataSaver.checked = Boolean(s.dataSaver);
     if (refs.titleLang) refs.titleLang.value = s.titleLang || "english";
     if (refs.defaultStatus) refs.defaultStatus.value = s.defaultStatus || "plan";
-    applyDarkTheme(true);
+    applyDarkTheme(s.darkTheme);
     applyDataSaver(s.dataSaver);
-    const accentColor = THEME_ACCENT;
+    const accentColor = normalizeAccentColor(s.accentColor);
     applyAccentColor(accentColor);
     // Reflect active swatch
     refs.accentPicker?.querySelectorAll(".accent-swatch").forEach(sw => {
-      sw.classList.toggle("active", String(sw.dataset.color || "").toLowerCase() === accentColor);
+      sw.classList.toggle("active", sw.dataset.color === accentColor);
     });
   }
 
@@ -449,6 +440,15 @@ function initSettings({ toast, libraryStore, storage = globalThis.localStorage }
   window.addEventListener('Animyx:settings-sync', () => {
     render();
   });
+
+  function onDarkTheme(e) {
+    const enabled = Boolean(e.target.checked);
+    const theme = enabled ? 'dark' : 'light';
+    writeSettings(storage, { ...readSettings(storage), darkTheme: enabled });
+    setState({ theme });
+    applyDarkTheme(enabled);
+    toast?.show?.(enabled ? "Dark mode enabled" : "Light mode enabled");
+  }
 
   async function onNotifications(e) {
     const enabled = Boolean(e.target.checked);
@@ -466,7 +466,7 @@ function initSettings({ toast, libraryStore, storage = globalThis.localStorage }
         const swReg = await navigator.serviceWorker.register('/sw.js');
 
         // 2. Fetch VAPID public key
-        const keyRes = await getPushPublicKey();
+        const keyRes = await authFetch(apiUrl('/push/public-key'));
         const { publicKey } = await keyRes.json();
 
         // 3. Subscribe to Web Push
@@ -476,7 +476,11 @@ function initSettings({ toast, libraryStore, storage = globalThis.localStorage }
         });
 
         // 4. Send subscription to backend
-        await subscribePush(sub);
+        await authFetch(apiUrl('/push/subscribe'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ subscription: sub })
+        });
 
         toast?.show?.("Push notifications enabled ✓");
       } catch (err) {
@@ -491,7 +495,11 @@ function initSettings({ toast, libraryStore, storage = globalThis.localStorage }
         const sub = await swReg.pushManager.getSubscription();
         if (sub) {
           await sub.unsubscribe();
-          await unsubscribePush();
+          await authFetch(apiUrl('/push/unsubscribe'), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({})
+          });
         }
         toast?.show?.("Push notifications disabled");
       } catch (err) {
@@ -529,14 +537,14 @@ function initSettings({ toast, libraryStore, storage = globalThis.localStorage }
     const swatch = e.target.closest(".accent-swatch");
     if (!swatch) return;
     const color = normalizeAccentColor(swatch.dataset.color);
-    writeSettings(storage, { ...readSettings(storage), darkTheme: true, accentColor: color });
-    setState({ theme: 'dark', accentColor: THEME_ACCENT });
-    applyDarkTheme(true);
-    applyAccentColor(THEME_ACCENT);
+    if (!color) return;
+    writeSettings(storage, { ...readSettings(storage), accentColor: color });
+    setState({ accentColor: color });
+    applyAccentColor(color);
     refs.accentPicker?.querySelectorAll(".accent-swatch").forEach(sw => {
       sw.classList.toggle("active", sw === swatch);
     });
-    toast?.show?.("One Piece theme is fixed across the app");
+    toast?.show?.("Accent color updated ✓");
   }
 
   async function onClearLibrary() {
@@ -550,7 +558,7 @@ function initSettings({ toast, libraryStore, storage = globalThis.localStorage }
 
     // 2. Also delete from cloud so sync doesn't restore the data
     try {
-      const res = await deleteCloudLibrary();
+      const res = await authFetch(apiUrl('/users/me/library'), { method: 'DELETE' });
       if (res.ok) {
         toast?.show?.("Library cleared successfully. \u2713");
       } else {
@@ -569,7 +577,7 @@ function initSettings({ toast, libraryStore, storage = globalThis.localStorage }
 
     // 1. Wipe cloud data first
     try {
-      await deleteCloudData();
+      await authFetch(apiUrl('/users/me/cloud-data'), { method: 'DELETE' });
     } catch (_err) {
       console.error("Cloud wipe failed during reset", _err);
     }
@@ -587,7 +595,7 @@ function initSettings({ toast, libraryStore, storage = globalThis.localStorage }
     if (!confirmed) return;
 
     try {
-      const res = await deleteAccountApi();
+      const res = await authFetch(apiUrl('/users/me'), { method: 'DELETE' });
       if (!res.ok) {
         const msg = (await res.json().catch(() => null))?.message || 'Failed to delete account';
         toast?.show?.(msg, 'error');
@@ -603,11 +611,13 @@ function initSettings({ toast, libraryStore, storage = globalThis.localStorage }
     window.location.replace('/pages/signin.html');
   }
 
+  refs.darkTheme?.addEventListener("change", onDarkTheme);
   refs.notifications?.addEventListener("change", onNotifications);
   refs.autoplay?.addEventListener("change", onAutoplay);
   refs.dataSaver?.addEventListener("change", onDataSaver);
   refs.titleLang?.addEventListener("change", onTitleLang);
   refs.defaultStatus?.addEventListener("change", onDefaultStatus);
+  refs.accentPicker?.addEventListener("click", onSwatchClick);
   refs.clearLibrary?.addEventListener("click", onClearLibrary);
   refs.resetLocal?.addEventListener("click", onResetLocal);
   refs.deleteAccount?.addEventListener("click", onDeleteAccount);
@@ -617,11 +627,13 @@ function initSettings({ toast, libraryStore, storage = globalThis.localStorage }
   return Object.freeze({
     render,
     destroy() {
+      refs.darkTheme?.removeEventListener("change", onDarkTheme);
       refs.notifications?.removeEventListener("change", onNotifications);
       refs.autoplay?.removeEventListener("change", onAutoplay);
       refs.dataSaver?.removeEventListener("change", onDataSaver);
       refs.titleLang?.removeEventListener("change", onTitleLang);
       refs.defaultStatus?.removeEventListener("change", onDefaultStatus);
+      refs.accentPicker?.removeEventListener("click", onSwatchClick);
       refs.clearLibrary?.removeEventListener("click", onClearLibrary);
       refs.resetLocal?.removeEventListener("click", onResetLocal);
       refs.deleteAccount?.removeEventListener("click", onDeleteAccount);
@@ -725,13 +737,9 @@ function initExport({ libraryStore, toast } = {}) {
     }
   }
 
-  function onSelectJson() { setFormat("json"); }
-  function onSelectCsv() { setFormat("csv"); }
-
-  refs.jsonBtn?.addEventListener("click", onSelectJson);
-  refs.csvBtn?.addEventListener("click", onSelectCsv);
+  refs.jsonBtn?.addEventListener("click", () => setFormat("json"));
+  refs.csvBtn?.addEventListener("click", () => setFormat("csv"));
   refs.generateBtn?.addEventListener("click", onGenerate);
-  const unsubscribeLibrary = libraryStore?.subscribe?.(() => updatePreview());
 
   setFormat("json");
   updatePreview();
@@ -739,10 +747,9 @@ function initExport({ libraryStore, toast } = {}) {
   return Object.freeze({
     render() { updatePreview(); },
     destroy() {
-      refs.jsonBtn?.removeEventListener("click", onSelectJson);
-      refs.csvBtn?.removeEventListener("click", onSelectCsv);
+      refs.jsonBtn?.removeEventListener("click", () => setFormat("json"));
+      refs.csvBtn?.removeEventListener("click", () => setFormat("csv"));
       refs.generateBtn?.removeEventListener("click", onGenerate);
-      unsubscribeLibrary?.();
     }
   });
 }
@@ -796,7 +803,7 @@ function initImport({ libraryStore, toast } = {}) {
     }
     if (refs.progressBar) {
       refs.progressBar.style.width = "0%";
-      refs.progressBar.style.background = "#1e90ff";
+      refs.progressBar.style.background = "#8b5cf6"; // Reset to purple
     }
     if (refs.statusMsg) {
       refs.statusMsg.textContent = "Ready to upload.";
@@ -860,7 +867,10 @@ function initImport({ libraryStore, toast } = {}) {
       formData.append("malExport", selectedFile);
 
       // 3. Send request
-      const res = await importMal(selectedFile);
+      const res = await authFetch(apiUrl("/import/mal"), {
+        method: "POST",
+        body: formData // Note: Omitting Content-Type header lets fetch set multipart boundary correctly
+      });
 
       const json = await res.json();
 
@@ -924,6 +934,5 @@ function initImport({ libraryStore, toast } = {}) {
 }
 
 export { readProfile, readSettings, initProfile, initSettings, initExport, initImport };
-
 
 
