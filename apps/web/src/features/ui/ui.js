@@ -70,6 +70,8 @@ function initChartTooltips({ tooltipId = "chart-tooltip" } = {}) {
   let rafId = 0;
   let pendingEvent = null;
   let activeTarget = null;
+  const legendTooltipSelector = ".donut-slice, .genre-bar-item, .insight-legend-item, .si-legend-item, .legend-item";
+  const activityTooltipScopeSelector = ".insight-activity-chart, .activity-chart-panel";
 
   function decodeHtml(value) {
     decoder.innerHTML = String(value || "");
@@ -78,7 +80,7 @@ function initChartTooltips({ tooltipId = "chart-tooltip" } = {}) {
 
   function renderTooltip(eventPayload) {
     const rawTarget = eventPayload?.target;
-    if (rawTarget?.closest?.(".insight-activity-chart, .activity-chart-panel")) {
+    if (rawTarget?.closest?.(activityTooltipScopeSelector)) {
       if (activeTarget) {
         activeTarget = null;
         tooltip.classList.remove("active");
@@ -86,7 +88,7 @@ function initChartTooltips({ tooltipId = "chart-tooltip" } = {}) {
       return;
     }
 
-    const target = rawTarget?.closest?.(".donut-slice, .genre-bar-item, .insight-legend-item, .si-legend-item, .legend-item");
+    const target = rawTarget?.closest?.(legendTooltipSelector);
     if (!target) {
       activeTarget = null;
       tooltip.classList.remove("active");
@@ -123,10 +125,14 @@ function initChartTooltips({ tooltipId = "chart-tooltip" } = {}) {
   }
 
   function onMouseMove(e) {
+    const target = e?.target;
+    if (!activeTarget && !target?.closest?.(legendTooltipSelector) && !target?.closest?.(activityTooltipScopeSelector)) {
+      return;
+    }
     pendingEvent = {
       clientX: e.clientX,
       clientY: e.clientY,
-      target: e.target
+      target
     };
     if (rafId) return;
     rafId = requestAnimationFrame(() => {

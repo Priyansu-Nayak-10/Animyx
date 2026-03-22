@@ -332,6 +332,9 @@ export function initHeroCarousel({ store, libraryStore, toast = null, onViewDeta
   const prevBtn = root.querySelector(".hero-prev");
   const nextBtn = root.querySelector(".hero-next");
   let items = [], index = 0, intervalId = 0;
+  let lastRenderSignature = "";
+  let renderRafId = 0;
+  let queuedOverride = null;
 
   function setActive(nextIndex) {
     const slides = root.querySelectorAll(".hero-slide"), dots = root.querySelectorAll(".hero-indicator");
@@ -340,15 +343,37 @@ export function initHeroCarousel({ store, libraryStore, toast = null, onViewDeta
     index = nextIndex;
   }
 
-  function render(topOngoingOverride = null) {
+  function getRenderItems(topOngoingOverride = null) {
     const state = store.getState();
     const libraryItems = libraryStore?.getAll?.() || [];
-    items = Array.isArray(topOngoingOverride) ? topOngoingOverride : getTopOngoingAnikoto(state, 10, libraryItems);
+    return Array.isArray(topOngoingOverride) ? topOngoingOverride : getTopOngoingAnikoto(state, 10, libraryItems);
+  }
+
+  function buildRenderSignature(list = []) {
+    return list.map((anime) => {
+      const id = Number(anime?.malId || 0);
+      const score = Number(anime?.score || 0);
+      const status = String(anime?.status || "");
+      const episodes = Number(anime?.episodes || 0);
+      return `${id}:${score}:${status}:${episodes}`;
+    }).join("|");
+  }
+
+  function render(topOngoingOverride = null) {
+    const nextItems = getRenderItems(topOngoingOverride);
+    const nextSignature = buildRenderSignature(nextItems);
+    if (nextSignature === lastRenderSignature && nextItems.length === items.length) {
+      items = nextItems;
+      return false;
+    }
+    items = nextItems;
+    lastRenderSignature = nextSignature;
     index = 0;
-    if (!slidesHost || !indicatorsHost) return;
+    if (!slidesHost || !indicatorsHost) return false;
     if (!items.length) {
       slidesHost.innerHTML = '<article class="hero-slide is-active"><div class="hero-slide-overlay"></div><div class="hero-slide-content"><h2 class="hero-title">No currently airing anime available</h2><p class="hero-countdown">Try refreshing datasets.</p></div></article>';
-      indicatorsHost.innerHTML = ""; return;
+      indicatorsHost.innerHTML = "";
+      return true;
     }
     slidesHost.innerHTML = items.map((anime, i) => {
       const title = escapeHtml(String(anime?.title || "Unknown Title")), image = escapeHtml(String(anime?.image || ""));
@@ -363,6 +388,19 @@ export function initHeroCarousel({ store, libraryStore, toast = null, onViewDeta
       if (image.complete && image.naturalWidth > 0) { markLoaded(); return; }
       image.addEventListener("load", markLoaded, { once: true });
       image.addEventListener("error", markLoaded, { once: true });
+    });
+    return true;
+  }
+
+  function scheduleRender(topOngoingOverride = null, { restartAuto = false } = {}) {
+    queuedOverride = topOngoingOverride ?? queuedOverride;
+    if (renderRafId) return;
+    renderRafId = timers.requestAnimationFrame(() => {
+      renderRafId = 0;
+      const override = queuedOverride;
+      queuedOverride = null;
+      const changed = render(override);
+      if (restartAuto && changed) restartAutoPlay();
     });
   }
 
@@ -384,9 +422,19 @@ export function initHeroCarousel({ store, libraryStore, toast = null, onViewDeta
   prevBtn?.addEventListener("click", () => { goPrev(); restartAutoPlay(); });
   nextBtn?.addEventListener("click", () => { goNext(); restartAutoPlay(); });
   root.addEventListener("click", onClick);
-  const unsubscribe = store.subscribe(() => { render(); restartAutoPlay(); });
+  const unsubscribe = store.subscribe(() => { scheduleRender(null, { restartAuto: true }); });
   render(); restartAutoPlay();
-  return Object.freeze({ render, destroy() { unsubscribe(); root.removeEventListener("click", onClick); if (intervalId) timers.clearInterval(intervalId); } });
+  return Object.freeze({
+    render(topOngoingOverride = null) {
+      scheduleRender(topOngoingOverride);
+    },
+    destroy() {
+      unsubscribe();
+      root.removeEventListener("click", onClick);
+      if (intervalId) timers.clearInterval(intervalId);
+      if (renderRafId) timers.cancelAnimationFrame(renderRafId);
+    }
+  });
 }
 
 // ── Tracker Feed Module ──────────────────────────────────────────────────────
@@ -397,6 +445,9 @@ export function initTrackerFeed({ libraryStore, milestones = null }) {
   let backendItems = [], localItems = [];
   let backendRefreshTimer = 0;
   let refreshInFlight = null;
+  let renderRafId = 0;
+  let pendingForceRender = false;
+  let lastTrackerSignature = "";
 
   function renderRows(items) {
     if (!items.length) { listEl.innerHTML = '<div class="tracker-empty"><span class="material-icons">sensors_off</span><p>No active synchronization data.</p></div>'; return; }
@@ -407,13 +458,27 @@ export function initTrackerFeed({ libraryStore, milestones = null }) {
     }).join("");
   }
 
-  function render() {
+  function render(force = false) {
     localItems = (libraryStore.getByStatus?.("watching") || []).map((a) => ({ type: "TRACKING", title: String(a?.title || "Unknown"), message: `Tracking "${a?.title}" — ${a?.episodes ? `${a.progress || 0}/${a.episodes} eps` : "airing"}`, ts: a?.updatedAt || 0 }));
     const all = [...backendItems.map(n => { let t = "System Update", m = n.message || "", mt = m.match(/^"(.*)" — (.*)$/); if (mt) { t = mt[1]; m = mt[2]; } return { type: n.type || "GENERIC", title: t, message: m, created_at: n.created_at ? new Date(n.created_at).getTime() : Date.now() }; }), ...localItems];
     const seen = new Set(), merged = all.filter(i => { const k = `${i.type}|${i.title}|${i.message}`; if (seen.has(k)) return false; seen.add(k); return true; }).sort((a,b) => (b.created_at || b.ts || 0) - (a.created_at || a.ts || 0));
+    const signature = `${merged.length}:${merged.map((item) => `${item.type}|${item.title}|${item.message}|${item.created_at || item.ts || 0}`).join("~")}`;
+    if (!force && signature === lastTrackerSignature) return;
+    lastTrackerSignature = signature;
     renderRows(merged);
     if (countBadge) { countBadge.textContent = merged.length > 99 ? "99+" : String(merged.length); countBadge.hidden = merged.length === 0; }
     if (liveBadge) { liveBadge.innerHTML = `<span class="live-badge-glow"></span>LIVE HUD`; liveBadge.hidden = localItems.length === 0; liveBadge.classList.toggle('label-live', localItems.length > 0); }
+  }
+
+  function scheduleRender(force = false) {
+    pendingForceRender = pendingForceRender || force;
+    if (renderRafId) return;
+    renderRafId = window.requestAnimationFrame(() => {
+      renderRafId = 0;
+      const runForce = pendingForceRender;
+      pendingForceRender = false;
+      render(runForce);
+    });
   }
 
   async function fetchBackend() {
@@ -431,7 +496,7 @@ export function initTrackerFeed({ libraryStore, milestones = null }) {
       backendItems = allItems; localStorage.setItem(TRACKER_NOTIF_CACHE_KEY, JSON.stringify(backendItems));
       milestones?.onNotificationsLoaded?.(backendItems);
     } catch { try { backendItems = JSON.parse(localStorage.getItem(TRACKER_NOTIF_CACHE_KEY) || "[]"); } catch { backendItems = []; } }
-    render();
+    scheduleRender(true);
     })();
     try {
       return await refreshInFlight;
@@ -447,7 +512,9 @@ export function initTrackerFeed({ libraryStore, milestones = null }) {
   }
   function refreshOnSync() { void fetchBackend(); }
 
-  const unsub = libraryStore.subscribe?.(render);
+  const unsub = libraryStore.subscribe?.(() => {
+    scheduleRender();
+  });
   window.addEventListener("focus", refreshOnFocus, { passive: true });
   window.addEventListener("online", refreshOnOnline, { passive: true });
   document.addEventListener("visibilitychange", refreshOnVisible, { passive: true });
@@ -457,13 +524,15 @@ export function initTrackerFeed({ libraryStore, milestones = null }) {
     void fetchBackend();
   }, 60_000);
 
-  render(); void fetchBackend();
+  render(true); void fetchBackend();
   return Object.freeze({
-    render,
+    render(force = false) {
+      scheduleRender(Boolean(force));
+    },
     addEvent(ed) {
       backendItems.unshift({ type: ed.type || "SEQUEL_ANNOUNCED", message: ed.message || "New update", created_at: new Date().toISOString() });
       milestones?.onNotificationsLoaded?.(backendItems);
-      render();
+      scheduleRender(true);
     },
     destroy() {
       unsub?.();
@@ -472,6 +541,7 @@ export function initTrackerFeed({ libraryStore, milestones = null }) {
       document.removeEventListener("visibilitychange", refreshOnVisible);
       window.removeEventListener("Animyx:library-sync-received", refreshOnSync);
       if (backendRefreshTimer) window.clearInterval(backendRefreshTimer);
+      if (renderRafId) window.cancelAnimationFrame(renderRafId);
     }
   });
 }
@@ -485,6 +555,11 @@ export function initRecommendations({ store, libraryStore, selectors, toast = nu
   let recRefreshTimer = 0;
   let fetchInFlight = null;
   let libraryRefreshTimer = 0;
+  let renderRafId = 0;
+  let pendingForceRender = false;
+  let lastTopGenresMarkup = "";
+  let lastDonutSignature = "";
+  let lastRecommendationsSignature = "";
   const normalizeGenres = (genres) => (Array.isArray(genres) ? genres
     .map((genre) => {
       if (typeof genre === "string") return genre.trim();
@@ -506,8 +581,14 @@ export function initRecommendations({ store, libraryStore, selectors, toast = nu
     fetchInFlight = (async () => {
     try {
       const res = await authFetch(apiUrl("/user/me/recommendations"));
-      if (res.ok) { backendRecs = (await res.json())?.data || []; if (backendRecs.length) render(); }
-    } catch { backendRecs = []; }
+      if (res.ok) {
+        backendRecs = (await res.json())?.data || [];
+        scheduleRender(true);
+      }
+    } catch {
+      backendRecs = [];
+      scheduleRender(true);
+    }
     })();
     try {
       return await fetchInFlight;
@@ -516,7 +597,7 @@ export function initRecommendations({ store, libraryStore, selectors, toast = nu
     }
   }
 
-  function render() {
+  function render(force = false) {
     const libraryItems = libraryStore.getAll(), stats = libraryStore.getStats(), genres = topGenres(libraryItems, 3), personality = derivePersonality(stats), completed = libraryItems.filter(i => String(i?.status || "").toLowerCase() === "completed");
     if (refs.quickTotal) refs.quickTotal.textContent = String(stats.total);
     if (refs.quickPlan) refs.quickPlan.textContent = String(stats.plan);
@@ -526,22 +607,69 @@ export function initRecommendations({ store, libraryStore, selectors, toast = nu
     if (refs.promoTriviaSub) refs.promoTriviaSub.textContent = didYouKnow.sub;
     if (refs.personalityName) refs.personalityName.textContent = personality.name;
     if (refs.personalityDesc) refs.personalityDesc.textContent = personality.desc;
-    if (refs.quickTopGenres) refs.quickTopGenres.innerHTML = genres.length ? genres.map(([g]) => { const c = getGenreConfig(g); return `<div class="genre-chip" style="--accent: ${c.color}"><span class="material-icons">${c.icon}</span><span>${escapeHtml(g)}</span></div>`; }).join("") : '<span class="anime-card-meta">No genre data yet</span>';
+    if (refs.quickTopGenres) {
+      const nextTopGenresMarkup = genres.length
+        ? genres.map(([g]) => { const c = getGenreConfig(g); return `<div class="genre-chip" style="--accent: ${c.color}"><span class="material-icons">${c.icon}</span><span>${escapeHtml(g)}</span></div>`; }).join("")
+        : '<span class="anime-card-meta">No genre data yet</span>';
+      if (force || nextTopGenresMarkup !== lastTopGenresMarkup) {
+        refs.quickTopGenres.innerHTML = nextTopGenresMarkup;
+        lastTopGenresMarkup = nextTopGenresMarkup;
+      }
+    }
     if (refs.dashboardGenreSvg && refs.dashboardGenreLegend) {
       const entries = getGenreSnapshotEntries(libraryItems, 3);
       const hasCompletedGenres = topGenresWithOthers(completed, 3).length > 0;
-      if (!entries.length) { refs.dashboardGenreSvg.innerHTML = `<g transform="translate(100,100)"><circle r="95" fill="none" stroke="rgba(56, 189, 248, 0.14)" stroke-width="20" stroke-dasharray="10 10"></circle><text x="0" y="5" text-anchor="middle" fill="var(--text-muted)" font-size="0.8rem">No Data</text></g>`; refs.dashboardGenreLegend.innerHTML = '<div class="anime-card-meta" style="margin-bottom:0; text-align: center; width: 100%;">Add genre-rich anime to see your distribution.</div>'; }
-      else {
-        renderGenreDonut(refs.dashboardGenreSvg, entries);
-        const total = entries.reduce((s, [, c]) => s + Number(c || 0), 0), palette = ["var(--chart-purple)", "var(--chart-blue)", "var(--chart-cyan)", "var(--chart-green)", "var(--chart-orange)", "var(--chart-pink)"];
-        const helperCopy = hasCompletedGenres ? "" : '<div class="anime-card-meta" style="margin-bottom:0; text-align:center; width:100%;">Showing all saved anime until you complete more series.</div>';
-        refs.dashboardGenreLegend.innerHTML = `${entries.map(([n, c], i) => `<div class="legend-item"><span class="legend-dot" style="background: ${palette[i % palette.length]}"></span><div class="legend-label"><span class="anime-card-meta" style="margin-bottom:0;color:var(--text-primary); font-weight:600;">${escapeHtml(n)}</span><span class="anime-card-meta" style="margin-bottom:0;font-size:0.6rem;">${Math.round((Number(c || 0)/total)*100)}%</span></div></div>`).join('')}${helperCopy}`;
+      const nextDonutSignature = `${entries.map(([name, count]) => `${name}:${count}`).join("|")}|${hasCompletedGenres ? "c" : "a"}`;
+      if (force || nextDonutSignature !== lastDonutSignature) {
+        if (!entries.length) {
+          refs.dashboardGenreSvg.innerHTML = `<g transform="translate(100,100)"><circle r="95" fill="none" stroke="rgba(56, 189, 248, 0.14)" stroke-width="20" stroke-dasharray="10 10"></circle><text x="0" y="5" text-anchor="middle" fill="var(--text-muted)" font-size="0.8rem">No Data</text></g>`;
+          refs.dashboardGenreLegend.innerHTML = '<div class="anime-card-meta" style="margin-bottom:0; text-align: center; width: 100%;">Add genre-rich anime to see your distribution.</div>';
+        } else {
+          renderGenreDonut(refs.dashboardGenreSvg, entries);
+          const total = entries.reduce((s, [, c]) => s + Number(c || 0), 0), palette = ["var(--chart-purple)", "var(--chart-blue)", "var(--chart-cyan)", "var(--chart-green)", "var(--chart-orange)", "var(--chart-pink)"];
+          const helperCopy = hasCompletedGenres ? "" : '<div class="anime-card-meta" style="margin-bottom:0; text-align:center; width:100%;">Showing all saved anime until you complete more series.</div>';
+          refs.dashboardGenreLegend.innerHTML = `${entries.map(([n, c], i) => `<div class="legend-item"><span class="legend-dot" style="background: ${palette[i % palette.length]}"></span><div class="legend-label"><span class="anime-card-meta" style="margin-bottom:0;color:var(--text-primary); font-weight:600;">${escapeHtml(n)}</span><span class="anime-card-meta" style="margin-bottom:0;font-size:0.6rem;">${Math.round((Number(c || 0)/total)*100)}%</span></div></div>`).join('')}${helperCopy}`;
+        }
+        lastDonutSignature = nextDonutSignature;
       }
     }
-    const rows = (backendRecs?.length) ? backendRecs : (() => { const topGenresList = topGenreNames(libraryItems), eid = new Set(libraryItems.map(i => Number(i?.malId || 0))); return selectors.getCombinedDiscoveryState(store.getState()).filter(a => !eid.has(Number(a?.malId || 0))).sort((l,r) => { const lm = (l?.genres || []).filter(g => topGenresList.includes(g)).length, rm = (r?.genres || []).filter(g => topGenresList.includes(g)).length; return rm !== lm ? rm - lm : Number(r?.score || 0) - Number(l?.score || 0); }).slice(0, 10); })();
-    if (refs.recommendedList) refs.recommendedList.innerHTML = rows.length
-      ? rows.map(renderRecommendationCard).join("")
-      : `<div class="tracker-empty reco-empty-state"><span class="material-icons reco-empty-icon">auto_awesome</span><p class="anime-card-meta">Add anime to your watchlist to unlock personalized recommendations.</p></div>`;
+    const rows = (backendRecs?.length)
+      ? backendRecs
+      : (() => {
+        const topGenresList = topGenreNames(libraryItems);
+        const topGenreSet = new Set(topGenresList);
+        const existingIds = new Set(libraryItems.map(i => Number(i?.malId || 0)));
+        return selectors.getCombinedDiscoveryState(store.getState())
+          .filter(a => !existingIds.has(Number(a?.malId || 0)))
+          .sort((l, r) => {
+            const leftGenres = normalizeGenres(l?.genres);
+            const rightGenres = normalizeGenres(r?.genres);
+            const leftMatches = leftGenres.filter((g) => topGenreSet.has(g)).length;
+            const rightMatches = rightGenres.filter((g) => topGenreSet.has(g)).length;
+            return rightMatches !== leftMatches ? rightMatches - leftMatches : Number(r?.score || 0) - Number(l?.score || 0);
+          })
+          .slice(0, 10);
+      })();
+    if (refs.recommendedList) {
+      const nextRecommendationsSignature = `${rows.length}:${rows.map((row) => `${getRecommendationId(row)}:${String(row?.title || "").trim()}`).join("|")}`;
+      if (force || nextRecommendationsSignature !== lastRecommendationsSignature) {
+        refs.recommendedList.innerHTML = rows.length
+          ? rows.map(renderRecommendationCard).join("")
+          : `<div class="tracker-empty reco-empty-state"><span class="material-icons reco-empty-icon">auto_awesome</span><p class="anime-card-meta">Add anime to your watchlist to unlock personalized recommendations.</p></div>`;
+        lastRecommendationsSignature = nextRecommendationsSignature;
+      }
+    }
+  }
+
+  function scheduleRender(force = false) {
+    pendingForceRender = pendingForceRender || force;
+    if (renderRafId) return;
+    renderRafId = window.requestAnimationFrame(() => {
+      renderRafId = 0;
+      const runForce = pendingForceRender;
+      pendingForceRender = false;
+      render(runForce);
+    });
   }
 
   function onClick(e) {
@@ -567,9 +695,11 @@ export function initRecommendations({ store, libraryStore, selectors, toast = nu
 
   refs.recommendedList?.addEventListener("click", onClick);
   const unsubs = [
-    store.subscribe(render),
+    store.subscribe(() => {
+      scheduleRender();
+    }),
     libraryStore.subscribe(() => {
-      render();
+      scheduleRender();
       scheduleBackendRefresh();
     })
   ];
@@ -582,9 +712,11 @@ export function initRecommendations({ store, libraryStore, selectors, toast = nu
     void fetchRecs();
   }, 5 * 60_000);
 
-  render(); fetchRecs();
+  render(true); fetchRecs();
   return Object.freeze({
-    render,
+    render(force = false) {
+      scheduleRender(Boolean(force));
+    },
     destroy() {
       refs.recommendedList?.removeEventListener("click", onClick);
       unsubs.forEach(fn => fn());
@@ -594,6 +726,7 @@ export function initRecommendations({ store, libraryStore, selectors, toast = nu
       window.removeEventListener("Animyx:library-sync-received", refreshOnSync);
       if (recRefreshTimer) window.clearInterval(recRefreshTimer);
       if (libraryRefreshTimer) window.clearTimeout(libraryRefreshTimer);
+      if (renderRafId) window.cancelAnimationFrame(renderRafId);
     }
   });
 }

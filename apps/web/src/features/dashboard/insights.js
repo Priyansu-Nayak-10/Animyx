@@ -520,9 +520,27 @@ export function initInsights({ libraryStore }) {
     studioList: document.getElementById("insight-studio-list"), favoriteStudio: document.getElementById("insight-favorite-studio"),
     lastCompletedAnime: document.getElementById("insight-last-completed"), gapsText: document.getElementById("insight-gaps-text"), suggestedGenre: document.getElementById("insight-suggested-genre")
   };
+  let lastRenderSignature = "";
+  let renderRafId = 0;
+  let pendingForceRender = false;
 
-  function render() {
+  function buildInsightsSignature(items = []) {
+    if (!Array.isArray(items) || !items.length) return "empty";
+    return items.map((item) => {
+      const id = Number(item?.malId || item?.mal_id || 0);
+      const status = String(item?.status || "");
+      const progress = Number(item?.progress ?? item?.watchedEpisodes ?? 0);
+      const episodes = Number(item?.episodes || 0);
+      const updatedAt = Number(item?.updatedAt || 0);
+      return `${id}:${status}:${progress}:${episodes}:${updatedAt}`;
+    }).join("|");
+  }
+
+  function render(force = false) {
     const items = libraryStore.getAll();
+    const nextSignature = buildInsightsSignature(items);
+    if (!force && nextSignature === lastRenderSignature) return;
+    lastRenderSignature = nextSignature;
     if (!items?.length) { 
       refs.view?.classList.add("is-empty"); if (refs.emptyOverlay) refs.emptyOverlay.hidden = false;
       if (refs.genreAnalysisText) refs.genreAnalysisText.textContent = "Complete anime to unlock genre insights.";
@@ -595,15 +613,28 @@ export function initInsights({ libraryStore }) {
     }
   }  // end render()
 
-  const unsubscribe = libraryStore.subscribe(render);
+  function scheduleRender(force = false) {
+    pendingForceRender = pendingForceRender || force;
+    if (renderRafId) return;
+    renderRafId = window.requestAnimationFrame(() => {
+      renderRafId = 0;
+      const runForce = pendingForceRender;
+      pendingForceRender = false;
+      render(runForce);
+    });
+  }
+
+  const unsubscribe = libraryStore.subscribe(() => {
+    scheduleRender();
+  });
   const refreshOnVisible = () => {
     if (typeof document !== "undefined" && document.visibilityState === "hidden") return;
-    render();
+    scheduleRender(true);
   };
-  const refreshOnSync = () => render();
+  const refreshOnSync = () => scheduleRender(true);
   const refreshTimer = window.setInterval(() => {
     if (typeof document !== "undefined" && document.visibilityState === "hidden") return;
-    render();
+    scheduleRender(true);
   }, 60_000);
 
   window.addEventListener("focus", refreshOnVisible, { passive: true });
@@ -611,9 +642,11 @@ export function initInsights({ libraryStore }) {
   document.addEventListener("visibilitychange", refreshOnVisible, { passive: true });
   window.addEventListener("Animyx:library-sync-received", refreshOnSync, { passive: true });
 
-  render();
+  scheduleRender(true);
   return Object.freeze({
-    render,
+    render(force = false) {
+      scheduleRender(Boolean(force));
+    },
     destroy() {
       unsubscribe();
       window.removeEventListener("focus", refreshOnVisible);
@@ -621,6 +654,7 @@ export function initInsights({ libraryStore }) {
       document.removeEventListener("visibilitychange", refreshOnVisible);
       window.removeEventListener("Animyx:library-sync-received", refreshOnSync);
       window.clearInterval(refreshTimer);
+      if (renderRafId) window.cancelAnimationFrame(renderRafId);
     }
   });
 }
