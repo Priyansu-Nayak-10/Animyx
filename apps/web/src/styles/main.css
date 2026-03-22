@@ -11880,33 +11880,46 @@ body.sidebar-open .sidebar-backdrop {
 /* ── Recent Activity Horizontal Feed ──────────────────────── */
 .activity-timeline-feed {
   display: flex;
-  overflow-x: auto;
-  gap: 16px;
-  margin: 0 -1rem;
-  padding: 0 1rem 1rem;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-height: 480px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--space-2) var(--space-4) var(--space-4) 0;
+  margin: 0;
+  scroll-behavior: smooth;
 }
 
 .activity-timeline-feed::-webkit-scrollbar {
-  height: 6px;
+  width: 6px;
 }
 .activity-timeline-feed::-webkit-scrollbar-track {
-  background: var(--bg-elevated);
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: var(--radius-pill);
 }
 .activity-timeline-feed::-webkit-scrollbar-thumb {
-  background: var(--border-default);
-  border-radius: 4px;
+  background: var(--border-strong);
+  border-radius: var(--radius-pill);
+}
+.activity-timeline-feed::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
 }
 
 .activity-timeline-item {
-  flex: 0 0 240px;
-  flex-shrink: 0;
-  width: 240px;
-  background: var(--bg-glass);
-  padding: 12px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border-glass);
+  flex: 0 0 auto;
+  width: 100%;
   display: flex;
   align-items: flex-start;
-  gap: 8px;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background: var(--bg-glass);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  transition: var(--transition-base);
+}
+
+.activity-timeline-item:hover {
+  background: var(--bg-glass-md);
+  border-color: var(--border-default);
+  transform: translateX(4px);
 }
