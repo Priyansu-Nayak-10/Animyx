@@ -2,6 +2,7 @@ import { getNotifications, markNotificationRead, clearNotifications as clearNoti
 
 let notifications = [];
 let unreadCount = 0;
+let refreshInFlight = null;
 
 const getBadgeEl = () => document.getElementById('notif-badge');
 const getListEl = () => document.getElementById('notif-list');
@@ -119,6 +120,8 @@ function showToast(notification) {
 }
 
 export async function loadNotifications() {
+  if (refreshInFlight) return refreshInFlight;
+  refreshInFlight = (async () => {
   try {
     const allNotifications = [];
     let page = 1;
@@ -150,6 +153,12 @@ export async function loadNotifications() {
     updateBadge();
   } catch (error) {
     console.error('[Notifications] Load failed:', error);
+  }
+  })();
+  try {
+    return await refreshInFlight;
+  } finally {
+    refreshInFlight = null;
   }
 }
 

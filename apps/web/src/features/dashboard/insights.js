@@ -561,6 +561,31 @@ export function initInsights({ libraryStore }) {
   }  // end render()
 
   const unsubscribe = libraryStore.subscribe(render);
+  const refreshOnVisible = () => {
+    if (typeof document !== "undefined" && document.visibilityState === "hidden") return;
+    render();
+  };
+  const refreshOnSync = () => render();
+  const refreshTimer = window.setInterval(() => {
+    if (typeof document !== "undefined" && document.visibilityState === "hidden") return;
+    render();
+  }, 60_000);
+
+  window.addEventListener("focus", refreshOnVisible, { passive: true });
+  window.addEventListener("online", refreshOnVisible, { passive: true });
+  document.addEventListener("visibilitychange", refreshOnVisible, { passive: true });
+  window.addEventListener("Animyx:library-sync-received", refreshOnSync, { passive: true });
+
   render();
-  return Object.freeze({ render, destroy() { unsubscribe(); } });
+  return Object.freeze({
+    render,
+    destroy() {
+      unsubscribe();
+      window.removeEventListener("focus", refreshOnVisible);
+      window.removeEventListener("online", refreshOnVisible);
+      document.removeEventListener("visibilitychange", refreshOnVisible);
+      window.removeEventListener("Animyx:library-sync-received", refreshOnSync);
+      window.clearInterval(refreshTimer);
+    }
+  });
 }

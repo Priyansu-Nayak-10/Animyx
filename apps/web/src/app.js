@@ -560,6 +560,78 @@ function createDataController({ api, store }) {
 // bindNavigation, openView, and initSectionReveal are now in:
 // public/src/core/navigation.js and public/src/core/sectionReveal.js
 
+function initAppLiveRefresh({ controller, notificationsEnabled = false } = {}) {
+  let dashboardRefreshTimer = 0;
+  let notificationsRefreshTimer = 0;
+  let dashboardInFlight = null;
+  let notificationsInFlight = null;
+
+  async function refreshDashboard() {
+    if (dashboardInFlight) return dashboardInFlight;
+    dashboardInFlight = (async () => {
+      await controller.loadDashboardData();
+      await controller.loadLiveUpcoming();
+    })();
+    try {
+      return await dashboardInFlight;
+    } finally {
+      dashboardInFlight = null;
+    }
+  }
+
+  async function refreshNotifications() {
+    if (!notificationsEnabled) return;
+    if (notificationsInFlight) return notificationsInFlight;
+    notificationsInFlight = loadNotifications();
+    try {
+      return await notificationsInFlight;
+    } finally {
+      notificationsInFlight = null;
+    }
+  }
+
+  function refreshForeground() {
+    if (document.visibilityState !== "visible") return;
+    void refreshDashboard();
+    void refreshNotifications();
+  }
+
+  function refreshOnline() {
+    void refreshDashboard();
+    void refreshNotifications();
+  }
+
+  window.addEventListener("focus", refreshForeground, { passive: true });
+  document.addEventListener("visibilitychange", refreshForeground, { passive: true });
+  window.addEventListener("online", refreshOnline, { passive: true });
+  window.addEventListener("Animyx:library-sync-received", refreshForeground, { passive: true });
+
+  dashboardRefreshTimer = window.setInterval(() => {
+    if (document.visibilityState !== "visible") return;
+    void refreshDashboard();
+  }, 5 * 60 * 1000);
+
+  if (notificationsEnabled) {
+    notificationsRefreshTimer = window.setInterval(() => {
+      if (document.visibilityState !== "visible") return;
+      void refreshNotifications();
+    }, 60 * 1000);
+  }
+
+  return Object.freeze({
+    refreshDashboard,
+    refreshNotifications,
+    destroy() {
+      window.removeEventListener("focus", refreshForeground);
+      document.removeEventListener("visibilitychange", refreshForeground);
+      window.removeEventListener("online", refreshOnline);
+      window.removeEventListener("Animyx:library-sync-received", refreshForeground);
+      if (dashboardRefreshTimer) window.clearInterval(dashboardRefreshTimer);
+      if (notificationsRefreshTimer) window.clearInterval(notificationsRefreshTimer);
+    }
+  });
+}
+
 function initDebugDiagnosticsPanel({ api, store, libraryStore, timers = globalThis }) {
   const card = document.createElement("aside");
   card.setAttribute("aria-live", "polite");
@@ -780,7 +852,10 @@ async function bootstrap() {
   }
 
   await controller.loadDashboardData();
+  await controller.loadLiveUpcoming();
   controller.startAiringRefresh();
+  controller.startLiveUpcomingRefresh();
+  modules.push(initAppLiveRefresh({ controller, notificationsEnabled: Boolean(user?.id) }));
 
   if (params.get("debug") === "1") {
     modules.push(initDebugDiagnosticsPanel({ api, store, libraryStore }));
@@ -788,6 +863,7 @@ async function bootstrap() {
 
   window.addEventListener("beforeunload", () => {
     controller.stopAiringRefresh();
+    controller.stopLiveUpcomingRefresh();
     modules.forEach((mod) => mod?.destroy?.());
   }, { once: true });
 }

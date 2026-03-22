@@ -241,9 +241,10 @@ function initProfile({ toast, libraryStore, storage = globalThis.localStorage } 
   fetchCloudProfile(storage).then(() => render());
 
   // Listen for real-time sync events
-  window.addEventListener('Animyx:profile-sync', () => {
+  const onProfileSync = () => {
     render();
-  });
+  };
+  window.addEventListener('Animyx:profile-sync', onProfileSync);
 
   function onSave() {
     const profile = readProfile(storage);
@@ -284,15 +285,35 @@ function initProfile({ toast, libraryStore, storage = globalThis.localStorage } 
     reader.readAsDataURL(file);
   }
 
+  function onEditAvatarClick() {
+    refs.avatarFile?.click();
+  }
+
+  function onEditBannerClick() {
+    refs.bannerFile?.click();
+  }
+
   refs.saveBtn?.addEventListener("click", onSave);
-  refs.editAvatarBtn?.addEventListener("click", () => refs.avatarFile?.click());
+  refs.editAvatarBtn?.addEventListener("click", onEditAvatarClick);
   refs.avatarFile?.addEventListener("change", onAvatarChange);
-  refs.editBannerBtn?.addEventListener("click", () => refs.bannerFile?.click());
+  refs.editBannerBtn?.addEventListener("click", onEditBannerClick);
   refs.bannerFile?.addEventListener("change", onBannerChange);
+  const unsubscribeLibrary = libraryStore?.subscribe?.(() => renderStats());
 
   render();
 
-  return Object.freeze({ render, destroy() { } });
+  return Object.freeze({
+    render,
+    destroy() {
+      window.removeEventListener('Animyx:profile-sync', onProfileSync);
+      refs.saveBtn?.removeEventListener("click", onSave);
+      refs.editAvatarBtn?.removeEventListener("click", onEditAvatarClick);
+      refs.avatarFile?.removeEventListener("change", onAvatarChange);
+      refs.editBannerBtn?.removeEventListener("click", onEditBannerClick);
+      refs.bannerFile?.removeEventListener("change", onBannerChange);
+      unsubscribeLibrary?.();
+    }
+  });
 }
 
 // ──────────────────────────────────────────────────
@@ -728,9 +749,13 @@ function initExport({ libraryStore, toast } = {}) {
     }
   }
 
-  refs.jsonBtn?.addEventListener("click", () => setFormat("json"));
-  refs.csvBtn?.addEventListener("click", () => setFormat("csv"));
+  function onSelectJson() { setFormat("json"); }
+  function onSelectCsv() { setFormat("csv"); }
+
+  refs.jsonBtn?.addEventListener("click", onSelectJson);
+  refs.csvBtn?.addEventListener("click", onSelectCsv);
   refs.generateBtn?.addEventListener("click", onGenerate);
+  const unsubscribeLibrary = libraryStore?.subscribe?.(() => updatePreview());
 
   setFormat("json");
   updatePreview();
@@ -738,9 +763,10 @@ function initExport({ libraryStore, toast } = {}) {
   return Object.freeze({
     render() { updatePreview(); },
     destroy() {
-      refs.jsonBtn?.removeEventListener("click", () => setFormat("json"));
-      refs.csvBtn?.removeEventListener("click", () => setFormat("csv"));
+      refs.jsonBtn?.removeEventListener("click", onSelectJson);
+      refs.csvBtn?.removeEventListener("click", onSelectCsv);
       refs.generateBtn?.removeEventListener("click", onGenerate);
+      unsubscribeLibrary?.();
     }
   });
 }

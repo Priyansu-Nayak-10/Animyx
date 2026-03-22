@@ -395,6 +395,8 @@ export function initTrackerFeed({ libraryStore, milestones = null }) {
   const listEl = document.getElementById("tracker-feed-list"), countBadge = document.getElementById("tracker-count-badge"), liveBadge = document.getElementById("tracker-live-badge");
   if (!listEl) return { destroy() { }, addEvent() { } };
   let backendItems = [], localItems = [];
+  let backendRefreshTimer = 0;
+  let refreshInFlight = null;
 
   function renderRows(items) {
     if (!items.length) { listEl.innerHTML = '<div class="tracker-empty"><span class="material-icons">sensors_off</span><p>No active synchronization data.</p></div>'; return; }
@@ -415,6 +417,8 @@ export function initTrackerFeed({ libraryStore, milestones = null }) {
   }
 
   async function fetchBackend() {
+    if (refreshInFlight) return refreshInFlight;
+    refreshInFlight = (async () => {
     try {
       const allItems = []; let page = 1, hasMore = true;
       while (hasMore) {
@@ -428,11 +432,48 @@ export function initTrackerFeed({ libraryStore, milestones = null }) {
       milestones?.onNotificationsLoaded?.(backendItems);
     } catch { try { backendItems = JSON.parse(localStorage.getItem(TRACKER_NOTIF_CACHE_KEY) || "[]"); } catch { backendItems = []; } }
     render();
+    })();
+    try {
+      return await refreshInFlight;
+    } finally {
+      refreshInFlight = null;
+    }
   }
 
+  function refreshOnFocus() { void fetchBackend(); }
+  function refreshOnOnline() { void fetchBackend(); }
+  function refreshOnVisible() {
+    if (document.visibilityState === "visible") void fetchBackend();
+  }
+  function refreshOnSync() { void fetchBackend(); }
+
   const unsub = libraryStore.subscribe?.(render);
+  window.addEventListener("focus", refreshOnFocus, { passive: true });
+  window.addEventListener("online", refreshOnOnline, { passive: true });
+  document.addEventListener("visibilitychange", refreshOnVisible, { passive: true });
+  window.addEventListener("Animyx:library-sync-received", refreshOnSync, { passive: true });
+  backendRefreshTimer = window.setInterval(() => {
+    if (document.visibilityState !== "visible") return;
+    void fetchBackend();
+  }, 60_000);
+
   render(); void fetchBackend();
-  return Object.freeze({ render, addEvent(ed) { backendItems.unshift({ type: ed.type || "SEQUEL_ANNOUNCED", message: ed.message || "New update", created_at: new Date().toISOString() }); milestones?.onNotificationsLoaded?.(backendItems); render(); }, destroy() { unsub?.(); } });
+  return Object.freeze({
+    render,
+    addEvent(ed) {
+      backendItems.unshift({ type: ed.type || "SEQUEL_ANNOUNCED", message: ed.message || "New update", created_at: new Date().toISOString() });
+      milestones?.onNotificationsLoaded?.(backendItems);
+      render();
+    },
+    destroy() {
+      unsub?.();
+      window.removeEventListener("focus", refreshOnFocus);
+      window.removeEventListener("online", refreshOnOnline);
+      document.removeEventListener("visibilitychange", refreshOnVisible);
+      window.removeEventListener("Animyx:library-sync-received", refreshOnSync);
+      if (backendRefreshTimer) window.clearInterval(backendRefreshTimer);
+    }
+  });
 }
 
 // ── Recommendations Module ───────────────────────────────────────────────────
@@ -441,12 +482,23 @@ export function initRecommendations({ store, libraryStore, selectors, toast = nu
   const dashboardRoot = document.getElementById("dashboard-view") || document;
   const refs = { recommendedList: document.getElementById("recommended-list"), quickTotal: document.getElementById("quick-total"), quickPlan: document.getElementById("quick-plan"), quickGenres: document.getElementById("quick-genres"), quickTopGenres: document.getElementById("quick-top-genres"), personalityName: document.getElementById("anime-personality-name"), personalityDesc: document.getElementById("anime-personality-desc"), dashboardGenreSvg: document.getElementById("completed-genre-pie"), dashboardGenreLegend: dashboardRoot.querySelector(".stats-container .legend"), promoTriviaText: document.getElementById("promo-trivia-text"), promoTriviaSub: document.getElementById("promo-trivia-sub") };
   let backendRecs = null;
+  let recRefreshTimer = 0;
+  let fetchInFlight = null;
+  let libraryRefreshTimer = 0;
 
   async function fetchRecs() {
+    if (fetchInFlight) return fetchInFlight;
+    fetchInFlight = (async () => {
     try {
       const res = await authFetch(apiUrl("/user/me/recommendations"));
       if (res.ok) { backendRecs = (await res.json())?.data || []; if (backendRecs.length) render(); }
     } catch { backendRecs = []; }
+    })();
+    try {
+      return await fetchInFlight;
+    } finally {
+      fetchInFlight = null;
+    }
   }
 
   function render() {
@@ -481,10 +533,52 @@ export function initRecommendations({ store, libraryStore, selectors, toast = nu
     if (anime) { libraryStore.upsert({ ...anime, status: "plan" }, "plan"); toast?.show?.("Added to watchlist"); }
   }
 
+  function scheduleBackendRefresh(delayMs = 1200) {
+    if (libraryRefreshTimer) window.clearTimeout(libraryRefreshTimer);
+    libraryRefreshTimer = window.setTimeout(() => {
+      libraryRefreshTimer = 0;
+      void fetchRecs();
+    }, Math.max(250, Number(delayMs) || 1200));
+  }
+
+  function refreshOnFocus() { void fetchRecs(); }
+  function refreshOnOnline() { void fetchRecs(); }
+  function refreshOnVisible() {
+    if (document.visibilityState === "visible") void fetchRecs();
+  }
+  function refreshOnSync() { void fetchRecs(); }
+
   refs.recommendedList?.addEventListener("click", onClick);
-  const unsubs = [store.subscribe(render), libraryStore.subscribe(render)];
+  const unsubs = [
+    store.subscribe(render),
+    libraryStore.subscribe(() => {
+      render();
+      scheduleBackendRefresh();
+    })
+  ];
+  window.addEventListener("focus", refreshOnFocus, { passive: true });
+  window.addEventListener("online", refreshOnOnline, { passive: true });
+  document.addEventListener("visibilitychange", refreshOnVisible, { passive: true });
+  window.addEventListener("Animyx:library-sync-received", refreshOnSync, { passive: true });
+  recRefreshTimer = window.setInterval(() => {
+    if (document.visibilityState !== "visible") return;
+    void fetchRecs();
+  }, 5 * 60_000);
+
   render(); fetchRecs();
-  return Object.freeze({ render, destroy() { refs.recommendedList?.removeEventListener("click", onClick); unsubs.forEach(fn => fn()); } });
+  return Object.freeze({
+    render,
+    destroy() {
+      refs.recommendedList?.removeEventListener("click", onClick);
+      unsubs.forEach(fn => fn());
+      window.removeEventListener("focus", refreshOnFocus);
+      window.removeEventListener("online", refreshOnOnline);
+      document.removeEventListener("visibilitychange", refreshOnVisible);
+      window.removeEventListener("Animyx:library-sync-received", refreshOnSync);
+      if (recRefreshTimer) window.clearInterval(recRefreshTimer);
+      if (libraryRefreshTimer) window.clearTimeout(libraryRefreshTimer);
+    }
+  });
 }
 
 // ── Upcoming Widget Module ───────────────────────────────────────────────────
