@@ -25,6 +25,7 @@ export const getAiringAnime   = ()                 => get('/anime/airing');
 
 /** GET /anime/top?limit=N */
 export const getTopAnime      = (limit = 24)       => get(`/anime/top?limit=${limit}`);
+export const getTrendingAnime = getTopAnime;
 
 /** GET /anime/season/:year/:season?page=N */
 export const getSeasonalAnime = (year, season, page = 1) =>
