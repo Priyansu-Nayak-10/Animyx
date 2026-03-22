@@ -96,7 +96,7 @@
           <button class="sidebar-toggle-btn" type="button" aria-label="Open navigation" aria-expanded="false" data-sidebar-toggle>
             <span class="material-icons">menu</span>
           </button>
-          <div class="search-wrapper" style="position: relative;">
+          <div class="search-wrapper search-wrapper--relative">
             <span class="material-icons search-icon">search</span>
             <input id="global-search-input" class="search-input" placeholder="Search anime titles..."
               type="text" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="search-suggestions" aria-autocomplete="list" />
@@ -145,7 +145,7 @@
               </div>
 
               <div class="stats-grid">
-                <div class="card clip-placeholder-card group" style="border: 2px dashed var(--surface-border-strong);">
+                <div class="card clip-placeholder-card clip-placeholder-card--empty group">
                   <span class="placeholder-text" style="color: var(--text-muted); font-weight: 600; font-size: 0.75rem;">
                     Insert Your Favorite Clip
                   </span>
@@ -271,7 +271,7 @@
               <div id="premium-watching-container"></div>
               <div class="card recommendations-container">
                 <h3 class="card-title">Recommended For You</h3>
-                <div id="recommended-list" class="recommendations-list custom-scrollbar" style="max-height: 420px;">
+                <div id="recommended-list" class="recommendations-list recommendations-list--bounded custom-scrollbar">
                 </div>
               </div>
 
@@ -1105,8 +1105,7 @@
             </div>
           </div>
 
-          <div id="season-anime-grid" class="anime-grid"
-            style="min-height: 400px; position: relative; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1.5rem;">
+          <div id="season-anime-grid" class="anime-grid anime-grid--season">
             <!-- Loading skeleton or Anime cards go here -->
           </div>
         </div>

@@ -530,7 +530,8 @@ function initWatchlistBoard({ libraryStore, toast = null }) {
       const next = String(actionBtn.getAttribute("data-status") || "").toLowerCase();
       if (![STATUS.WATCHING, STATUS.PLAN, STATUS_DROPPED, STATUS.COMPLETED].includes(next)) return;
       const ids = Array.from(selected.values());
-      ids.forEach((id) => libraryStore.setStatus(id, next));
+      if (typeof libraryStore.setStatusMany === "function") libraryStore.setStatusMany(ids, next);
+      else ids.forEach((id) => libraryStore.setStatus(id, next));
       toast?.show?.(`Updated ${ids.length} titles`);
       selected.clear();
       uiState.selectMode = false;
@@ -542,7 +543,8 @@ function initWatchlistBoard({ libraryStore, toast = null }) {
       const ids = Array.from(selected.values());
       const confirmed = window.confirm(`Remove ${ids.length} selected title(s) from your library?`);
       if (!confirmed) return;
-      ids.forEach((id) => libraryStore.remove(id));
+      if (typeof libraryStore.removeMany === "function") libraryStore.removeMany(ids);
+      else ids.forEach((id) => libraryStore.remove(id));
       toast?.show?.(`Removed ${ids.length} title(s)`);
       selected.clear();
       uiState.selectMode = false;
@@ -917,7 +919,7 @@ function initCompletedBoard({ libraryStore, toast = null }) {
     if (action === "bulk-status") {
       if (!selected.size) return;
       const next = String(button.getAttribute("data-status") || "").toLowerCase();
-      if (![STATUS.WATCHING, STATUS_DROPPED, STATUS.COMPLETED].includes(next)) return;
+      if (![STATUS.PLAN, STATUS.WATCHING, STATUS.DROPPED, STATUS.COMPLETED].includes(next)) return;
       const ids = Array.from(selected.values());
       if (typeof libraryStore.setStatusMany === "function") libraryStore.setStatusMany(ids, next);
       else ids.forEach((id) => libraryStore.setStatus(id, next));

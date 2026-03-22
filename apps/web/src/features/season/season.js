@@ -22,12 +22,16 @@ export function renderAnimeGrid(container, animeList, loading = false) {
     const hoverStyle = document.createElement("style");
     hoverStyle.id = "grid-hover-style";
     hoverStyle.textContent = `
-      .anime-card .poster-container { overflow: hidden; }
-      .anime-card:hover .poster-image { transform: scale(1.05); }
+      .anime-grid-cell {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
       .anime-grid-cell .add-hover-cover {
         position: absolute;
         inset: 0;
-        background: linear-gradient(to top, rgba(46,16,101,0.88), transparent 60%);
+        background: linear-gradient(to top, rgba(4, 17, 29, 0.92), transparent 60%);
         opacity: 0;
         transition: opacity 0.2s ease;
         display: flex;
@@ -40,9 +44,9 @@ export function renderAnimeGrid(container, animeList, loading = false) {
       }
       .anime-grid-cell:hover .add-hover-cover { opacity: 1; }
       .grid-add-btn {
-        background: linear-gradient(135deg, var(--purple-500), var(--purple-700));
-        color: white;
-        border: none;
+        background: linear-gradient(135deg, var(--brand-primary), var(--chart-blue));
+        color: var(--text-on-accent);
+        border: 1px solid rgba(56, 189, 248, 0.22);
         padding: 8px;
         border-radius: 6px;
         font-weight: 600;
@@ -56,6 +60,7 @@ export function renderAnimeGrid(container, animeList, loading = false) {
         width: 100%;
         transform: translateY(10px);
       }
+      .grid-add-icon { font-size: 18px; }
       .anime-grid-cell:hover .grid-add-btn { transform: translateY(0); }
       .grid-add-btn:hover { filter: brightness(1.2); }
     `;
@@ -75,7 +80,7 @@ export function renderAnimeGrid(container, animeList, loading = false) {
       const airingDay = anime.airing_day || '';
 
       return `
-      <div class="anime-grid-cell" style="position: relative; display: flex; flex-direction: column;">
+      <div class="anime-grid-cell">
         <anime-card
           mal-id="${malId}"
           title="${title}"
@@ -91,7 +96,7 @@ export function renderAnimeGrid(container, animeList, loading = false) {
         ></anime-card>
         <div class="add-hover-cover">
           <button class="grid-add-btn" data-action="add-library" data-id="${malId}">
-            <span class="material-icons" style="font-size: 18px;">add</span> Add to List
+            <span class="material-icons grid-add-icon">add</span> Add to List
           </button>
         </div>
       </div>
@@ -113,11 +118,11 @@ export function bindHoverPreviews(containerElement, getAnimeDataFn) {
   let hideTimeout;
 
   containerElement.addEventListener('mouseover', (e) => {
-    const card = e.target.closest('.anime-card');
+    const card = e.target.closest('anime-card');
     if (!card) return;
 
     clearTimeout(hideTimeout);
-    const malId = String(card.dataset.id);
+    const malId = String(card.getAttribute('mal-id') || '');
     const data = getAnimeDataFn(malId);
     if (!data) return;
 
@@ -135,7 +140,10 @@ export function bindHoverPreviews(containerElement, getAnimeDataFn) {
     const synopsis = data.synopsis ? data.synopsis.replace('[Written by MAL Rewrite]', '').trim() : 'No synopsis available.';
     const tags = (data.genres || [])
       .slice(0, 4)
-      .map((genre) => `<span class="preview-tag" data-genre="${genre.name}">${genre.name}</span>`)
+      .map((genre) => {
+        const name = typeof genre === 'string' ? genre : genre?.name;
+        return name ? `<span class="preview-tag" data-genre="${name}">${name}</span>` : '';
+      })
       .join('');
 
     previewEl.innerHTML = `
@@ -169,7 +177,7 @@ export function bindHoverPreviews(containerElement, getAnimeDataFn) {
   });
 
   containerElement.addEventListener('mouseout', (e) => {
-    const card = e.target.closest('.anime-card');
+    const card = e.target.closest('anime-card');
     if (!card) return;
     hideTimeout = setTimeout(() => {
       previewEl.classList.remove('active');

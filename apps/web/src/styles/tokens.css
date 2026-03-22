@@ -5,6 +5,10 @@
    ============================================================ */
 
 :root {
+  --brand-primary: #1e90ff;
+  --brand-secondary: #0077be;
+  --brand-accent: #facc15;
+  --brand-glow: #38bdf8;
   /* ── Spacing ─────────────────────────────────────────────── */
   --space-1:  4px;
   --space-2:  8px;
@@ -25,6 +29,7 @@
   --radius-xl:   16px;  /* modals, panels                        */
   --radius-2xl:  20px;  /* large floating containers             */
   --radius-pill: 9999px; /* status pills, chips, tags            */
+  --radius-default: var(--radius-md);
 
   /* ── Typography — Font Sizes ─────────────────────────────── */
   --text-2xs: 11px;
@@ -83,7 +88,10 @@
   --shadow-inset: inset 0 1px 0 rgba(255,255,255,0.06);
 
   /* ── Colors — Backgrounds ────────────────────────────────── */
-  /* (supplements existing --bg-main, --bg-surface, --bg-card, --bg-sidebar) */
+  --bg-main:      #061826;
+  --bg-surface:   #0b2239;
+  --bg-card:      #102a43;
+  --bg-sidebar:   #081a2c;
   --bg-elevated:  #123554;
   --bg-overlay:   rgba(6,24,38,0.85);
   --bg-glass:     rgba(56,189,248,0.04);
@@ -91,20 +99,32 @@
   --bg-hover:     rgba(56,189,248,0.06);
   --bg-active:    rgba(56,189,248,0.1);
   --bg-dark-deep: #04111d;
+  --bg-app:       var(--bg-main);
+  --bg-surface-soft: color-mix(in srgb, var(--bg-surface) 82%, #ffffff 18%);
 
   /* ── Colors — Text ───────────────────────────────────────── */
-  /* (supplements existing --text-primary, --text-secondary, --text-muted) */
+  --text-primary:   #e6f1ff;
+  --text-secondary: #9fbad6;
+  --text-muted:     #6c8aa6;
   --text-disabled:  #4f6a84;
   --text-inverse:   #0f172a;
   --text-accent:    #38bdf8;
   --text-on-accent: #ffffff;
+  --text:           var(--text-primary);
+  --text-gray-100:  var(--text-primary);
 
   /* ── Colors — Borders ────────────────────────────────────── */
-  /* (supplements existing --border-glass) */
+  --border-glass:   rgba(255,255,255,0.06);
   --border-subtle:  rgba(255,255,255,0.06);
   --border-default: rgba(255,255,255,0.10);
   --border-strong:  rgba(255,255,255,0.18);
   --border-accent:  rgba(30,144,255,0.4);
+  --border-soft:    var(--border-subtle);
+  --border-medium:  var(--border-default);
+  --border-color:   var(--border-default);
+  --surface-border: var(--border-default);
+  --surface-border-strong: var(--border-strong);
+  --surface-glass:  var(--bg-glass);
 
   /* ── Colors — Status ─────────────────────────────────────── */
   --color-plan:      #60a5fa;   /* light blue  */
@@ -126,6 +146,15 @@
   --color-error-bg:       rgba(239,68,68,0.15);
   --color-info:           #38bdf8;
   --color-info-bg:        rgba(56,189,248,0.15);
+  --chart-purple:         var(--brand-primary);
+  --chart-blue:           #38bdf8;
+  --chart-cyan:           #06b6d4;
+  --chart-green:          #22c55e;
+  --chart-orange:         #f59e0b;
+  --chart-pink:           #f43f5e;
+  --chart-lavender:       #a78bfa;
+  --donut-bg:             rgba(15, 23, 42, 0.72);
+  --focus-ring:           0 0 0 3px rgba(30, 144, 255, 0.18);
 
   /* ── Blur ────────────────────────────────────────────────── */
   --blur-sm:  4px;
@@ -149,4 +178,30 @@
   --modal-sm:         420px;
   --modal-md:         640px;
   --modal-lg:         90vw;
+  --genre-action:     #ef4444;
+  --genre-adventure:  #f97316;
+  --genre-comedy:     #f59e0b;
+  --genre-drama:      #ec4899;
+  --genre-fantasy:    #1e90ff;
+  --genre-romance:    #fb7185;
+  --genre-scifi:      #06b6d4;
+  --genre-mystery:    #6366f1;
+  --genre-horror:     #991b1b;
+  --genre-slicelife:  #22c55e;
+  --genre-sports:     #10b981;
+  --shadow-card:      var(--shadow-md);
+  --shadow-card-soft: var(--shadow-sm);
+  --shadow-overlay:   var(--shadow-lg);
+  --accent:           var(--brand-primary);
+  --accent-color:     var(--brand-primary);
+  --primary:          var(--brand-primary);
+  --glass-bg:         rgba(255,255,255,0.03);
+  --purple-300:       #c4b5fd;
+  --purple-400:       #a78bfa;
+  --purple-500:       var(--brand-primary);
+  --purple-600:       var(--brand-secondary);
+  --purple-700:       #075985;
+  --news-item-height: 96px;
+  --upcoming-item-height: 96px;
+  --visible-items:    4;
 }

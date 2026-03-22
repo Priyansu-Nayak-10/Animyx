@@ -6,6 +6,7 @@ class AnimeCard extends HTMLElement {
         super();
         this.attachShadow({ mode: 'open' });
         this.handleClick = this.handleClick.bind(this);
+        this.handleKeydown = this.handleKeydown.bind(this);
     }
 
     static get observedAttributes() {
@@ -18,6 +19,8 @@ class AnimeCard extends HTMLElement {
     attributeChangedCallback(name, oldValue, newValue) {
         if (oldValue !== newValue && this.isConnected) {
             this.render();
+            this.startCountdown();
+            this._wireImageLazy();
         }
     }
 
@@ -69,16 +72,20 @@ class AnimeCard extends HTMLElement {
 
         // Setup keyboard navigation
         this.setAttribute('tabindex', '0');
-        this.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                this.handleClick(e);
-            }
-        });
+        this.setAttribute('role', 'button');
+        this.addEventListener('keydown', this.handleKeydown);
     }
 
     removeListeners() {
         this.removeEventListener('click', this.handleClick);
+        this.removeEventListener('keydown', this.handleKeydown);
+    }
+
+    handleKeydown(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            this.handleClick(e);
+        }
     }
 
     handleClick(e) {
@@ -97,6 +104,10 @@ class AnimeCard extends HTMLElement {
     }
 
     _wireImageLazy() {
+        if (this._lazyImg) {
+            unobserveLazyImage(this._lazyImg);
+            this._lazyImg = null;
+        }
         const img = this.shadowRoot?.querySelector('.card-image');
         if (!img) return;
         this._lazyImg = img;
@@ -148,8 +159,7 @@ class AnimeCard extends HTMLElement {
         this.shadowRoot.innerHTML = `
       <style>
         :host {
-          display: flex;
-          flex-direction: column;
+          display: block;
           position: relative;
           cursor: pointer;
           border-radius: 16px;
@@ -159,6 +169,7 @@ class AnimeCard extends HTMLElement {
           border: 1px solid var(--border-glass, rgba(255, 255, 255, 0.06));
           box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
           height: 100%;
+          min-height: 100%;
           outline: none;
           filter: saturate(1.02);
         }
@@ -265,9 +276,11 @@ class AnimeCard extends HTMLElement {
         .content {
           padding: 0.75rem;
           display: flex;
+          flex: 1;
           flex-direction: column;
           gap: 0.25rem;
           position: relative;
+          min-height: 0;
         }
 
         .title {
@@ -289,6 +302,7 @@ class AnimeCard extends HTMLElement {
           display: flex;
           flex-direction: column;
           gap: 0.25rem;
+          min-height: 2.5rem;
         }
 
         :host(:hover) .title {

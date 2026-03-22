@@ -258,6 +258,15 @@ function initSearchAdvanced({
     };
   }
 
+  function getLibraryStatusMap() {
+    const rows = Array.isArray(libraryStore?.getAll?.()) ? libraryStore.getAll() : [];
+    return new Map(
+      rows
+        .map((row) => [Number(row?.malId || 0), String(row?.status || "").toLowerCase()])
+        .filter(([malId]) => malId > 0)
+    );
+  }
+
   function buildResultCards(items) {
     if (!items.length) {
       return renderEmptyState({
@@ -266,6 +275,7 @@ function initSearchAdvanced({
         message: 'Try adjusting your filters or search query.'
       });
     }
+    const libraryStatusMap = getLibraryStatusMap();
     return items.map((item) => {
       const score = Number(item?.score || 0);
       const scoreText = Number.isFinite(score) && score > 0 ? score.toFixed(1) : "N/A";
@@ -273,6 +283,10 @@ function initSearchAdvanced({
       const title = escapeHtml(String(item.title || "Unknown"));
       const genres = escapeHtml((item.genres || []).slice(0, 3).join(", ") || "Unknown");
       const image = escapeHtml(String(item.poster || item.image || ""));
+      const libraryStatus = libraryStatusMap.get(malId) || "";
+      const planActive = libraryStatus === STATUS.PLAN ? " active" : "";
+      const watchingActive = libraryStatus === STATUS.WATCHING ? " active" : "";
+      const completedActive = libraryStatus === STATUS.COMPLETED ? " active" : "";
       
       const totalEp = parseInt(item.total_episodes || item.episodes) || 0;
       const releasedEp = parseInt(item.released_episodes || item.episodesReleased) || 0;
@@ -302,9 +316,9 @@ function initSearchAdvanced({
               <p class="cover-genres">${genres} · ${epLabel}</p>
             </div>
             <div class="cover-actions">
-              <button class="status-pill status-plan" type="button" data-search-action="add-plan" data-id="${malId}">Plan</button>
-              <button class="status-pill status-watching" type="button" data-search-action="add-watching" data-id="${malId}">Watch</button>
-              <button class="status-pill status-completed" type="button" data-search-action="add-completed" data-id="${malId}">Done</button>
+              <button class="status-pill status-plan${planActive}" type="button" data-search-action="add-plan" data-id="${malId}" aria-pressed="${planActive ? "true" : "false"}">Plan</button>
+              <button class="status-pill status-watching${watchingActive}" type="button" data-search-action="add-watching" data-id="${malId}" aria-pressed="${watchingActive ? "true" : "false"}">Watch</button>
+              <button class="status-pill status-completed${completedActive}" type="button" data-search-action="add-completed" data-id="${malId}" aria-pressed="${completedActive ? "true" : "false"}">Done</button>
             </div>
           </div>
         </div>
@@ -1073,6 +1087,9 @@ function initSearchAdvanced({
   const unsubscribe = store.subscribe(() => {
     render();
   });
+  const unsubscribeLibrary = libraryStore?.subscribe?.(() => {
+    render();
+  });
 
   render();
 
@@ -1084,6 +1101,7 @@ function initSearchAdvanced({
       document.removeEventListener("click", onDocumentClick);
       document.removeEventListener("keydown", onDocumentKeydown);
       unsubscribe();
+      unsubscribeLibrary?.();
       refs.globalSearchInput?.removeEventListener("input", onGlobalInput);
       refs.globalSearchInput?.removeEventListener("keydown", onGlobalKeydown);
       refs.globalSearchInput?.removeEventListener("focus", onGlobalFocus);

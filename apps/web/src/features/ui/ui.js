@@ -6,15 +6,7 @@ function initToast({ root = document.body } = {}) {
     if (container && container.isConnected) return container;
     container = document.createElement("div");
     container.id = "Animyx-toast-root";
-    Object.assign(container.style, {
-      position: "fixed",
-      right: "16px",
-      top: "16px",
-      display: "flex",
-      flexDirection: "column",
-      gap: "8px",
-      zIndex: "9999"
-    });
+    container.className = "animyx-toast-stack";
     root.appendChild(container);
     return container;
   }
@@ -23,28 +15,14 @@ function initToast({ root = document.body } = {}) {
     const host = ensureContainer();
     const node = document.createElement("div");
     node.textContent = String(message || "");
-    Object.assign(node.style, {
-      padding: "10px 14px",
-      borderRadius: "10px",
-      fontSize: "13px",
-      fontWeight: "600",
-      color: "var(--text-primary, #e6f1ff)",
-      background: type === "error" ? "rgba(127,29,29,.92)" : "linear-gradient(180deg, rgba(16,42,67,.96), rgba(8,26,44,.96))",
-      border: type === "error" ? "1px solid rgba(248,113,113,.35)" : "1px solid rgba(56,189,248,.24)",
-      boxShadow: type === "error" ? "0 10px 25px rgba(0,0,0,.25)" : "0 10px 25px rgba(0,0,0,.28), 0 0 16px rgba(30,144,255,.16)",
-      opacity: "0",
-      transform: "translateY(8px)",
-      transition: "all .2s ease"
-    });
+    node.className = `animyx-toast${type === "error" ? " is-error" : ""}`;
     host.appendChild(node);
     requestAnimationFrame(() => {
-      node.style.opacity = "1";
-      node.style.transform = "translateY(0)";
+      node.classList.add("is-visible");
     });
 
     const hideId = setTimeout(() => {
-      node.style.opacity = "0";
-      node.style.transform = "translateY(8px)";
+      node.classList.remove("is-visible");
       const removeId = setTimeout(() => {
         node.remove();
         timeoutIds.delete(removeId);
