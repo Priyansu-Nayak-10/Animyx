@@ -6,7 +6,8 @@
 
 import { authFetch, apiUrl, BACKEND_ORIGIN, getAccessToken } from "../../config.js";
 import { STATUS } from "../../store.js";
-import { getTopOngoingAnikoto } from "../../core/appCore.js"; // Will point to core.js after next step
+import { getTopOngoingAnikoto } from "../../core/appCore.js";
+import { getAiringAnime, getTrendingAnime } from "../../services/animeService.js";
 
 // ── Constants ────────────────────────────────────────────────────────────────
 

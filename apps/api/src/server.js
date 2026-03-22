@@ -174,6 +174,7 @@ function createApp() {
     // Allowing the onrender.com wildcard keeps this scoped to our hosting provider.
     list.push('https://*.onrender.com');
     list.push('wss://*.onrender.com');
+    list.push('ws://*.onrender.com');
     return Array.from(new Set(list));
   })();
 

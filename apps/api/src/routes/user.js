@@ -1,7 +1,7 @@
 const express = require('express');
 const { jikanClient } = require('../utils');
 const supabase = require('../database/supabase');
-const { apiResponse, apiError, createPaginationQuery, paginatedResponse } = require('../utils');
+const { apiResponse, apiError, createPaginationQuery, paginatedResponse, logger } = require('../utils');
 const { requireEmailVerified } = require('../middleware/auth');
 const { validateQuery, validateBody, PaginationSchema, UserProfileSchema, UserSettingsSchema } = require('../middleware/schemas');
 const { recordActivity, getRecentActivities } = require('../services');
