@@ -11895,12 +11895,13 @@ body.sidebar-open .sidebar-backdrop {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-  max-height: 480px;
+  max-height: calc((4 * 88px) + (3 * var(--space-4)));
   overflow-y: auto;
   overflow-x: hidden;
   padding: var(--space-2) var(--space-4) var(--space-4) 0;
   margin: 0;
   scroll-behavior: smooth;
+  scrollbar-gutter: stable;
 }
 
 .activity-timeline-feed::-webkit-scrollbar {
@@ -11921,6 +11922,7 @@ body.sidebar-open .sidebar-backdrop {
 .activity-timeline-item {
   flex: 0 0 auto;
   width: 100%;
+  min-height: 88px;
   display: flex;
   align-items: flex-start;
   gap: var(--space-3);

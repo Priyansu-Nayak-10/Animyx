@@ -144,13 +144,13 @@ function formatWeekLabel(startDate) {
 
 function buildWeeklyTooltipHtml(label, watching, completed, planning) {
   const lines = [];
-  lines.push(`<div class="tooltip-header">${escapeHtml(label)}</div>`);
+  lines.push(`<div class="tooltip-title">${escapeHtml(label)}</div>`);
   const watchingTotal = watching?.totalEpisodes || 0;
   const completedTotal = completed?.totalAnime || 0;
   const planningTotal = planning?.totalAnime || 0;
-  if (watchingTotal > 0) lines.push(`<div class="tooltip-row"><span class="tooltip-indicator watch"></span><span>${watchingTotal} episodes watched</span></div>`);
-  if (completedTotal > 0) lines.push(`<div class="tooltip-row"><span class="tooltip-indicator complete"></span><span>${completedTotal} series finished</span></div>`);
-  if (planningTotal > 0) lines.push(`<div class="tooltip-row"><span class="tooltip-indicator plan"></span><span>${planningTotal} added to plan</span></div>`);
+  if (watchingTotal > 0) lines.push(`<div class="tooltip-line"><span class="tooltip-dot dot-watch"></span><span>${watchingTotal} episodes watched</span></div>`);
+  if (completedTotal > 0) lines.push(`<div class="tooltip-line"><span class="tooltip-dot dot-complete"></span><span>${completedTotal} series finished</span></div>`);
+  if (planningTotal > 0) lines.push(`<div class="tooltip-line"><span class="tooltip-dot dot-planning"></span><span>${planningTotal} added to plan</span></div>`);
   return lines.join("");
 }
 
@@ -250,15 +250,64 @@ function renderWeeklyActivityChart(container, items) {
   const chart = container.querySelector(".insight-activity-chart");
   const panel = container.closest(".activity-chart-panel");
   const toggleButtons = panel?.querySelectorAll("[data-activity-mode]");
+  const tooltip = document.getElementById("chart-tooltip");
   if (chart && toggleButtons?.length) {
     toggleButtons.forEach((btn) => {
-      btn.addEventListener("click", () => {
+      btn.onclick = () => {
         const mode = btn.getAttribute("data-activity-mode") || "absolute";
         toggleButtons.forEach((node) => node.classList.toggle("is-active", node === btn));
         chart.setAttribute("data-activity-mode", mode);
         chart.innerHTML = buildRows(mode);
-      });
+      };
     });
+  }
+
+  if (chart && tooltip) {
+    const hideTooltip = () => {
+      tooltip.style.opacity = "0";
+      tooltip.classList.remove("is-rich");
+      chart.classList.remove("is-hovering");
+      chart.querySelectorAll(".activity-column.is-hovered").forEach((node) => node.classList.remove("is-hovered"));
+    };
+
+    const positionTooltip = (event) => {
+      const tooltipWidth = tooltip.offsetWidth || 220;
+      const tooltipHeight = tooltip.offsetHeight || 80;
+      const viewportWidth = window.innerWidth || document.documentElement.clientWidth || 0;
+      const viewportHeight = window.innerHeight || document.documentElement.clientHeight || 0;
+      const nextLeft = Math.min(
+        Math.max(tooltipWidth / 2 + 12, event.clientX),
+        Math.max(tooltipWidth / 2 + 12, viewportWidth - (tooltipWidth / 2) - 12)
+      );
+      const nextTop = Math.max(tooltipHeight + 16, Math.min(event.clientY - 12, viewportHeight - 12));
+      tooltip.style.left = `${nextLeft}px`;
+      tooltip.style.top = `${nextTop}px`;
+    };
+
+    chart.onpointermove = (event) => {
+      const segment = event.target.closest(".activity-segment");
+      const column = event.target.closest(".activity-column");
+      chart.classList.toggle("is-hovering", Boolean(column));
+      chart.querySelectorAll(".activity-column").forEach((node) => node.classList.toggle("is-hovered", node === column));
+
+      if (!segment) {
+        hideTooltip();
+        return;
+      }
+
+      const tooltipHtml = String(segment.getAttribute("data-tooltip-html") || "").trim();
+      if (!tooltipHtml) {
+        hideTooltip();
+        return;
+      }
+
+      tooltip.innerHTML = tooltipHtml;
+      tooltip.classList.add("is-rich");
+      tooltip.style.opacity = "1";
+      positionTooltip(event);
+    };
+
+    chart.onpointerleave = hideTooltip;
   }
 }
 
@@ -322,9 +371,7 @@ function renderPersonaRadar(svg, genreCount) {
       </filter>
       <style>
         @keyframes ${uid}-appear { from { opacity:0; transform: scale(0.85); } to { opacity:1; transform: scale(1); } }
-        .${uid}-poly { transform-origin: ${cx}px ${cy}px; animation: ${uid}-appear 0.5s cubic-bezier(0.34
-
-,1.56,0.64,1) forwards; }
+        .${uid}-poly { transform-origin: ${cx}px ${cy}px; animation: ${uid}-appear 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
       </style>
     </defs>
     ${gridHtml}
@@ -496,7 +543,7 @@ export function initInsights({ libraryStore }) {
     }
     // Recent Activity feed
     if (refs.recentActivity) {
-      const MAX_ACTIVITY = 8;
+      const MAX_ACTIVITY = 4;
       const acts = insights.recentActivity.slice(0, MAX_ACTIVITY);
       if (!acts.length) {
         refs.recentActivity.innerHTML = '<div class="activity-empty"><span class="material-icons">history_toggle_off</span><p>No recent activity yet</p></div>';
