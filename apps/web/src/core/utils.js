@@ -152,42 +152,20 @@ function applyBlurUpToImage(img) {
 export function initImageBlurUp(root = document) {
   // Apply to all existing images
   root.querySelectorAll('img').forEach(applyBlurUpToImage);
-  const pendingRoots = new Set();
-  let flushRafId = 0;
-
-  function flushPendingRoots() {
-    flushRafId = 0;
-    pendingRoots.forEach((node) => {
-      node.querySelectorAll?.('img').forEach(applyBlurUpToImage);
-    });
-    pendingRoots.clear();
-  }
 
   // Watch for new images added dynamically
   const observer = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       mutation.addedNodes.forEach((node) => {
         if (!(node instanceof HTMLElement)) return;
-        if (node.tagName === 'IMG') {
-          applyBlurUpToImage(node);
-          return;
-        }
-        pendingRoots.add(node);
+        if (node.tagName === 'IMG') applyBlurUpToImage(node);
+        node.querySelectorAll?.('img').forEach(applyBlurUpToImage);
       });
     });
-    if (pendingRoots.size && !flushRafId) {
-      flushRafId = requestAnimationFrame(flushPendingRoots);
-    }
   });
 
   observer.observe(root.body || root, { childList: true, subtree: true });
-  return Object.freeze({
-    destroy() {
-      observer.disconnect();
-      if (flushRafId) cancelAnimationFrame(flushRafId);
-      pendingRoots.clear();
-    }
-  });
+  return Object.freeze({ destroy() { observer.disconnect(); } });
 }
 
 // ---------------------------------------------------------------------------
@@ -200,8 +178,6 @@ export function initSectionReveal({
 } = {}) {
   const nodes = new Set();
   const revealed = new WeakSet();
-  const pendingRoots = new Set();
-  let pendingRafId = 0;
   const prefersReducedMotion = globalThis.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
   if (prefersReducedMotion) return Object.freeze({ destroy() {} });
 
@@ -227,25 +203,14 @@ export function initSectionReveal({
     root.querySelectorAll(selectors).forEach(registerNode);
   }
 
-  function flushPendingRoots() {
-    pendingRafId = 0;
-    pendingRoots.forEach((addedNode) => {
-      addedNode.querySelectorAll?.(selectors).forEach(registerNode);
-    });
-    pendingRoots.clear();
-  }
-
   const mutationObserver = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       mutation.addedNodes.forEach((addedNode) => {
         if (!(addedNode instanceof HTMLElement)) return;
         if (addedNode.matches?.(selectors)) registerNode(addedNode);
-        pendingRoots.add(addedNode);
+        addedNode.querySelectorAll?.(selectors).forEach(registerNode);
       });
     });
-    if (pendingRoots.size && !pendingRafId) {
-      pendingRafId = requestAnimationFrame(flushPendingRoots);
-    }
   });
 
   registerAll();
@@ -255,8 +220,6 @@ export function initSectionReveal({
     destroy() {
       mutationObserver.disconnect();
       observer.disconnect();
-      if (pendingRafId) cancelAnimationFrame(pendingRafId);
-      pendingRoots.clear();
       nodes.clear();
     }
   });
