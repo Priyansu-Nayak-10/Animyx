@@ -130,6 +130,87 @@ export function derivePersonality(stats) {
   return { name: "Rising Otaku", desc: "Your library is growing with a balanced watch pace." };
 }
 
+function pluralize(count, singular, plural = `${singular}s`) {
+  const value = Math.max(0, Number(count || 0));
+  return `${value} ${value === 1 ? singular : plural}`;
+}
+
+function buildDidYouKnowFact(items = [], stats = {}) {
+  const libraryItems = Array.isArray(items) ? items : [];
+  if (!libraryItems.length) {
+    return {
+      text: "Start building your library and this card will surface a personalized anime fact.",
+      sub: "Powered by your watch history"
+    };
+  }
+
+  const normalized = libraryItems.map((item) => ({
+    ...item,
+    title: String(item?.title || "Unknown Title").trim(),
+    year: Number(item?.year || 0) || 0,
+    episodes: Math.max(0, Number(item?.episodes || 0)),
+    progress: Math.max(0, Number(item?.progress ?? item?.watchedEpisodes ?? 0)),
+    genres: Array.isArray(item?.genres) ? item.genres.map((genre) => String(typeof genre === "string" ? genre : genre?.name || "").trim()).filter(Boolean) : [],
+    studio: String(item?.studio || "").trim(),
+    updatedAt: Math.max(0, Number(item?.updatedAt || 0))
+  }));
+
+  const withYear = normalized.filter((item) => item.year > 0);
+  if (withYear.length) {
+    const oldest = withYear.reduce((best, item) => {
+      if (!best) return item;
+      if (item.year < best.year) return item;
+      return best;
+    }, null);
+    if (oldest) {
+      return {
+        text: `${oldest.title} is the oldest anime in your library, first released in ${oldest.year}.`,
+        sub: "Earliest title in your collection"
+      };
+    }
+  }
+
+  const genreCounts = new Map();
+  normalized.forEach((item) => {
+    item.genres.forEach((genre) => {
+      genreCounts.set(genre, (genreCounts.get(genre) || 0) + 1);
+    });
+  });
+  if (genreCounts.size) {
+    const [topGenre, topGenreCount] = [...genreCounts.entries()].sort((a, b) => b[1] - a[1])[0];
+    return {
+      text: `${topGenre} is your signature lane right now, showing up in ${pluralize(topGenreCount, "anime")}.`,
+      sub: "Most common genre in your library"
+    };
+  }
+
+  const completedCount = Math.max(0, Number(stats?.completed || 0));
+  if (completedCount > 0) {
+    return {
+      text: `You have already completed ${pluralize(completedCount, "series")}, which is a strong watch history in the making.`,
+      sub: "Based on your completed library"
+    };
+  }
+
+  const mostProgressed = normalized.reduce((best, item) => {
+    if (!best) return item;
+    if (item.progress > best.progress) return item;
+    if (item.progress === best.progress && item.updatedAt > best.updatedAt) return item;
+    return best;
+  }, null);
+  if (mostProgressed && mostProgressed.progress > 0) {
+    return {
+      text: `${mostProgressed.title} is your most-progressed title so far at episode ${mostProgressed.progress}.`,
+      sub: "Current progress highlight"
+    };
+  }
+
+  return {
+    text: `Your library already tracks ${pluralize(normalized.length, "anime")}; add a few more and this card will get even smarter.`,
+    sub: "Library overview"
+  };
+}
+
 // ── Shared UI Helpers ────────────────────────────────────────────────────────
 
 function getGenreConfig(genreName) {
@@ -350,7 +431,7 @@ export function initTrackerFeed({ libraryStore, milestones = null }) {
 
 export function initRecommendations({ store, libraryStore, selectors, toast = null }) {
   const dashboardRoot = document.getElementById("dashboard-view") || document;
-  const refs = { recommendedList: document.getElementById("recommended-list"), quickTotal: document.getElementById("quick-total"), quickPlan: document.getElementById("quick-plan"), quickGenres: document.getElementById("quick-genres"), quickTopGenres: document.getElementById("quick-top-genres"), personalityName: document.getElementById("anime-personality-name"), personalityDesc: document.getElementById("anime-personality-desc"), dashboardGenreSvg: document.getElementById("completed-genre-pie"), dashboardGenreLegend: dashboardRoot.querySelector(".stats-container .legend") };
+  const refs = { recommendedList: document.getElementById("recommended-list"), quickTotal: document.getElementById("quick-total"), quickPlan: document.getElementById("quick-plan"), quickGenres: document.getElementById("quick-genres"), quickTopGenres: document.getElementById("quick-top-genres"), personalityName: document.getElementById("anime-personality-name"), personalityDesc: document.getElementById("anime-personality-desc"), dashboardGenreSvg: document.getElementById("completed-genre-pie"), dashboardGenreLegend: dashboardRoot.querySelector(".stats-container .legend"), promoTriviaText: document.getElementById("promo-trivia-text"), promoTriviaSub: document.getElementById("promo-trivia-sub") };
   let backendRecs = null;
 
   async function fetchRecs() {
@@ -365,6 +446,9 @@ export function initRecommendations({ store, libraryStore, selectors, toast = nu
     if (refs.quickTotal) refs.quickTotal.textContent = String(stats.total);
     if (refs.quickPlan) refs.quickPlan.textContent = String(stats.plan);
     if (refs.quickGenres) refs.quickGenres.textContent = String(genres.length);
+    const didYouKnow = buildDidYouKnowFact(libraryItems, stats);
+    if (refs.promoTriviaText) refs.promoTriviaText.textContent = didYouKnow.text;
+    if (refs.promoTriviaSub) refs.promoTriviaSub.textContent = didYouKnow.sub;
     if (refs.personalityName) refs.personalityName.textContent = personality.name;
     if (refs.personalityDesc) refs.personalityDesc.textContent = personality.desc;
     if (refs.quickTopGenres) refs.quickTopGenres.innerHTML = genres.length ? genres.map(([g]) => { const c = getGenreConfig(g); return `<div class="genre-chip" style="--accent: ${c.color}"><span class="material-icons">${c.icon}</span><span>${escapeHtml(g)}</span></div>`; }).join("") : '<span class="anime-card-meta">No genre data yet</span>';

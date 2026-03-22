@@ -2161,6 +2161,7 @@ body.dark .border-dashed:hover {
 .promo-card .stat-header {
     font-size: 0.75rem;
     color: var(--text-muted);
+    margin-bottom: 0;
 }
 
 .stat-header {
@@ -2986,14 +2987,15 @@ body.dark #dashboard-view .news-list.custom-scrollbar::-webkit-scrollbar-thumb {
 }
 
 .promo-card {
-    padding: 1.2rem;
+    padding: 0.9rem 1rem;
     border-radius: var(--radius-lg);
     background: var(--surface-glass);
     box-shadow: var(--shadow-md);
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    min-height: 120px;
+    justify-content: flex-start;
+    min-height: 88px;
+    gap: 0.15rem;
 }
 
 
