@@ -191,7 +191,7 @@ class AnimeCard extends HTMLElement {
           transition: opacity 0.4s ease, transform 0.5s ease;
         }
 
-        .card-image.loaded {
+        .card-image.is-loaded {
           opacity: 1;
         }
 

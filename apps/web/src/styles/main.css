@@ -11815,4 +11815,98 @@ body.sidebar-open .sidebar-backdrop {
   font-weight: 700;
 }
 
+/* ── Weekly Activity Chart ────────────────────────────────── */
+.insight-activity-chart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 180px;
+  gap: 8px;
+  margin-top: 1rem;
+}
 
+.activity-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  height: 100%;
+}
+
+.activity-bar-vertical {
+  width: 100%;
+  flex: 1;
+  background: rgba(255,255,255,0.05);
+  border-radius: 4px;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  margin-bottom: 4px;
+}
+
+.activity-bar-fill {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  border-radius: 4px;
+  overflow: hidden;
+  transition: height 0.6s ease;
+}
+
+.activity-segment {
+  width: 100%;
+}
+
+.segment-watch { background: var(--chart-cyan); }
+.segment-complete { background: var(--chart-purple); }
+.segment-planning { background: var(--chart-lavender); }
+
+.activity-count {
+  font-size: 0.75rem;
+  font-weight: bold;
+  margin-bottom: 2px;
+}
+
+.activity-label {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+}
+
+.activity-total-float {
+  display: none;
+}
+
+/* ── Recent Activity Horizontal Feed ──────────────────────── */
+.activity-timeline-feed {
+  display: flex;
+  overflow-x: auto;
+  gap: 16px;
+  margin: 0 -1rem;
+  padding: 0 1rem 1rem;
+}
+
+.activity-timeline-feed::-webkit-scrollbar {
+  height: 6px;
+}
+.activity-timeline-feed::-webkit-scrollbar-track {
+  background: var(--bg-elevated);
+  border-radius: 4px;
+}
+.activity-timeline-feed::-webkit-scrollbar-thumb {
+  background: var(--border-default);
+  border-radius: 4px;
+}
+
+.activity-timeline-item {
+  flex: 0 0 240px;
+  flex-shrink: 0;
+  width: 240px;
+  background: var(--bg-glass);
+  padding: 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-glass);
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}

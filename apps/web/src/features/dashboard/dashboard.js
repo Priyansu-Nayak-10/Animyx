@@ -531,6 +531,12 @@ export function initDashboardModules(ctx) {
   const upcomingWidget = initUpcomingWidget(ctx);
   const clipCard = initClipCard(ctx);
 
+  // Trigger data fetches for dashboard components that depend on store state
+  Promise.allSettled([
+    getAiringAnime().then(res => ctx?.store?.dispatch({ type: 'SET_AIRING', payload: res.data || [] })),
+    getTrendingAnime().then(res => ctx?.store?.dispatch({ type: 'SET_TRENDING', payload: res.data || [] }))
+  ]);
+
   return Object.freeze({
     heroCarousel, recommendations, upcomingWidget, clipCard,
     render() {

@@ -491,7 +491,7 @@ export function initInsights({ libraryStore }) {
           const m = Math.floor(diff / 60000);
           const relTime = m < 1 ? 'Just now' : m < 60 ? `${m}m ago` : m < 1440 ? `${Math.floor(m/60)}h ago` : `${Math.floor(m/1440)}d ago`;
           const statusClass = String(entry.status || '').toLowerCase();
-          return `<div class="activity-timeline-item"><div class="activity-dot activity-dot-${statusClass}"></div><div class="activity-timeline-body"><span class="activity-timeline-title">${escapeHtml(entry.title)}</span><div class="activity-timeline-meta"><span class="activity-status-tag ${statusClass}">${escapeHtml(entry.status)}</span><span>${relTime}</span></div></div></div>`;
+          return `<div class="activity-timeline-item"><div class="activity-dot activity-dot-${statusClass}"></div><div class="activity-timeline-body"><span class="activity-timeline-title">${escapeHtml(entry.title)}</span><div class="activity-timeline-meta"><span class="activity-status-tag ${statusClass}">${escapeHtml(entry.status)}</span><span style="display:inline-flex;align-items:center;gap:3px;"><span class="material-icons" style="font-size:12px;">schedule</span>${relTime}</span></div></div></div>`;
         }).join('');
       }
     }
