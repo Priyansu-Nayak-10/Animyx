@@ -1,26 +1,12 @@
 import { STATUS } from "../../store.js";
 import { BACKEND_URL, withAuthHeaders } from "../../config.js";
+import { escapeHtml, renderEmptyState, renderLoadingState, renderErrorState } from "../../shared/components.js";
+import { debounce } from "../../core/perf.js";
 
 const SEARCH_PAGE_SIZE = 25;
 const LARGE_RENDER_THRESHOLD = 100;
 const RENDER_CHUNK_SIZE = 40;
 
-function escapeHtml(value) {
-  return String(value || "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
-}
-
-function debounce(fn, delayMs) {
-  let timer = 0;
-  return (...args) => {
-    if (timer) clearTimeout(timer);
-    timer = setTimeout(() => fn(...args), delayMs);
-  };
-}
 
 function normalizeSearchText(value) {
   return String(value || "")
@@ -274,13 +260,11 @@ function initSearchAdvanced({
 
   function buildResultCards(items) {
     if (!items.length) {
-      return `
-        <div class="tracker-empty" style="grid-column: 1 / -1; margin: 4rem auto; text-align: center;">
-          <span class="material-icons" style="font-size: 4rem; color: var(--text-gray-600); margin-bottom: 1rem;">search_off</span>
-          <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">No results found</h3>
-          <p class="anime-card-meta">Try adjusting your filters or search query.</p>
-        </div>
-      `;
+      return renderEmptyState({
+        icon: 'search_off',
+        title: 'No results found',
+        message: 'Try adjusting your filters or search query.'
+      });
     }
     return items.map((item) => {
       const score = Number(item?.score || 0);
@@ -774,32 +758,28 @@ function initSearchAdvanced({
 
     // Discover is a precision tool: no homepage rails or auto-search.
     if (!ui.hasSearched && !loading && !error && getSearchDataset().length === 0) {
-      refs.results.innerHTML = `
-        <div class="empty-state card" style="grid-column: 1 / -1;">
-          <p class="anime-card-meta">Start typing a title or apply filters to search.</p>
-        </div>
-      `;
+      refs.results.innerHTML = renderEmptyState({
+        icon: 'search',
+        title: 'Ready to Explore?',
+        message: 'Start typing a title or apply filters to search.',
+        extraClass: 'grid-span-full card'
+      });
       if (refs.resultCount) refs.resultCount.textContent = "";
       if (refs.pagination) refs.pagination.innerHTML = "";
       return;
     }
 
     if (loading) {
-      refs.results.innerHTML = Array.from({ length: Math.min(ui.pageSize, 10) }).map(() => `
-        <article class="anime-card-v2" style="pointer-events: none;">
-          <div class="anime-modal-skeleton" style="width: 100%; aspect-ratio: 2/3; border-radius: 0.5rem; margin-bottom: 0.75rem;"></div>
-          <div class="anime-card-content">
-            <div class="anime-modal-skeleton anime-modal-line-skeleton short" style="height: 14px; margin-bottom: 8px;"></div>
-            <div class="anime-modal-skeleton anime-modal-line-skeleton" style="height: 12px; width: 60%;"></div>
-          </div>
-        </article>
-      `).join("");
+      refs.results.innerHTML = renderLoadingState(Math.min(ui.pageSize, 10), 'card');
       renderFooter(0, meta);
       return;
     }
 
     if (error) {
-      refs.results.innerHTML = `<div class="empty-state card"><p class="anime-card-meta">${escapeHtml(error)}</p></div>`;
+      refs.results.innerHTML = renderErrorState({
+        message: error,
+        extraClass: 'grid-span-full card'
+      });
       renderFooter(0, meta);
       return;
     }

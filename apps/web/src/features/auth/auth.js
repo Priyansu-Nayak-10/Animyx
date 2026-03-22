@@ -1,6 +1,8 @@
 import { supabase } from '../../core/utils.js';
 import { clearAnimyxAllData, clearAnimyxUserData } from '../../core/utils.js';
 import { apiUrl } from '../../config.js';
+import { KEY_CURRENT_USER, KEY_LAST_USER_ID, KEY_SETTINGS, KEY_PROFILE } from '../../shared/storageKeys.js';
+import { debounce } from '../../core/perf.js';
 
 // --- Validation Handlers ---
 export const validateEmail = (email) => {
@@ -167,18 +169,6 @@ function isSessionValid(session) {
     return Date.now() < (exp * 1000 - 15000);
 }
 
-// --- Utils ---
-function debounce(func, wait) {
-    let timeout;
-    return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-    };
-}
 
 async function checkUsernameAvailability(username, indicator) {
     if (!username || username.length < 3) {
@@ -399,7 +389,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                    // Cache locally so the dashboard shows the username immediately after redirect.
                    try {
-                       localStorage.setItem('Animyx_profile_v1', JSON.stringify({
+                       localStorage.setItem(KEY_PROFILE, JSON.stringify({
                            user_id: data.user.id,
                            name: desiredUsername,
                            updated_at: new Date().toISOString()
@@ -570,7 +560,7 @@ function initSessionBootstrapIfPresent() {
 
         let profileName = '';
         try {
-            const raw = localStorage.getItem('Animyx_profile_v1');
+            const raw = localStorage.getItem(KEY_PROFILE);
             const parsed = raw ? JSON.parse(raw) : null;
             if (parsed && parsed.user_id === session?.user?.id && parsed.name) profileName = String(parsed.name);
         } catch (_) { }
@@ -585,7 +575,7 @@ function initSessionBootstrapIfPresent() {
             accessToken: session.access_token,
             user_metadata: meta
         };
-        localStorage.setItem('Animyx:currentUser', JSON.stringify(userState));
+        localStorage.setItem(KEY_CURRENT_USER, JSON.stringify(userState));
 
         const headerName = document.getElementById('header-username');
         if (headerName) headerName.textContent = displayName;
@@ -598,11 +588,11 @@ function initSessionBootstrapIfPresent() {
         if (!next) return;
 
         try {
-            const raw = localStorage.getItem('Animyx:currentUser');
+            const raw = localStorage.getItem(KEY_CURRENT_USER);
             const parsed = raw ? JSON.parse(raw) : null;
             if (parsed && typeof parsed === 'object') {
                 parsed.name = next;
-                localStorage.setItem('Animyx:currentUser', JSON.stringify(parsed));
+                localStorage.setItem(KEY_CURRENT_USER, JSON.stringify(parsed));
             }
         } catch (_) { }
 
@@ -633,7 +623,7 @@ function initSessionBootstrapIfPresent() {
                     user_id: userId || (payload?.data?.user_id ?? undefined),
                     name
                 };
-                localStorage.setItem('Animyx_profile_v1', JSON.stringify(next));
+                localStorage.setItem(KEY_PROFILE, JSON.stringify(next));
             } catch (_) { }
 
             applyDisplayName(name);
@@ -646,7 +636,7 @@ function initSessionBootstrapIfPresent() {
         if (!name) return;
 
         try {
-            const raw = localStorage.getItem('Animyx_profile_v1');
+            const raw = localStorage.getItem(KEY_PROFILE);
             const parsed = raw ? JSON.parse(raw) : {};
             const next = {
                 ...parsed,
@@ -654,7 +644,7 @@ function initSessionBootstrapIfPresent() {
                 name: parsed?.name || name,
                 updated_at: new Date().toISOString()
             };
-            localStorage.setItem('Animyx_profile_v1', JSON.stringify(next));
+            localStorage.setItem(KEY_PROFILE, JSON.stringify(next));
         } catch (_) { }
 
         try {
@@ -720,12 +710,12 @@ function initSessionBootstrapIfPresent() {
             await bootstrapProfileFromAuthMetadata(session);
 
             try {
-                const prevUserId = String(localStorage.getItem('Animyx:lastUserId') || '');
+                const prevUserId = String(localStorage.getItem(KEY_LAST_USER_ID) || '');
                 const nextUserId = String(session?.user?.id || '');
                 if (prevUserId && nextUserId && prevUserId !== nextUserId) {
                     await clearAnimyxUserData({ keepPreferences: true });
                 }
-                if (nextUserId) localStorage.setItem('Animyx:lastUserId', nextUserId);
+                if (nextUserId) localStorage.setItem(KEY_LAST_USER_ID, nextUserId);
             } catch (_) { }
 
             persistSession(session);

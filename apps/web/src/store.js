@@ -3,6 +3,8 @@
  * Lightweight reactive state store for Animyx frontend.
  */
 
+import { KEY_SETTINGS, KEY_PROFILE, KEY_LIBRARY } from './shared/storageKeys.js';
+
 // ─── Initial State ────────────────────────────────────────────────────────────
 const initialState = {
   // Auth
@@ -113,7 +115,7 @@ window.addEventListener('storage', (e) => {
   }
 
   // Handle settings changes from another tab
-  if (e.key === 'Animyx_settings_v1') {
+  if (e.key === KEY_SETTINGS) {
     try {
       const settings = e.newValue ? JSON.parse(e.newValue) : null;
       if (settings) {
@@ -128,7 +130,7 @@ window.addEventListener('storage', (e) => {
   }
 
   // Handle profile changes from another tab
-  if (e.key === 'Animyx_profile_v1') {
+  if (e.key === KEY_PROFILE) {
     try {
       const profile = e.newValue ? JSON.parse(e.newValue) : null;
       if (profile) {
@@ -139,7 +141,7 @@ window.addEventListener('storage', (e) => {
   }
 
   // Handle library changes from another tab
-  if (e.key === 'Animyx_library_v3') {
+  if (e.key === KEY_LIBRARY) {
     try {
       const items = e.newValue ? JSON.parse(e.newValue) : [];
       if (Array.isArray(items)) {
@@ -157,7 +159,7 @@ const STATUS = Object.freeze({
   DROPPED: "dropped"
 });
 
-const STORAGE_KEY = "Animyx_library_v3";
+const STORAGE_KEY = KEY_LIBRARY;
 
 function clone(data) {
   if (typeof structuredClone === "function") return structuredClone(data);

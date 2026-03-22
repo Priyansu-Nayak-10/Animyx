@@ -1,0 +1,162 @@
+/* ============================================================
+   Animyx — Unified Toast / Notification System
+   Standardised toast notifications using design tokens.
+   ============================================================ */
+
+/* ─── Toast Container (fixed bottom-right) ────────────────── */
+.toast-container {
+  position: fixed;
+  bottom: var(--space-6);
+  right: var(--space-6);
+  z-index: var(--z-toast);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  pointer-events: none;
+  max-width: 360px;
+  width: calc(100vw - var(--space-8));
+}
+
+/* ─── Individual Toast ────────────────────────────────────── */
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  pointer-events: auto;
+  cursor: pointer;
+
+  /* entry animation */
+  animation: toast-slide-in 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.toast.is-exiting {
+  animation: toast-slide-out 0.25s ease forwards;
+}
+
+@keyframes toast-slide-in {
+  from { opacity: 0; transform: translateX(100%); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes toast-slide-out {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(100%); }
+}
+
+/* ─── Toast Icon ──────────────────────────────────────────── */
+.toast__icon {
+  font-size: var(--text-lg);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* ─── Toast Content ───────────────────────────────────────── */
+.toast__body {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+
+.toast__title {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+  line-height: var(--leading-snug);
+}
+
+.toast__message {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  line-height: var(--leading-normal);
+  word-break: break-word;
+}
+
+/* ─── Toast Close button ──────────────────────────────────── */
+.toast__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+  transition: var(--transition-fast);
+  font-size: 16px;
+  line-height: 1;
+}
+
+.toast__close:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+/* ─── Toast Progress bar ──────────────────────────────────── */
+.toast__progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  background: currentColor;
+  opacity: 0.4;
+  transform-origin: left center;
+  /* Actual duration set via JS: style="animation-duration: Xms" */
+  animation: toast-progress var(--toast-duration, 4000ms) linear forwards;
+}
+
+@keyframes toast-progress {
+  from { transform: scaleX(1); }
+  to   { transform: scaleX(0); }
+}
+
+/* ─── Variants ────────────────────────────────────────────── */
+/* Default (info) */
+.toast {
+  border-left: 3px solid var(--color-info);
+}
+
+.toast--success {
+  border-left-color: var(--color-success);
+}
+.toast--success .toast__icon { color: var(--color-success); }
+.toast--success .toast__progress { background: var(--color-success); }
+
+.toast--error {
+  border-left-color: var(--color-error);
+}
+.toast--error .toast__icon { color: var(--color-error); }
+.toast--error .toast__progress { background: var(--color-error); }
+
+.toast--warning {
+  border-left-color: var(--color-warning);
+}
+.toast--warning .toast__icon { color: var(--color-warning); }
+.toast--warning .toast__progress { background: var(--color-warning); }
+
+.toast--info {
+  border-left-color: var(--color-info);
+}
+.toast--info .toast__icon { color: var(--color-info); }
+.toast--info .toast__progress { background: var(--color-info); }
+
+/* ─── Responsive ──────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .toast-container {
+    bottom: var(--space-4);
+    right: var(--space-4);
+    left: var(--space-4);
+    width: auto;
+    max-width: none;
+  }
+}

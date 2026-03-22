@@ -5,8 +5,10 @@
 
 import { authFetch, apiUrl, getAccessToken } from "../config.js";
 import { getState, setState } from "../store.js";
-import { getClientId } from "./utils.js"; // Renamed from clientId.js
+import { getClientId } from "./utils.js";
 import { createApiClient } from "./api.js";
+import { supabase } from "../config.js";
+import { KEY_PROFILE, KEY_SETTINGS } from "../shared/storageKeys.js";
 
 // Mock or existing Supabase client - assuming it's initialized globally or imported
 // For the sake of this refactor, we'll assume 'supabase' is available or imported from a central config
@@ -60,7 +62,7 @@ class SyncService {
     if (p.eventType === 'DELETE') return;
     const d = p.new;
     const profile = { name: d.name, bio: d.bio, avatar: d.avatar };
-    localStorage.setItem('Animyx_profile_v1', JSON.stringify(profile));
+    localStorage.setItem(KEY_PROFILE, JSON.stringify(profile));
     window.dispatchEvent(new CustomEvent('Animyx:profile-sync', { detail: profile }));
   }
 
@@ -68,7 +70,7 @@ class SyncService {
     if (p.eventType === 'DELETE') return;
     const d = p.new;
     const settings = { darkTheme: d.dark_theme, accentColor: d.accent_color };
-    localStorage.setItem('Animyx_settings_v1', JSON.stringify(settings));
+    localStorage.setItem(KEY_SETTINGS, JSON.stringify(settings));
     setState({ theme: settings.darkTheme ? 'dark' : 'light', accentColor: settings.accentColor });
   }
 }

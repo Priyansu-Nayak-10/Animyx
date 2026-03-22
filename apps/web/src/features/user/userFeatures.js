@@ -1,9 +1,16 @@
-import { apiUrl, authFetch } from '../../config.js';
+import {
+  getProfile, updateProfile,
+  getSettings, updateSettings,
+  getPushPublicKey, subscribePush, unsubscribePush,
+  deleteCloudLibrary, deleteCloudData, deleteAccount as deleteAccountApi,
+  importMal
+} from '../../services/userService.js';
+import { KEY_PROFILE, KEY_SETTINGS } from '../../shared/storageKeys.js';
 import { setState } from '../../store.js';
 import { supabase } from '../../core/utils.js';
 import { clearAnimyxAllData } from '../../core/utils.js';
-const PROFILE_STORAGE_KEY = "Animyx_profile_v1";
-const SETTINGS_STORAGE_KEY = "Animyx_settings_v1";
+const PROFILE_STORAGE_KEY = KEY_PROFILE;
+const SETTINGS_STORAGE_KEY = KEY_SETTINGS;
 const DEFAULT_AVATAR_URL =
   "https://lh3.googleusercontent.com/aida-public/AB6AXuCZIUjpzoTljfbNTeGmRQKuBDx6E6cXNLOTQbK6rcfrP_rs28dFFZ75JwW4sHvRfNIXCQc9oUfnfUraGWQWCNuMpLg5D2L37XNwpH3vBzWdVdBQanEdpvD-o464S-lnVRcvaM__u2qTA1s9j87J6fYLrhu7SMz0cf6qEoJ4fnGyjwEAFwueD6Br16uNo4kVoV9Kh9GHeA3UHfbKyQ-0rzPbPXVM609W9FDgusNOamiiZFmIO95W5FQhieq_6J8-_ccpUMoAvbOSgn05";
 
@@ -77,7 +84,7 @@ function getTopGenre(libraryStore) {
 // ──────────────────────────────────────────────────
 function getUserId() {
   try {
-    const rawUser = globalThis.localStorage?.getItem('Animyx:currentUser');
+    const rawUser = globalThis.localStorage?.getItem(KEY_CURRENT_USER);
     if (rawUser) {
       const u = JSON.parse(rawUser);
       if (u && u.id) return u.id;
@@ -90,7 +97,7 @@ async function fetchCloudProfile(storage) {
   const uid = getUserId();
   if (!uid) return;
   try {
-    const res = await authFetch(apiUrl('/users/me/profile'));
+    const res = await getProfile();
     if (res.ok) {
       const { data } = await res.json();
       if (data && Object.keys(data).length > 0) {
@@ -102,7 +109,7 @@ async function fetchCloudProfile(storage) {
 
 function readProfile(storage) {
   try {
-    const rawUser = globalThis.localStorage?.getItem('Animyx:currentUser');
+    const rawUser = globalThis.localStorage?.getItem(KEY_CURRENT_USER);
     const sessionUser = rawUser ? JSON.parse(rawUser) : {};
 
     const rawProfile = storage?.getItem?.(PROFILE_STORAGE_KEY);
@@ -126,11 +133,7 @@ async function writeProfile(storage, data) {
   const uid = getUserId();
   if (!uid) return;
   try {
-    await authFetch(apiUrl('/users/me/profile'), {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
+    await updateProfile(data);
   } catch (err) { console.warn("Profile cloud save failed", err); }
 }
 
@@ -338,7 +341,7 @@ async function fetchCloudSettings(storage) {
   const uid = getUserId();
   if (!uid) return;
   try {
-    const res = await authFetch(apiUrl('/users/me/settings'));
+    const res = await getSettings();
     if (res.ok) {
       const { data } = await res.json();
       if (data && Object.keys(data).length > 0) {
@@ -382,11 +385,7 @@ async function writeSettings(storage, data) {
       default_status: data.defaultStatus,
       accent_color: normalizeAccentColor(data.accentColor)
     };
-    await authFetch(apiUrl('/users/me/settings'), {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(mapped)
-    });
+    await updateSettings(mapped);
   } catch (err) { console.warn("Settings cloud save failed", err); }
 }
 
@@ -466,7 +465,7 @@ function initSettings({ toast, libraryStore, storage = globalThis.localStorage }
         const swReg = await navigator.serviceWorker.register('/sw.js');
 
         // 2. Fetch VAPID public key
-        const keyRes = await authFetch(apiUrl('/push/public-key'));
+        const keyRes = await getPushPublicKey();
         const { publicKey } = await keyRes.json();
 
         // 3. Subscribe to Web Push
@@ -476,11 +475,7 @@ function initSettings({ toast, libraryStore, storage = globalThis.localStorage }
         });
 
         // 4. Send subscription to backend
-        await authFetch(apiUrl('/push/subscribe'), {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ subscription: sub })
-        });
+        await subscribePush(sub);
 
         toast?.show?.("Push notifications enabled ✓");
       } catch (err) {
@@ -495,11 +490,7 @@ function initSettings({ toast, libraryStore, storage = globalThis.localStorage }
         const sub = await swReg.pushManager.getSubscription();
         if (sub) {
           await sub.unsubscribe();
-          await authFetch(apiUrl('/push/unsubscribe'), {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({})
-          });
+          await unsubscribePush();
         }
         toast?.show?.("Push notifications disabled");
       } catch (err) {
@@ -558,7 +549,7 @@ function initSettings({ toast, libraryStore, storage = globalThis.localStorage }
 
     // 2. Also delete from cloud so sync doesn't restore the data
     try {
-      const res = await authFetch(apiUrl('/users/me/library'), { method: 'DELETE' });
+      const res = await deleteCloudLibrary();
       if (res.ok) {
         toast?.show?.("Library cleared successfully. \u2713");
       } else {
@@ -577,7 +568,7 @@ function initSettings({ toast, libraryStore, storage = globalThis.localStorage }
 
     // 1. Wipe cloud data first
     try {
-      await authFetch(apiUrl('/users/me/cloud-data'), { method: 'DELETE' });
+      await deleteCloudData();
     } catch (_err) {
       console.error("Cloud wipe failed during reset", _err);
     }
@@ -595,7 +586,7 @@ function initSettings({ toast, libraryStore, storage = globalThis.localStorage }
     if (!confirmed) return;
 
     try {
-      const res = await authFetch(apiUrl('/users/me'), { method: 'DELETE' });
+      const res = await deleteAccountApi();
       if (!res.ok) {
         const msg = (await res.json().catch(() => null))?.message || 'Failed to delete account';
         toast?.show?.(msg, 'error');
@@ -867,10 +858,7 @@ function initImport({ libraryStore, toast } = {}) {
       formData.append("malExport", selectedFile);
 
       // 3. Send request
-      const res = await authFetch(apiUrl("/import/mal"), {
-        method: "POST",
-        body: formData // Note: Omitting Content-Type header lets fetch set multipart boundary correctly
-      });
+      const res = await importMal(selectedFile);
 
       const json = await res.json();
 

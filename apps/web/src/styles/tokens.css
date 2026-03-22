@@ -1,0 +1,152 @@
+/* ============================================================
+   Animyx — Design Token System
+   Single source of truth for all design primitives.
+   Import this FIRST in main.css before any other rules.
+   ============================================================ */
+
+:root {
+  /* ── Spacing ─────────────────────────────────────────────── */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* ── Border Radius ───────────────────────────────────────── */
+  --radius-xs:   4px;   /* inputs, tags                          */
+  --radius-sm:   6px;   /* small chips, badges                   */
+  --radius-md:   8px;   /* buttons, small cards                  */
+  --radius-lg:   12px;  /* cards                                 */
+  --radius-xl:   16px;  /* modals, panels                        */
+  --radius-2xl:  20px;  /* large floating containers             */
+  --radius-pill: 9999px; /* status pills, chips, tags            */
+
+  /* ── Typography — Font Sizes ─────────────────────────────── */
+  --text-2xs: 11px;
+  --text-xs:  12px;
+  --text-sm:  13px;
+  --text-base: 14px;
+  --text-md:  15px;
+  --text-lg:  16px;
+  --text-xl:  18px;
+  --text-2xl: 20px;
+  --text-3xl: 24px;
+  --text-4xl: 28px;
+  --text-5xl: 32px;
+  --text-6xl: 36px;
+
+  /* ── Font Weights ────────────────────────────────────────── */
+  --weight-light:    300;
+  --weight-normal:   400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+  --weight-bold:     700;
+
+  /* ── Line Heights ────────────────────────────────────────── */
+  --leading-tight:  1.2;
+  --leading-snug:   1.35;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.65;
+
+  /* ── Transitions ─────────────────────────────────────────── */
+  --transition-fast:   all 0.15s ease;
+  --transition-base:   all 0.25s ease;
+  --transition-slow:   all 0.4s ease;
+  --transition-spring: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --transition-color:  color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+  --transition-transform: transform 0.3s ease;
+  --transition-opacity: opacity 0.2s ease;
+
+  /* ── Z-Index Scale ───────────────────────────────────────── */
+  --z-base:      1;
+  --z-raised:    10;
+  --z-dropdown:  100;
+  --z-sticky:    200;
+  --z-modal:     300;
+  --z-toast:     400;
+  --z-tooltip:   500;
+  --z-overlay:   600;
+
+  /* ── Shadows ─────────────────────────────────────────────── */
+  --shadow-xs:   0 1px 3px rgba(0,0,0,0.25);
+  --shadow-sm:   0 2px 8px rgba(0,0,0,0.3);
+  --shadow-md:   0 4px 16px rgba(0,0,0,0.35);
+  --shadow-lg:   0 8px 32px rgba(0,0,0,0.45);
+  --shadow-xl:   0 16px 48px rgba(0,0,0,0.55);
+  --shadow-glow-purple: 0 0 20px rgba(124,58,237,0.35);
+  --shadow-glow-blue:   0 0 20px rgba(59,130,246,0.35);
+  --shadow-inset: inset 0 1px 0 rgba(255,255,255,0.06);
+
+  /* ── Colors — Backgrounds ────────────────────────────────── */
+  /* (supplements existing --bg-main, --bg-surface, --bg-card, --bg-sidebar) */
+  --bg-elevated:  #1a1c2e;
+  --bg-overlay:   rgba(6,10,22,0.85);
+  --bg-glass:     rgba(255,255,255,0.04);
+  --bg-glass-md:  rgba(255,255,255,0.07);
+  --bg-hover:     rgba(255,255,255,0.06);
+  --bg-active:    rgba(255,255,255,0.1);
+  --bg-dark-deep: #060a16;
+
+  /* ── Colors — Text ───────────────────────────────────────── */
+  /* (supplements existing --text-primary, --text-secondary, --text-muted) */
+  --text-disabled:  #4a4a5a;
+  --text-inverse:   #0f172a;
+  --text-accent:    #a78bfa;    /* purple accent text */
+  --text-on-accent: #ffffff;
+
+  /* ── Colors — Borders ────────────────────────────────────── */
+  /* (supplements existing --border-glass) */
+  --border-subtle:  rgba(255,255,255,0.06);
+  --border-default: rgba(255,255,255,0.10);
+  --border-strong:  rgba(255,255,255,0.18);
+  --border-accent:  rgba(124,58,237,0.4);
+
+  /* ── Colors — Status ─────────────────────────────────────── */
+  --color-plan:      #60a5fa;   /* light blue  */
+  --color-watching:  #3b82f6;   /* blue         */
+  --color-completed: #4ade80;   /* green        */
+  --color-dropped:   #fb923c;   /* orange       */
+
+  --color-plan-bg:      rgba(96,165,250,0.15);
+  --color-watching-bg:  rgba(59,130,246,0.15);
+  --color-completed-bg: rgba(74,222,128,0.15);
+  --color-dropped-bg:   rgba(251,146,60,0.15);
+
+  /* ── Colors — Semantic ───────────────────────────────────── */
+  --color-success:        #22c55e;
+  --color-success-bg:     rgba(34,197,94,0.15);
+  --color-warning:        #f59e0b;
+  --color-warning-bg:     rgba(245,158,11,0.15);
+  --color-error:          #ef4444;
+  --color-error-bg:       rgba(239,68,68,0.15);
+  --color-info:           #38bdf8;
+  --color-info-bg:        rgba(56,189,248,0.15);
+
+  /* ── Blur ────────────────────────────────────────────────── */
+  --blur-sm:  4px;
+  --blur-md:  12px;
+  --blur-lg:  24px;
+  --blur-xl:  40px;
+
+  /* ── Image / Aspect Ratios ───────────────────────────────── */
+  --aspect-poster:    2/3;    /* anime cover image */
+  --aspect-banner:    16/9;   /* hero banner       */
+  --aspect-square:    1/1;
+
+  /* ── Component Sizes ─────────────────────────────────────── */
+  --btn-height-sm:    30px;
+  --btn-height-md:    36px;
+  --btn-height-lg:    44px;
+  --sidebar-width:    260px;
+  --sidebar-collapsed: 64px;
+  --topbar-height:    60px;
+  --card-poster-width: 140px;
+  --modal-sm:         420px;
+  --modal-md:         640px;
+  --modal-lg:         90vw;
+}

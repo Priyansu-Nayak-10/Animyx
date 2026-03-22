@@ -10,21 +10,19 @@ import './features/auth/sessionBootstrap.js';
 
 // ── All imports must be at the top of an ES module ───────────
 import './components/AnimeCard.js';
-import { initSocket, createApiClient } from './core/appCore.js';
-import { loadNotifications, onSocketNotification, clearAllNotifications } from './features/notifications/notifications.js';
-import { getState, setState, restoreKey, persistKey } from './store.js';
-import { authFetch, apiUrl } from './config.js';
-import { createDataStore, initLibraryCloudSync, syncService } from './core/appCore.js';
+import { initSocket, createApiClient, createDataStore, initLibraryCloudSync, syncService } from './core/appCore.js';
 import * as selectors from './core/appCore.js';
-import { createLibraryStore } from './store.js';
-import { initInsights } from './features/dashboard/dashboard.js';
+import { loadNotifications, onSocketNotification, clearAllNotifications } from './features/notifications/notifications.js';
+import { getState, setState, restoreKey, persistKey, createLibraryStore } from './store.js';
+import { authFetch, apiUrl } from './config.js';
+import { initInsights, initDashboardModules, initMilestones, initTrackerFeed } from './features/dashboard/dashboard.js';
 import { initSearchAdvanced } from './features/search/search.js';
 import { initSeasonBrowser } from './features/season/seasonBrowser.js';
 import { initUI } from './features/ui/ui.js';
 import { initLibraryUI } from './features/library/library.js';
-import { initDashboardModules, initMilestones, initTrackerFeed } from './features/dashboard/dashboard.js';
 import { initProfile, initSettings, initExport, initImport } from './features/user/userFeatures.js';
 import { normalizeAnime, dedupeAnimeList, bindNavigation, openView, initSectionReveal, initImageBlurUp } from './core/utils.js';
+import { KEY_SETTINGS } from './shared/storageKeys.js';
 
 // --- Production Console Cleaner & PWA Setup ---
 if (!window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')) {
@@ -42,7 +40,7 @@ if ('serviceWorker' in navigator) {
 
 // ── Restore persisted preferences ────────────────────────────
 // Prioritize unified settings object
-const settingsRaw = localStorage.getItem('Animyx_settings_v1');
+const settingsRaw = localStorage.getItem(KEY_SETTINGS);
 if (settingsRaw) {
   try {
     const s = JSON.parse(settingsRaw);
@@ -88,7 +86,7 @@ applyAccent(getState('accentColor') || '#8b5cf6');
 // ── Bootstrap on DOMContentLoaded ─────────────────────────────
 const initAuthEvents = async () => {
   await (window.__Animyx_AUTH_READY || Promise.resolve());
-  console.log('[Animyx] 🚀 Starting...');
+
 
   // ── Notification bell wiring ────────────────────────────────
   // NOTE: Sidebar toggle/close is handled by bindNavigation() in core/utils.js
@@ -278,10 +276,8 @@ const initAuthEvents = async () => {
     });
   } else {
     // No authenticated user — skip socket to avoid subscribing with wrong ID
-    console.info('[Animyx] No user session — socket not connected.');
   }
 
-  console.log('[Animyx] ✅ Ready');
 };
 
 if (document.readyState === 'loading') {

@@ -1,4 +1,5 @@
 import './StatBadge.js';
+import { observeLazyImage, unobserveLazyImage } from '../core/perf.js';
 
 class AnimeCard extends HTMLElement {
     constructor() {
@@ -24,14 +25,16 @@ class AnimeCard extends HTMLElement {
         this.render();
         this.setupListeners();
         this.startCountdown();
-        this.setupIntersectionObserver();
+        this._wireImageLazy();
     }
 
     disconnectedCallback() {
         this.removeListeners();
         this.stopCountdown();
-        if (this.observer) {
-            this.observer.disconnect();
+        // Release the shared lazy-image observer
+        if (this._lazyImg) {
+            unobserveLazyImage(this._lazyImg);
+            this._lazyImg = null;
         }
     }
 
@@ -93,24 +96,11 @@ class AnimeCard extends HTMLElement {
         this.dispatchEvent(event);
     }
 
-    setupIntersectionObserver() {
-        // Lazy load image when it comes into view
-        this.observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const img = this.shadowRoot.querySelector('.card-image');
-                    const dataSrc = img?.getAttribute('data-src');
-                    if (img && dataSrc) {
-                        img.src = dataSrc;
-                        img.removeAttribute('data-src');
-                        img.classList.add('loaded');
-                    }
-                    this.observer.disconnect();
-                }
-            });
-        }, { rootMargin: '50px 0px' });
-
-        this.observer.observe(this);
+    _wireImageLazy() {
+        const img = this.shadowRoot?.querySelector('.card-image');
+        if (!img) return;
+        this._lazyImg = img;
+        observeLazyImage(img);
     }
 
     render() {

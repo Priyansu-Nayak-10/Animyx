@@ -1,4 +1,4 @@
-import { authFetch, apiUrl } from '../../config.js';
+import { getNotifications, markNotificationRead, clearNotifications as clearNotificationsApi } from '../../services/notificationService.js';
 
 let notifications = [];
 let unreadCount = 0;
@@ -125,7 +125,7 @@ export async function loadNotifications() {
     let hasMore = true;
 
     while (hasMore) {
-      const res = await authFetch(apiUrl(`/notifications/me?page=${page}&limit=100`));
+      const res = await getNotifications(page, 100);
       if (!res.ok) throw new Error(`Request failed (${res.status})`);
       const json = await res.json();
       const items = Array.isArray(json?.data) ? json.data : [];
@@ -163,7 +163,7 @@ export function onSocketNotification(notification) {
 
 export async function markRead(id) {
   try {
-    await authFetch(apiUrl(`/notifications/${id}/read`), { method: 'PATCH' });
+    await markNotificationRead(id);
     const found = notifications.find((entry) => entry.id === id);
     if (found && !found.is_read) {
       found.is_read = true;
@@ -178,7 +178,7 @@ export async function markRead(id) {
 
 export async function clearAllNotifications() {
   try {
-    await authFetch(apiUrl('/notifications/me/clear'), { method: 'DELETE' });
+    await clearNotificationsApi();
     notifications = [];
     unreadCount = 0;
     renderList();

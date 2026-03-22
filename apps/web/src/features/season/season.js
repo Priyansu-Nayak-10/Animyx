@@ -1,24 +1,20 @@
 import { normalizeAnime, dedupeAnimeList } from '../../core/utils.js';
 import { STATUS } from '../../store.js';
+import { renderLoadingState, renderEmptyState } from '../../shared/components.js';
 
 export function renderAnimeGrid(container, animeList, loading = false) {
   if (loading) {
-    container.innerHTML = Array.from({ length: 12 })
-      .map(() => `
-        <div class="anime-card skeleton" style="height: 320px; border-radius: 8px; background: rgba(167,139,250,0.08); animation: pulse 1.5s infinite;"></div>
-      `)
-      .join("");
+    container.innerHTML = renderLoadingState(12, 'card');
     return;
   }
 
   if (!animeList || animeList.length === 0) {
-    container.innerHTML = `
-      <div class="empty-state" style="text-align:center; padding: 60px 20px; color: var(--text-muted); width: 100%; grid-column: 1 / -1;">
-        <span class="material-icons" style="font-size: 3.5rem; margin-bottom: 16px; display:inline-block; opacity: 0.5;">explore_off</span>
-        <h3 style="font-size: 1.2rem; margin: 0 0 8px 0; color: var(--text-primary);">Something's empty here...</h3>
-        <p style="margin: 0;">No anime found for this specific criteria.</p>
-      </div>
-    `;
+    container.innerHTML = renderEmptyState({
+      icon: 'explore_off',
+      title: "Something's empty here...",
+      message: 'No anime found for this specific criteria.',
+      extraClass: 'grid-span-full'
+    });
     return;
   }
 

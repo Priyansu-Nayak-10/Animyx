@@ -262,7 +262,6 @@ export function initSocket(onNotification) {
   });
 
   socket.on('connect', () => {
-    console.log('[Socket] Connected — id:', socket.id);
     socket.emit('subscribe');
   });
 
