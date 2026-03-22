@@ -2994,8 +2994,9 @@ body.dark #dashboard-view .news-list.custom-scrollbar::-webkit-scrollbar-thumb {
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    min-height: 76px;
+    height: 76px;
     gap: 0.1rem;
+    overflow: hidden;
 }
 
 
