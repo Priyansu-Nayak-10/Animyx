@@ -2981,16 +2981,15 @@ body.dark #dashboard-view .news-list.custom-scrollbar::-webkit-scrollbar-thumb {
 }
 
 .promo-card {
-  min-height: 200px;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-elevated) 100%);
-  border: 1px solid var(--border-accent);
+  flex: 1; /* Restore flex to allow proper sizing */
   position: relative;
   overflow: hidden;
-  flex-shrink: 0;
-  padding: var(--space-6) !important;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-elevated) 100%);
+  border: 1px solid var(--border-accent);
 }
 
 .promo-card::before {
