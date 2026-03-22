@@ -13,7 +13,7 @@ import './components/AnimeCard.js';
 import { initSocket, createApiClient, createDataStore, initLibraryCloudSync, syncService } from './core/appCore.js';
 import * as selectors from './core/appCore.js';
 import { loadNotifications, onSocketNotification, clearAllNotifications } from './features/notifications/notifications.js';
-import { getState, setState, restoreKey, persistKey, createLibraryStore } from './store.js';
+import { getState, setState, persistKey, createLibraryStore } from './store.js';
 import { authFetch, apiUrl } from './config.js';
 import { initInsights, initDashboardModules, initMilestones, initTrackerFeed } from './features/dashboard/dashboard.js';
 import { initSearchAdvanced } from './features/search/search.js';
@@ -23,6 +23,11 @@ import { initLibraryUI } from './features/library/library.js';
 import { initProfile, initSettings, initExport, initImport } from './features/user/userFeatures.js';
 import { normalizeAnime, dedupeAnimeList, bindNavigation, openView, initSectionReveal, initImageBlurUp } from './core/utils.js';
 import { KEY_SETTINGS } from './shared/storageKeys.js';
+
+const ONE_PIECE_THEME = Object.freeze({
+  theme: 'dark',
+  accentColor: '#1E90FF'
+});
 
 // --- Production Console Cleaner & PWA Setup ---
 if (!window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')) {
@@ -39,49 +44,47 @@ if ('serviceWorker' in navigator) {
 }
 
 // ── Restore persisted preferences ────────────────────────────
-// Prioritize unified settings object
-const settingsRaw = localStorage.getItem(KEY_SETTINGS);
-if (settingsRaw) {
-  try {
-    const s = JSON.parse(settingsRaw);
-    if (s.darkTheme !== undefined) setState({ theme: s.darkTheme ? 'dark' : 'light' });
-    if (s.accentColor) setState({ accentColor: s.accentColor });
-  } catch { }
-} else {
-  // Fallback to individual legacy keys
-  restoreKey('theme');
-  restoreKey('accentColor');
-}
+try {
+  const rawSettings = localStorage.getItem(KEY_SETTINGS);
+  const parsedSettings = rawSettings ? JSON.parse(rawSettings) : {};
+  localStorage.setItem(KEY_SETTINGS, JSON.stringify({
+    ...parsedSettings,
+    darkTheme: true,
+    accentColor: ONE_PIECE_THEME.accentColor
+  }));
+  localStorage.setItem('Animyx_theme', ONE_PIECE_THEME.theme);
+  localStorage.removeItem('Animyx:theme');
+  localStorage.removeItem('Animyx:accentColor');
+} catch { }
+setState({ theme: ONE_PIECE_THEME.theme, accentColor: ONE_PIECE_THEME.accentColor });
 
 restoreKey('currentUser');
 
 // Ensure changes are persisted back to their respective keys
-persistKey('theme');
-persistKey('accentColor');
 persistKey('currentUser');
 
 // ── Apply theme + accent ──────────────────────────────────────
-const applyTheme = (theme) => {
-  const next = theme === 'light' ? 'light' : 'dark';
+const applyTheme = () => {
+  const next = 'dark';
   document.documentElement.setAttribute('data-theme', next);
-  document.body.classList.toggle('dark', next === 'dark');
+  document.body.classList.add('dark');
   // Sync with localStorage for legacy / fallback
   try {
     localStorage.setItem('Animyx_theme', next);
   } catch { }
 };
 
-const applyAccent = (color) => {
-  const allowedAccents = new Set(['#8b5cf6', '#7c3aed', '#6d28d9', '#a78bfa', '#c4b5fd', '#9333ea', '#7e22ce', '#581c87']);
-  const nextColor = allowedAccents.has(String(color || '').toLowerCase()) ? String(color).toLowerCase() : '#8b5cf6';
+const applyAccent = () => {
+  const nextColor = ONE_PIECE_THEME.accentColor;
   const root = document.documentElement;
   root.style.setProperty('--brand-primary', nextColor);
   root.style.setProperty('--accent', nextColor); // legacy fallback
+  root.style.setProperty('--chart-purple', nextColor);
 };
 
 // Initial application from synced state
-applyTheme(getState('theme') || 'dark');
-applyAccent(getState('accentColor') || '#8b5cf6');
+applyTheme();
+applyAccent();
 
 // ── Bootstrap on DOMContentLoaded ─────────────────────────────
 const initAuthEvents = async () => {
@@ -251,7 +254,9 @@ const initAuthEvents = async () => {
   // ── Theme toggle sync ──────────────────────────────────────
   const darkThemeToggle = document.getElementById('setting-dark-theme');
   const syncThemeToggleState = () => {
-    if (darkThemeToggle) darkThemeToggle.checked = getState('theme') !== 'light';
+    if (!darkThemeToggle) return;
+    darkThemeToggle.checked = true;
+    darkThemeToggle.disabled = true;
   };
   if (darkThemeToggle) {
     syncThemeToggleState();

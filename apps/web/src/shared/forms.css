@@ -35,7 +35,7 @@
 .input:focus {
   border-color: var(--brand-primary);
   background: var(--bg-glass);
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+  box-shadow: 0 0 0 3px rgba(30, 144, 255, 0.15);
 }
 
 .input:disabled {
@@ -76,7 +76,7 @@
 .textarea:hover        { border-color: var(--border-strong); }
 .textarea:focus        {
   border-color: var(--brand-primary);
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+  box-shadow: 0 0 0 3px rgba(30, 144, 255, 0.15);
 }
 
 /* ─── Select ──────────────────────────────────────────────── */
@@ -102,7 +102,7 @@
 .select:hover { border-color: var(--border-strong); }
 .select:focus {
   border-color: var(--brand-primary);
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15);
+  box-shadow: 0 0 0 3px rgba(30, 144, 255, 0.15);
 }
 
 /* ─── Label ───────────────────────────────────────────────── */

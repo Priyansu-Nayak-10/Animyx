@@ -318,7 +318,7 @@ function renderPersonaRadar(svg, genreCount) {
     { label: "Intellect", keys: ["Mystery", "Psychological", "Sci-Fi", "Suspense"], color: "#3b82f6" },
     { label: "Emotion", keys: ["Drama", "Romance", "Slice of Life"], color: "#ec4899" },
     { label: "Wit", keys: ["Comedy", "Parody"], color: "#f59e0b" },
-    { label: "Wonder", keys: ["Fantasy", "Supernatural", "Magic"], color: "#8b5cf6" }
+    { label: "Wonder", keys: ["Fantasy", "Supernatural", "Magic"], color: "#1e90ff" }
   ];
   const scores = dimensions.map(d => Math.min(100, (d.keys.reduce((s, k) => s + (genreCount[k] || 0), 0) * 20)));
   const cx = 100, cy = 100, r = 70;
@@ -328,7 +328,7 @@ function renderPersonaRadar(svg, genreCount) {
   // Determine dominant dimension
   const maxScore = Math.max(...scores);
   const dominantIdx = scores.indexOf(maxScore);
-  const dominantColor = dimensions[dominantIdx]?.color || "#8b5cf6";
+  const dominantColor = dimensions[dominantIdx]?.color || "#1e90ff";
 
   const gridHtml = [20, 40, 60, 80, 100].map(level => {
     const points = dimensions.map((_, i) =>

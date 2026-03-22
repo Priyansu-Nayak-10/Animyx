@@ -168,15 +168,12 @@ function applyBannerToPage(src) {
 }
 
 function applyAccentColor(color) {
-  if (!color) return;
+  const themeColor = "#1e90ff";
   const root = document.documentElement;
-  root.style.setProperty("--brand-primary", color);
-  root.style.setProperty("--brand-secondary", color); // fallback to same for simplicity
-  root.style.setProperty("--brand-accent", color);
-  root.style.setProperty("--brand-glow", color);
-  root.style.setProperty("--accent", color); // legacy/shared
-  root.style.setProperty("--primary", color); // legacy internal
-  root.style.setProperty("--chart-purple", color); // Make charts follow accent
+  root.style.setProperty("--brand-primary", themeColor);
+  root.style.setProperty("--accent", themeColor);
+  root.style.setProperty("--primary", themeColor);
+  root.style.setProperty("--chart-purple", themeColor);
 }
 
 // ──────────────────────────────────────────────────
@@ -339,23 +336,13 @@ const DEFAULT_SETTINGS = Object.freeze({
   dataSaver: false,
   titleLang: "english",
   defaultStatus: "plan",
-  accentColor: "#8b5cf6"
+  accentColor: "#1e90ff"
 });
 
-const PURPLE_ACCENT_SWATCHES = Object.freeze([
-  "#8b5cf6",
-  "#7c3aed",
-  "#6d28d9",
-  "#a78bfa",
-  "#c4b5fd",
-  "#9333ea",
-  "#7e22ce",
-  "#581c87"
-]);
+const THEME_ACCENT = "#1e90ff";
 
 function normalizeAccentColor(color) {
-  const normalized = String(color || "").trim().toLowerCase();
-  return PURPLE_ACCENT_SWATCHES.find((swatch) => swatch === normalized) || DEFAULT_SETTINGS.accentColor;
+  return THEME_ACCENT;
 }
 
 async function fetchCloudSettings(storage) {
@@ -368,13 +355,13 @@ async function fetchCloudSettings(storage) {
       if (data && Object.keys(data).length > 0) {
         // Map snake_case to camelCase
         const mapped = {
-          darkTheme: data.dark_theme,
+          darkTheme: true,
           notifications: data.notifications,
           autoplay: data.autoplay,
           dataSaver: data.data_saver,
           titleLang: data.title_lang,
           defaultStatus: data.default_status,
-          accentColor: data.accent_color
+          accentColor: THEME_ACCENT
         };
         storage?.setItem?.(SETTINGS_STORAGE_KEY, JSON.stringify(mapped));
       }
@@ -386,7 +373,7 @@ function readSettings(storage) {
   try {
     const raw = storage?.getItem?.(SETTINGS_STORAGE_KEY);
     const parsed = raw ? { ...DEFAULT_SETTINGS, ...JSON.parse(raw) } : { ...DEFAULT_SETTINGS };
-    return { ...parsed, accentColor: normalizeAccentColor(parsed.accentColor) };
+    return { ...parsed, darkTheme: true, accentColor: THEME_ACCENT };
   } catch { return { ...DEFAULT_SETTINGS }; }
 }
 
@@ -398,22 +385,21 @@ async function writeSettings(storage, data) {
   try {
     // Map camelCase back to snake_case for DB
     const mapped = {
-      dark_theme: data.darkTheme,
+      dark_theme: true,
       notifications: data.notifications,
       autoplay: data.autoplay,
       data_saver: data.dataSaver,
       title_lang: data.titleLang,
       default_status: data.defaultStatus,
-      accent_color: normalizeAccentColor(data.accentColor)
+      accent_color: THEME_ACCENT
     };
     await updateSettings(mapped);
   } catch (err) { console.warn("Settings cloud save failed", err); }
 }
 
 function applyDarkTheme(enabled) {
-  const isDark = Boolean(enabled);
-  document.body.classList.toggle("dark", isDark);
-  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+  document.body.classList.add("dark");
+  document.documentElement.setAttribute('data-theme', 'dark');
 }
 
 function applyDataSaver(enabled) {
@@ -437,19 +423,22 @@ function initSettings({ toast, libraryStore, storage = globalThis.localStorage }
 
   function render() {
     const s = readSettings(storage);
-    if (refs.darkTheme) refs.darkTheme.checked = Boolean(s.darkTheme);
+    if (refs.darkTheme) {
+      refs.darkTheme.checked = true;
+      refs.darkTheme.disabled = true;
+    }
     if (refs.notifications) refs.notifications.checked = Boolean(s.notifications);
     if (refs.autoplay) refs.autoplay.checked = Boolean(s.autoplay);
     if (refs.dataSaver) refs.dataSaver.checked = Boolean(s.dataSaver);
     if (refs.titleLang) refs.titleLang.value = s.titleLang || "english";
     if (refs.defaultStatus) refs.defaultStatus.value = s.defaultStatus || "plan";
-    applyDarkTheme(s.darkTheme);
+    applyDarkTheme(true);
     applyDataSaver(s.dataSaver);
-    const accentColor = normalizeAccentColor(s.accentColor);
+    const accentColor = THEME_ACCENT;
     applyAccentColor(accentColor);
     // Reflect active swatch
     refs.accentPicker?.querySelectorAll(".accent-swatch").forEach(sw => {
-      sw.classList.toggle("active", sw.dataset.color === accentColor);
+      sw.classList.toggle("active", String(sw.dataset.color || "").toLowerCase() === accentColor);
     });
   }
 
@@ -460,15 +449,6 @@ function initSettings({ toast, libraryStore, storage = globalThis.localStorage }
   window.addEventListener('Animyx:settings-sync', () => {
     render();
   });
-
-  function onDarkTheme(e) {
-    const enabled = Boolean(e.target.checked);
-    const theme = enabled ? 'dark' : 'light';
-    writeSettings(storage, { ...readSettings(storage), darkTheme: enabled });
-    setState({ theme });
-    applyDarkTheme(enabled);
-    toast?.show?.(enabled ? "Dark mode enabled" : "Light mode enabled");
-  }
 
   async function onNotifications(e) {
     const enabled = Boolean(e.target.checked);
@@ -549,14 +529,14 @@ function initSettings({ toast, libraryStore, storage = globalThis.localStorage }
     const swatch = e.target.closest(".accent-swatch");
     if (!swatch) return;
     const color = normalizeAccentColor(swatch.dataset.color);
-    if (!color) return;
-    writeSettings(storage, { ...readSettings(storage), accentColor: color });
-    setState({ accentColor: color });
-    applyAccentColor(color);
+    writeSettings(storage, { ...readSettings(storage), darkTheme: true, accentColor: color });
+    setState({ theme: 'dark', accentColor: THEME_ACCENT });
+    applyDarkTheme(true);
+    applyAccentColor(THEME_ACCENT);
     refs.accentPicker?.querySelectorAll(".accent-swatch").forEach(sw => {
       sw.classList.toggle("active", sw === swatch);
     });
-    toast?.show?.("Accent color updated ✓");
+    toast?.show?.("One Piece theme is fixed across the app");
   }
 
   async function onClearLibrary() {
@@ -623,13 +603,11 @@ function initSettings({ toast, libraryStore, storage = globalThis.localStorage }
     window.location.replace('/pages/signin.html');
   }
 
-  refs.darkTheme?.addEventListener("change", onDarkTheme);
   refs.notifications?.addEventListener("change", onNotifications);
   refs.autoplay?.addEventListener("change", onAutoplay);
   refs.dataSaver?.addEventListener("change", onDataSaver);
   refs.titleLang?.addEventListener("change", onTitleLang);
   refs.defaultStatus?.addEventListener("change", onDefaultStatus);
-  refs.accentPicker?.addEventListener("click", onSwatchClick);
   refs.clearLibrary?.addEventListener("click", onClearLibrary);
   refs.resetLocal?.addEventListener("click", onResetLocal);
   refs.deleteAccount?.addEventListener("click", onDeleteAccount);
@@ -639,13 +617,11 @@ function initSettings({ toast, libraryStore, storage = globalThis.localStorage }
   return Object.freeze({
     render,
     destroy() {
-      refs.darkTheme?.removeEventListener("change", onDarkTheme);
       refs.notifications?.removeEventListener("change", onNotifications);
       refs.autoplay?.removeEventListener("change", onAutoplay);
       refs.dataSaver?.removeEventListener("change", onDataSaver);
       refs.titleLang?.removeEventListener("change", onTitleLang);
       refs.defaultStatus?.removeEventListener("change", onDefaultStatus);
-      refs.accentPicker?.removeEventListener("click", onSwatchClick);
       refs.clearLibrary?.removeEventListener("click", onClearLibrary);
       refs.resetLocal?.removeEventListener("click", onResetLocal);
       refs.deleteAccount?.removeEventListener("click", onDeleteAccount);
@@ -820,7 +796,7 @@ function initImport({ libraryStore, toast } = {}) {
     }
     if (refs.progressBar) {
       refs.progressBar.style.width = "0%";
-      refs.progressBar.style.background = "#8b5cf6"; // Reset to purple
+      refs.progressBar.style.background = "#1e90ff";
     }
     if (refs.statusMsg) {
       refs.statusMsg.textContent = "Ready to upload.";
@@ -948,5 +924,6 @@ function initImport({ libraryStore, toast } = {}) {
 }
 
 export { readProfile, readSettings, initProfile, initSettings, initExport, initImport };
+
 
 

@@ -849,31 +849,24 @@
 
               <div class="setting-row">
                 <div class="setting-info">
-                  <span class="setting-title">Dark Theme</span>
-                  <span class="setting-desc">Use dark mode everywhere.</span>
+                  <span class="setting-title">One Piece Theme</span>
+                  <span class="setting-desc">Animyx now uses a fixed ocean-inspired theme across the app.</span>
                 </div>
                 <label class="toggle-switch">
-                  <input type="checkbox" id="setting-dark-theme" checked>
+                  <input type="checkbox" id="setting-dark-theme" checked disabled>
                   <span class="toggle-slider"></span>
                 </label>
               </div>
 
               <div class="setting-row" style="margin-top:1.5rem;">
                 <div class="setting-info">
-                  <span class="setting-title">Accent Color</span>
-                  <span class="setting-desc">Personalize the app's highlight color.</span>
+                  <span class="setting-title">Theme Accent</span>
+                  <span class="setting-desc">Ocean blue is the only active accent for this theme.</span>
                 </div>
                 <div class="accent-color-picker" id="accent-color-picker">
-                  <button class="accent-swatch active" data-color="#8b5cf6" style="background:#8b5cf6;"
-                    title="Violet"></button>
-                  <button class="accent-swatch" data-color="#7c3aed" style="background:#7c3aed;"
-                    title="Royal Purple"></button>
-                  <button class="accent-swatch" data-color="#6d28d9" style="background:#6d28d9;" title="Deep Purple"></button>
-                  <button class="accent-swatch" data-color="#a78bfa" style="background:#a78bfa;" title="Lavender"></button>
-                  <button class="accent-swatch" data-color="#c4b5fd" style="background:#c4b5fd;" title="Soft Lilac"></button>
-                  <button class="accent-swatch" data-color="#9333ea" style="background:#9333ea;" title="Orchid"></button>
-                  <button class="accent-swatch" data-color="#7e22ce" style="background:#7e22ce;" title="Grape"></button>
-                  <button class="accent-swatch" data-color="#581c87" style="background:#581c87;" title="Plum"></button>
+                  <button class="accent-swatch active" data-color="#1e90ff" style="background:#1e90ff;"
+                    disabled aria-disabled="true"
+                    title="Ocean Blue"></button>
                 </div>
               </div>
 
@@ -1064,7 +1057,7 @@
                 <!-- Progress Line -->
                 <div class="upload-status-progress-track">
                   <div id="mal-progress-bar"
-                    style="height:100%; width:0%; background: #8b5cf6; transition: width 0.3s ease;"></div>
+                    style="height:100%; width:0%; background: #1e90ff; transition: width 0.3s ease;"></div>
                 </div>
                 <p id="mal-status-message"
                   style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0;">Ready to upload.</p>
@@ -1072,7 +1065,7 @@
 
               <div style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: center;">
                 <button id="mal-import-btn" class="premium-export-btn"
-                  style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);" disabled>
+                  style="background: linear-gradient(135deg, #1e90ff 0%, #38bdf8 100%);" disabled>
                   <span class="material-icons">cloud_upload</span> Start Import
                 </button>
               </div>

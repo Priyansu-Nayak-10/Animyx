@@ -517,21 +517,21 @@ class SyncService {
 
     const data = payload.new;
     const settings = {
-      darkTheme: data.dark_theme,
+      darkTheme: true,
       notifications: data.notifications,
       autoplay: data.autoplay,
       dataSaver: data.data_saver,
       titleLang: data.title_lang,
       defaultStatus: data.default_status,
-      accentColor: data.accent_color
+      accentColor: '#1E90FF'
     };
 
     localStorage.setItem(KEY_SETTINGS, JSON.stringify(settings));
 
     // Update global store
     setState({
-      theme: settings.darkTheme ? 'dark' : 'light',
-      accentColor: settings.accentColor
+      theme: 'dark',
+      accentColor: '#1E90FF'
     });
 
     window.dispatchEvent(new CustomEvent('Animyx:settings-sync', { detail: settings }));

@@ -1,5 +1,3 @@
-const DEFAULT_THEME_KEY = "Animyx_theme";
-
 function initToast({ root = document.body } = {}) {
   let container = null;
   const timeoutIds = new Set();
@@ -30,10 +28,10 @@ function initToast({ root = document.body } = {}) {
       borderRadius: "10px",
       fontSize: "13px",
       fontWeight: "600",
-      color: "var(--text-primary, #f5f3ff)",
-      background: type === "error" ? "rgba(127,29,29,.92)" : "rgba(20,15,38,.94)",
-      border: type === "error" ? "1px solid rgba(248,113,113,.35)" : "1px solid rgba(196,181,253,.28)",
-      boxShadow: type === "error" ? "0 10px 25px rgba(0,0,0,.25)" : "0 10px 25px rgba(0,0,0,.25), 0 0 16px rgba(139,92,246,.12)",
+      color: "var(--text-primary, #e6f1ff)",
+      background: type === "error" ? "rgba(127,29,29,.92)" : "linear-gradient(180deg, rgba(16,42,67,.96), rgba(8,26,44,.96))",
+      border: type === "error" ? "1px solid rgba(248,113,113,.35)" : "1px solid rgba(56,189,248,.24)",
+      boxShadow: type === "error" ? "0 10px 25px rgba(0,0,0,.25)" : "0 10px 25px rgba(0,0,0,.28), 0 0 16px rgba(30,144,255,.16)",
       opacity: "0",
       transform: "translateY(8px)",
       transition: "all .2s ease"
@@ -71,47 +69,19 @@ function initToast({ root = document.body } = {}) {
 
 function initTheme({
   storage = globalThis.localStorage,
-  storageKey = DEFAULT_THEME_KEY,
-  root = document.body,
-  toggleTarget = document.querySelector(".profile-img-container"),
-  toast = null
+  root = document.body
 } = {}) {
-  let bound = false;
-
   function applyStoredTheme() {
-    const stored = storage?.getItem?.(storageKey);
-    if (stored === "light") root.classList.remove("dark");
-    else root.classList.add("dark");
-  }
-
-  function toggleTheme() {
-    const isDark = root.classList.toggle("dark");
-    storage?.setItem?.(storageKey, isDark ? "dark" : "light");
-    if (toast?.show) toast.show(isDark ? "Dark mode enabled" : "Light mode enabled");
-  }
-
-  function bind() {
-    if (!toggleTarget || bound) return;
-    toggleTarget.title = "Double-click to toggle theme";
-    toggleTarget.addEventListener("dblclick", toggleTheme);
-    bound = true;
-  }
-
-  function unbind() {
-    if (!toggleTarget || !bound) return;
-    toggleTarget.removeEventListener("dblclick", toggleTheme);
-    bound = false;
+    root.classList.add("dark");
+    document.documentElement.setAttribute("data-theme", "dark");
+    storage?.setItem?.("Animyx_theme", "dark");
   }
 
   applyStoredTheme();
-  bind();
 
   return Object.freeze({
     render: applyStoredTheme,
-    toggleTheme,
-    destroy() {
-      unbind();
-    }
+    destroy() {}
   });
 }
 
@@ -207,4 +177,4 @@ function initUI({
   });
 }
 
-export { DEFAULT_THEME_KEY, initUI };
+export { initUI };

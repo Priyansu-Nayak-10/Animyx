@@ -166,12 +166,12 @@ class AnimeCard extends HTMLElement {
         :host(:hover), :host(:focus-visible) {
           transform: translateY(-6px);
           box-shadow: 0 16px 32px -10px rgba(0, 0, 0, 0.55), 0 6px 12px -8px rgba(0, 0, 0, 0.35);
-          border-color: var(--brand-accent, rgba(168, 85, 247, 0.4));
+          border-color: var(--brand-accent, rgba(250, 204, 21, 0.4));
           filter: saturate(1.08);
         }
 
         :host(:focus-visible) {
-            box-shadow: 0 0 0 2px var(--brand-primary, #7C3AED);
+            box-shadow: 0 0 0 2px var(--brand-primary, #1E90FF);
         }
 
         .image-container {

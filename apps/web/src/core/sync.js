@@ -69,9 +69,9 @@ class SyncService {
   handleSettingsChange(p) {
     if (p.eventType === 'DELETE') return;
     const d = p.new;
-    const settings = { darkTheme: d.dark_theme, accentColor: d.accent_color };
+    const settings = { darkTheme: true, accentColor: '#1E90FF' };
     localStorage.setItem(KEY_SETTINGS, JSON.stringify(settings));
-    setState({ theme: settings.darkTheme ? 'dark' : 'light', accentColor: settings.accentColor });
+    setState({ theme: 'dark', accentColor: '#1E90FF' });
   }
 }
 

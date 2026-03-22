@@ -78,25 +78,25 @@
   --shadow-md:   0 4px 16px rgba(0,0,0,0.35);
   --shadow-lg:   0 8px 32px rgba(0,0,0,0.45);
   --shadow-xl:   0 16px 48px rgba(0,0,0,0.55);
-  --shadow-glow-purple: 0 0 20px rgba(124,58,237,0.35);
+  --shadow-glow-purple: 0 0 20px rgba(30,144,255,0.35);
   --shadow-glow-blue:   0 0 20px rgba(59,130,246,0.35);
   --shadow-inset: inset 0 1px 0 rgba(255,255,255,0.06);
 
   /* ── Colors — Backgrounds ────────────────────────────────── */
   /* (supplements existing --bg-main, --bg-surface, --bg-card, --bg-sidebar) */
-  --bg-elevated:  #1a1c2e;
-  --bg-overlay:   rgba(6,10,22,0.85);
-  --bg-glass:     rgba(255,255,255,0.04);
-  --bg-glass-md:  rgba(255,255,255,0.07);
-  --bg-hover:     rgba(255,255,255,0.06);
-  --bg-active:    rgba(255,255,255,0.1);
-  --bg-dark-deep: #060a16;
+  --bg-elevated:  #123554;
+  --bg-overlay:   rgba(6,24,38,0.85);
+  --bg-glass:     rgba(56,189,248,0.04);
+  --bg-glass-md:  rgba(56,189,248,0.07);
+  --bg-hover:     rgba(56,189,248,0.06);
+  --bg-active:    rgba(56,189,248,0.1);
+  --bg-dark-deep: #04111d;
 
   /* ── Colors — Text ───────────────────────────────────────── */
   /* (supplements existing --text-primary, --text-secondary, --text-muted) */
-  --text-disabled:  #4a4a5a;
+  --text-disabled:  #4f6a84;
   --text-inverse:   #0f172a;
-  --text-accent:    #a78bfa;    /* purple accent text */
+  --text-accent:    #38bdf8;
   --text-on-accent: #ffffff;
 
   /* ── Colors — Borders ────────────────────────────────────── */
@@ -104,7 +104,7 @@
   --border-subtle:  rgba(255,255,255,0.06);
   --border-default: rgba(255,255,255,0.10);
   --border-strong:  rgba(255,255,255,0.18);
-  --border-accent:  rgba(124,58,237,0.4);
+  --border-accent:  rgba(30,144,255,0.4);
 
   /* ── Colors — Status ─────────────────────────────────────── */
   --color-plan:      #60a5fa;   /* light blue  */

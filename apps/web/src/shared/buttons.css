@@ -58,18 +58,18 @@
   background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
   color: #fff;
   border-color: transparent;
-  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.3);
+  box-shadow: 0 2px 8px rgba(30, 144, 255, 0.3);
 }
 
 .btn--primary:hover {
   background: linear-gradient(135deg, var(--brand-secondary), var(--brand-accent));
-  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.45);
+  box-shadow: 0 4px 16px rgba(30, 144, 255, 0.45);
   transform: translateY(-1px);
 }
 
 .btn--primary:active {
   transform: translateY(0);
-  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.25);
+  box-shadow: 0 2px 8px rgba(30, 144, 255, 0.25);
 }
 
 /* ─── Secondary (outlined) ────────────────────────────────── */

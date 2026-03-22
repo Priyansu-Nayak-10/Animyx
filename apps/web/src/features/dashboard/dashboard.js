@@ -29,21 +29,21 @@ export const DONUT_PALETTE = [
 ];
 
 const GENRE_META = {
-  action: { icon: "local_fire_department", color: "#8b5cf6" },
-  adventure: { icon: "explore", color: "#a78bfa" },
-  comedy: { icon: "sentiment_very_satisfied", color: "#c4b5fd" },
-  drama: { icon: "theater_comedy", color: "#7c3aed" },
-  fantasy: { icon: "auto_fix_high", color: "#9333ea" },
-  romance: { icon: "favorite", color: "#d8b4fe" },
-  "sci-fi": { icon: "rocket_launch", color: "#a78bfa" },
-  slice: { icon: "local_cafe", color: "#c4b5fd" },
-  mystery: { icon: "search", color: "#6d28d9" },
-  thriller: { icon: "bolt", color: "#7e22ce" },
-  horror: { icon: "psychology", color: "#581c87" },
-  sports: { icon: "sports_baseball", color: "#9333ea" },
-  supernatural: { icon: "visibility", color: "#8b5cf6" },
-  isekai: { icon: "vpn_key", color: "#a78bfa" },
-  mecha: { icon: "smart_toy", color: "#b7abd9" }
+  action: { icon: "local_fire_department", color: "#1e90ff" },
+  adventure: { icon: "explore", color: "#38bdf8" },
+  comedy: { icon: "sentiment_very_satisfied", color: "#facc15" },
+  drama: { icon: "theater_comedy", color: "#0077be" },
+  fantasy: { icon: "auto_fix_high", color: "#06b6d4" },
+  romance: { icon: "favorite", color: "#f43f5e" },
+  "sci-fi": { icon: "rocket_launch", color: "#38bdf8" },
+  slice: { icon: "local_cafe", color: "#22c55e" },
+  mystery: { icon: "search", color: "#0ea5e9" },
+  thriller: { icon: "bolt", color: "#0284c7" },
+  horror: { icon: "psychology", color: "#0f172a" },
+  sports: { icon: "sports_baseball", color: "#22c55e" },
+  supernatural: { icon: "visibility", color: "#1e90ff" },
+  isekai: { icon: "vpn_key", color: "#38bdf8" },
+  mecha: { icon: "smart_toy", color: "#9fbad6" }
 };
 
 // ── Utilities ────────────────────────────────────────────────────────────────
@@ -226,7 +226,7 @@ function getGenreConfig(genreName) {
   for (const [key, val] of Object.entries(GENRE_META)) {
     if (norm.includes(key)) return val;
   }
-  return { icon: "local_offer", color: "#8b5cf6" };
+  return { icon: "local_offer", color: "#1e90ff" };
 }
 
 export function renderGenreDonut(svgElement, entries, opts = {}) {
@@ -260,7 +260,7 @@ export function renderInsightGenreDonut(svgElement, entries) {
   if (!svgElement) return;
   const total = entries.reduce((s, c) => s + Number(c[1] || 0), 0);
   if (!total) {
-    svgElement.innerHTML = `<g opacity="0.7"><circle cx="110" cy="110" r="98" fill="none" stroke="rgba(167, 139, 250, 0.18)" stroke-width="24" stroke-dasharray="10 8"></circle></g><text x="110" y="110" text-anchor="middle" fill="var(--text-muted)">No data</text>`;
+    svgElement.innerHTML = `<g opacity="0.7"><circle cx="110" cy="110" r="98" fill="none" stroke="rgba(56, 189, 248, 0.18)" stroke-width="24" stroke-dasharray="10 8"></circle></g><text x="110" y="110" text-anchor="middle" fill="var(--text-muted)">No data</text>`;
     return;
   }
   const cx = 110, cy = 110, outerR = 100, innerR = 60;
@@ -515,7 +515,7 @@ export function initRecommendations({ store, libraryStore, selectors, toast = nu
     if (refs.dashboardGenreSvg && refs.dashboardGenreLegend) {
       const entries = getGenreSnapshotEntries(libraryItems, 3);
       const hasCompletedGenres = topGenresWithOthers(completed, 3).length > 0;
-      if (!entries.length) { refs.dashboardGenreSvg.innerHTML = `<g transform="translate(100,100)"><circle r="95" fill="none" stroke="rgba(167, 139, 250, 0.14)" stroke-width="20" stroke-dasharray="10 10"></circle><text x="0" y="5" text-anchor="middle" fill="var(--text-muted)" font-size="0.8rem">No Data</text></g>`; refs.dashboardGenreLegend.innerHTML = '<div class="anime-card-meta" style="margin-bottom:0; text-align: center; width: 100%;">Add genre-rich anime to see your distribution.</div>'; }
+      if (!entries.length) { refs.dashboardGenreSvg.innerHTML = `<g transform="translate(100,100)"><circle r="95" fill="none" stroke="rgba(56, 189, 248, 0.14)" stroke-width="20" stroke-dasharray="10 10"></circle><text x="0" y="5" text-anchor="middle" fill="var(--text-muted)" font-size="0.8rem">No Data</text></g>`; refs.dashboardGenreLegend.innerHTML = '<div class="anime-card-meta" style="margin-bottom:0; text-align: center; width: 100%;">Add genre-rich anime to see your distribution.</div>'; }
       else {
         renderGenreDonut(refs.dashboardGenreSvg, entries);
         const total = entries.reduce((s, [, c]) => s + Number(c || 0), 0), palette = ["var(--chart-purple)", "var(--chart-blue)", "var(--chart-cyan)", "var(--chart-green)", "var(--chart-orange)", "var(--chart-pink)"];
