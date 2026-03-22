@@ -2981,29 +2981,14 @@ body.dark #dashboard-view .news-list.custom-scrollbar::-webkit-scrollbar-thumb {
 }
 
 .promo-card {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  flex: none;
-  min-height: 140px;
-  position: relative;
-  overflow: hidden;
-  padding: 1.5rem;
-  background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-elevated) 100%);
-  border: 1px solid var(--border-accent);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    flex: 1;
 }
 
-.promo-card::before {
-  content: '';
-  position: absolute;
-  top: -50%;
-  right: -20%;
-  width: 200px;
-  height: 200px;
-  background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
-  opacity: 0.1;
-  pointer-events: none;
-}
+
 
 .quick-stats-card {
     padding: 1.5rem;
