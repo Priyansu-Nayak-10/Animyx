@@ -160,16 +160,72 @@ const STATUS = Object.freeze({
 });
 
 const STORAGE_KEY = KEY_LIBRARY;
+const LIBRARY_SCHEMA_VERSION = 1;
+const LIBRARY_SCHEMA_KEY = `${STORAGE_KEY}:schema`;
 
 function clone(data) {
   if (typeof structuredClone === "function") return structuredClone(data);
   return JSON.parse(JSON.stringify(data));
 }
 
+function safeStringify(value) {
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return "";
+  }
+}
+
+function normalizeStatusValue(value) {
+  const raw = String(value || "").trim().toLowerCase();
+  if (raw === STATUS.WATCHING || raw === STATUS.COMPLETED || raw === STATUS.DROPPED) return raw;
+  return STATUS.PLAN;
+}
+
+function normalizeGenres(value) {
+  return (Array.isArray(value) ? value : [])
+    .map((genre) => (typeof genre === "string" ? genre : genre?.name))
+    .map((genre) => String(genre || "").trim())
+    .filter(Boolean);
+}
+
+function normalizeTitles(value) {
+  return Array.isArray(value) ? value.filter(Boolean) : [];
+}
+
+function normalizeLibraryItem(item = {}) {
+  const progress = Math.max(0, Number(item?.progress ?? item?.watchedEpisodes ?? 0));
+  const watchedEpisodes = Math.max(0, Number(item?.watchedEpisodes ?? progress));
+  const episodes = Math.max(0, Number(item?.episodes ?? item?.total_episodes ?? 0));
+  return {
+    ...item,
+    malId: Number(item?.malId || item?.mal_id || 0),
+    title: String(item?.title || item?.title_english || "").trim(),
+    title_english: String(item?.title_english || "").trim(),
+    titles: normalizeTitles(item?.titles),
+    image: String(item?.image || item?.poster || "").trim(),
+    status: normalizeStatusValue(item?.status),
+    progress,
+    watchedEpisodes,
+    episodes,
+    genres: normalizeGenres(item?.genres),
+    studio: String(item?.studio || "").trim(),
+    duration: String(item?.duration || "").trim(),
+    year: Number(item?.year || 0) || 0,
+    score: Number(item?.score || 0) || 0,
+    userRating: Number.isFinite(Number(item?.userRating)) && Number(item?.userRating) > 0 ? Math.min(10, Math.max(1, Number(item.userRating))) : null,
+    updatedAt: Number(item?.updatedAt || 0) || 0,
+    watchlistAddedAt: Number(item?.watchlistAddedAt || 0) || 0,
+    watchProgressAt: Number(item?.watchProgressAt || 0) || 0,
+    completedAt: Number(item?.completedAt || 0) || 0,
+    ratingUpdatedAt: Number(item?.ratingUpdatedAt || 0) || 0
+  };
+}
+
 function createLibraryStore(options = {}) {
   const storageKey = options.storageKey || STORAGE_KEY;
   const storage = options.storage || globalThis.localStorage;
-  const normalizeItem = typeof options.normalizeItem === "function" ? options.normalizeItem : (item) => item;
+  const normalizeItem = typeof options.normalizeItem === "function" ? options.normalizeItem : normalizeLibraryItem;
 
   let items = [];
   let initialized = false;
@@ -183,6 +239,7 @@ function createLibraryStore(options = {}) {
   function persist() {
     if (!storage?.setItem) return;
     storage.setItem(storageKey, JSON.stringify(items));
+    storage.setItem(LIBRARY_SCHEMA_KEY, String(LIBRARY_SCHEMA_VERSION));
   }
 
   function load() {
@@ -199,9 +256,15 @@ function createLibraryStore(options = {}) {
   function init(defaultLibrary = []) {
     const stored = load();
     const source = stored.length ? stored : (Array.isArray(defaultLibrary) ? defaultLibrary : []);
-    items = source.map((item) => normalizeItem(item));
+    const normalized = source.map((item) => normalizeItem(item));
+    const existingSchemaVersion = Number(storage?.getItem?.(LIBRARY_SCHEMA_KEY) || 0) || 0;
+    const migrationNeeded = existingSchemaVersion < LIBRARY_SCHEMA_VERSION;
+    const shapeChanged = safeStringify(source) !== safeStringify(normalized);
+    items = normalized;
     initialized = true;
-    persist();
+    if (migrationNeeded || shapeChanged || stored.length !== source.length) {
+      persist();
+    }
     notify();
     return clone(items);
   }

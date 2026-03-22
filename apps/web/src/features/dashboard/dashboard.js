@@ -274,7 +274,7 @@ export function renderInsightGenreDonut(svgElement, entries) {
     const sweep = (Number(count) / total) * 360;
     const path = describeDonutArc(cx, cy, outerR, innerR, angle, angle + sweep);
     angle += sweep;
-    return `<path d="${path}" fill="url(#${uid}-ig${i})" />`;
+    return `<path class="pie-slice" d="${path}" fill="url(#${uid}-ig${i})" />`;
   }).join('');
   svgElement.innerHTML = `<defs>${gradientDefs}</defs>${slices}`;
 }

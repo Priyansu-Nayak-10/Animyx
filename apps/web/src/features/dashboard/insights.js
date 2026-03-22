@@ -411,6 +411,15 @@ function renderDiscoveryIntelligence(refs, genreDistribution) {
   }
 }
 
+function buildGenreAnalysisText(genreDistribution) {
+  const sorted = Array.isArray(genreDistribution?.sorted) ? genreDistribution.sorted : [];
+  const primary = sorted[0];
+  const secondary = sorted[1];
+  if (!primary) return "Complete anime to unlock genre insights.";
+  if (!secondary) return `${primary[0]} currently defines your watch profile.`;
+  return `${primary[0]} leads your taste profile, with ${secondary[0]} close behind.`;
+}
+
 export function initInsights({ libraryStore }) {
   const refs = {
     view: document.getElementById("insights-view"), emptyOverlay: document.getElementById("insights-empty-overlay"),
@@ -434,6 +443,8 @@ export function initInsights({ libraryStore }) {
     const items = libraryStore.getAll();
     if (!items?.length) { 
       refs.view?.classList.add("is-empty"); if (refs.emptyOverlay) refs.emptyOverlay.hidden = false;
+      if (refs.genreAnalysisText) refs.genreAnalysisText.textContent = "Complete anime to unlock genre insights.";
+      if (refs.topGenres) refs.topGenres.innerHTML = "";
       renderDonutChart(refs.statusChart, [], 0, "", false); renderInsightGenreDonut(refs.genreChart, []); return;
     }
     refs.view?.classList.remove("is-empty"); if (refs.emptyOverlay) refs.emptyOverlay.hidden = true;
@@ -469,14 +480,19 @@ export function initInsights({ libraryStore }) {
       { label: "Plan", value: breakdown.plan, color: "var(--insight-lavender)" }
     ], totalLib, `${completionPct}%`, false);
     renderInsightGenreDonut(refs.genreChart, insights.genreDistribution.sorted);
+    if (refs.genreAnalysisText) refs.genreAnalysisText.textContent = buildGenreAnalysisText(insights.genreDistribution);
     if (refs.topGenres) {
       const genreData = insights.genreDistribution.sorted;
-      const max = Math.max(...genreData.map(([, count]) => Number(count || 0)));
-      refs.topGenres.innerHTML = genreData.map(([genre, count], idx) => {
-        const width = Math.max(18, Math.round((Number(count || 0) / Math.max(1, max)) * 100));
-        const color = getGenreColor(genre, idx);
-        return `<div class="genre-bar-item"><div class="genre-label">${escapeHtml(genre)}</div><div class="genre-track"><div class="genre-fill" style="width:${width}%; background-color:${color}; color:${color};"></div></div><div class="genre-count">${count}</div></div>`;
-      }).join("");
+      if (!genreData.length) {
+        refs.topGenres.innerHTML = '<div class="anime-card-meta">No genre data yet.</div>';
+      } else {
+        const max = Math.max(...genreData.map(([, count]) => Number(count || 0)));
+        refs.topGenres.innerHTML = genreData.map(([genre, count], idx) => {
+          const width = Math.max(18, Math.round((Number(count || 0) / Math.max(1, max)) * 100));
+          const color = getGenreColor(genre, idx);
+          return `<div class="genre-bar-item"><div class="genre-label">${escapeHtml(genre)}</div><div class="genre-track"><div class="genre-fill" style="width:${width}%; background-color:${color}; color:${color};"></div></div><div class="genre-count">${count}</div></div>`;
+        }).join("");
+      }
     }
     // Recent Activity feed
     if (refs.recentActivity) {
