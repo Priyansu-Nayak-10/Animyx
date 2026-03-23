@@ -588,8 +588,8 @@ function normalizeGenreNames(value) {
 }
 
 function toLibraryItem(row) {
-  const malId = Number(row?.mal_id || 0);
-  const progress = Math.max(0, Number(row?.next_episode || 0));
+  const malId = Number(row?.mal_id || row?.malId || 0);
+  const progress = Math.max(0, Number(row?.next_episode || row?.progress || row?.watchedEpisodes || 0));
   return {
     malId,
     title: String(row?.title || `Anime #${malId}`),
@@ -597,12 +597,12 @@ function toLibraryItem(row) {
     status: normalizeStatus(row?.status),
     progress,
     watchedEpisodes: progress,
-    episodes: Math.max(0, Number(row?.total_episodes || 0)),
-    updatedAt: Date.parse(row?.updated_at || row?.last_checked || row?.created_at || '') || Date.now(),
-    watchlistAddedAt: Date.parse(row?.watchlist_added_at || '') || 0,
-    watchProgressAt: Date.parse(row?.watch_progress_at || '') || 0,
-    completedAt: Date.parse(row?.completed_at || '') || 0,
-    ratingUpdatedAt: Date.parse(row?.rating_updated_at || '') || 0,
+    episodes: Math.max(0, Number(row?.total_episodes || row?.episodes || 0)),
+    updatedAt: Date.parse(row?.updated_at || row?.updatedAt || row?.last_checked || row?.created_at || '') || Date.now(),
+    watchlistAddedAt: Date.parse(row?.watchlist_added_at || row?.watchlistAddedAt || '') || 0,
+    watchProgressAt: Date.parse(row?.watch_progress_at || row?.watchProgressAt || '') || 0,
+    completedAt: Date.parse(row?.completed_at || row?.completedAt || '') || 0,
+    ratingUpdatedAt: Date.parse(row?.rating_updated_at || row?.ratingUpdatedAt || '') || 0,
     genres: normalizeGenreNames(row?.genres),
     studio: String(row?.studio || '').trim(),
     duration: String(row?.duration || '').trim(),
@@ -652,19 +652,19 @@ async function pushLibrary(localItems) {
   const items = [...localById.values()].map((item) => {
     const progress = Math.max(0, Number(item?.progress ?? item?.watchedEpisodes ?? 0));
     return {
-      malId: Number(item?.malId || 0),
+      mal_id: Number(item?.malId || 0),
       title: item?.title || '',
       image: item?.image || '',
       status: normalizeStatus(item?.status),
-      nextEpisode: progress,
-      totalEpisodes: Number(item?.episodes || 0),
-      userRating: item?.userRating ?? null,
-      watchlistAddedAt: Number(item?.watchlistAddedAt || 0) || 0,
-      watchProgressAt: Number(item?.watchProgressAt || 0) || 0,
-      completedAt: Number(item?.completedAt || 0) || 0,
-      ratingUpdatedAt: Number(item?.ratingUpdatedAt || 0) || 0,
-      clientId,
-      mutationId: `${clientId}:${Date.now().toString(36)}:${Math.random().toString(36).slice(2, 8)}`
+      next_episode: progress,
+      total_episodes: Number(item?.episodes || 0),
+      user_rating: item?.userRating ?? null,
+      watchlist_added_at: new Date(Number(item?.watchlistAddedAt || 0) || Date.now()).toISOString(),
+      watch_progress_at: new Date(Number(item?.watchProgressAt || 0) || Date.now()).toISOString(),
+      completed_at: item?.completedAt ? new Date(item.completedAt).toISOString() : null,
+      rating_updated_at: item?.ratingUpdatedAt ? new Date(item.ratingUpdatedAt).toISOString() : null,
+      client_id: clientId,
+      mutation_id: `${clientId}:${Date.now().toString(36)}:${Math.random().toString(36).slice(2, 8)}`
     };
   });
 
@@ -893,8 +893,9 @@ export function initLibraryCloudSync({ libraryStore, toast = null, syncIntervalM
       const rem = remoteById.get(id) || null;
 
       if (!rem) {
-        // Remote no longer has it: only keep locally if we have pending offline changes.
-        if (hasPendingSync) merged.push(loc);
+        // Essential Change: Keep local items always during merge to avoid deletion on race conditions.
+        // We only "trust" remote deletions if we move to a true event-log sync.
+        merged.push(loc);
         continue;
       }
 
