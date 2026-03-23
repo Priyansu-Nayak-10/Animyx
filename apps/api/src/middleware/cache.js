@@ -17,7 +17,7 @@ if (redisUrl && !isTestEnv) {
         maxRetriesPerRequest: null,
         ...(isTls ? { tls: { rejectUnauthorized: false } } : {})
     });
-    redis.on('error', (err) => logger.error(`[Redis] ${err.message}`));
+    redis.on('error', (err) => logger.error('[Redis] Cache connection error', err));
     redis.on('connect', () => logger.info('[Redis] connected'));
 } else if (!isTestEnv) {
     logger.warn('[Cache] REDIS_URL not set; falling back to in-memory cache');

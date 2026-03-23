@@ -54,8 +54,8 @@ const initSocket = (server) => {
     const pubClient = new Redis(redisUrl, redisOptions);
     const subClient = pubClient.duplicate();
 
-    pubClient.on('error', (err) => logger.error(`[Socket Redis Pub] ${err.message}`));
-    subClient.on('error', (err) => logger.error(`[Socket Redis Sub] ${err.message}`));
+    pubClient.on('error', (err) => logger.error('[Socket Redis Pub]', err));
+    subClient.on('error', (err) => logger.error('[Socket Redis Sub]', err));
 
     // Prevent ioredis unhandled 'error' events from crashing the process
     pubClient.on('end', () => logger.warn('[Socket Redis Pub] connection closed'));

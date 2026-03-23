@@ -21,31 +21,32 @@ const getSupabase = () => require('../database/supabase.js');
 
 function formatLogPayload(level, context, args) {
   const timestamp = new Date().toISOString();
-  const [first, ...rest] = args;
-  
   let message = "";
   let error = null;
+  let meta = {};
+
+  const first = args[0];
+  const second = args[1];
 
   if (first instanceof Error) {
     message = first.message;
     error = first;
-  } else if (typeof first === 'object' && first !== null) {
-    message = JSON.stringify(first);
-    error = first; // Still treat as error for stack/code extraction
   } else {
-    message = String(first);
+    message = String(first || "");
   }
 
-  const meta = rest.length ? rest[0] : {};
+  if (typeof second === 'object' && second !== null) {
+    meta = second;
+  }
 
   const entry = {
     level,
     timestamp,
     context,
     message,
-    ...(error && { 
-      stack: error.stack || undefined, 
-      errorCode: error.code || error.errorCode || undefined 
+    ...(error && {
+      stack: error.stack,
+      errorCode: error.code || error.errorCode
     }),
     ...meta
   };
@@ -69,19 +70,29 @@ function createLogger(context = 'app') {
       sendToErrorTracker(context, 'warn', msg, meta);
     },
     error: (msg, error, meta = {}) => {
-      // Handle shifting arguments: logger.error(errorObj)
-      let actualMsg = msg;
-      let actualError = error;
+      let actualMsg = "";
+      let actualError = null;
       let actualMeta = meta;
 
-      if (msg instanceof Error || (typeof msg === 'object' && msg !== null && !error)) {
+      if (msg instanceof Error) {
+        // Pattern: logger.error(err, meta)
         actualError = msg;
-        actualMsg = "An error occurred";
+        actualMsg = msg.message;
+        if (typeof error === 'object' && error !== null) actualMeta = error;
+      } else if (typeof msg === 'string') {
+        actualMsg = msg;
+        if (error instanceof Error) {
+          // Pattern: logger.error("msg", err, meta)
+          actualError = error;
+        } else if (typeof error === 'object' && error !== null) {
+          // Pattern: logger.error("msg", meta)
+          actualMeta = error;
+        }
       }
 
-      const errorObj = actualError instanceof Error ? actualError : (typeof actualError === 'object' ? actualError : new Error(String(actualError)));
-      console.error(formatLogPayload('error', context, [errorObj, { ...actualMeta, msg: actualMsg }]));
-      sendToErrorTracker(context, 'error', actualMsg, { ...actualMeta, error: errorObj });
+      const logError = actualError || new Error(actualMsg || "Unknown error");
+      console.error(formatLogPayload('error', context, [logError, { ...actualMeta, msg: actualMsg }]));
+      sendToErrorTracker(context, 'error', actualMsg, { ...actualMeta, error: logError });
     },
     debug: (msg, meta) => {
       if (process.env.DEBUG) {

@@ -14,7 +14,7 @@ if (REDIS_URL) {
     });
     // Add error listener to prevent "Unhandled error event" crashes
     redis.on('error', (err) => {
-      logger.error('[Redis][Presence] Connection error', { error: err.message });
+      logger.error('[Redis][Presence] Connection error', err);
     });
   } catch (err) {
     logger.error('Failed to init Redis for presence data', { error: err.message });
