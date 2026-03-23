@@ -90,28 +90,19 @@ const LibraryAddSchema = z.object({
 // User Settings Schemas
 // ============================================================================
 
-const ThemeEnum = z.enum(['light', 'dark']);
-
-const TitleLangEnum = z.enum(['english', 'japanese']);
-
-const AccentColorEnum = z.string()
-  .regex(/^#[0-9A-Fa-f]{6}$/, 'Invalid hex color');
-
 const UserSettingsSchema = z.object({
-  darkTheme: z.boolean().optional(),
   notifications: z.boolean().optional(),
   autoplay: z.boolean().optional(),
   dataSaver: z.boolean().optional(),
   titleLang: TitleLangEnum.optional(),
-  defaultStatus: LibraryStatusEnum.optional(),
-  accentColor: AccentColorEnum.optional()
+  defaultStatus: LibraryStatusEnum.optional()
 });
 
 const UserProfileSchema = z.object({
   name: z.string().max(100).optional(),
   bio: z.string().max(500).optional(),
-  avatar: z.string().url().optional(),
-  banner: z.string().url().optional(),
+  avatar: z.string().url().refine(val => val.startsWith('https://'), 'Only HTTPS URLs are allowed').optional(),
+  banner: z.string().url().refine(val => val.startsWith('https://'), 'Only HTTPS URLs are allowed').optional(),
   mal: z.string().optional(),
   al: z.string().optional()
 });
@@ -255,7 +246,6 @@ module.exports = {
   
   // Enums & types
   LibraryStatusEnum,
-  ThemeEnum,
   TitleLangEnum,
   
   // Middleware factories

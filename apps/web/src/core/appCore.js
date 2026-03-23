@@ -3,6 +3,11 @@ import { authFetch, apiUrl, BACKEND_ORIGIN, getAccessToken } from '../config.js'
 import { getClientId, supabase } from './utils.js';
 import { getState, setState } from '../store.js';
 
+// Dev-only logger — silenced in production builds
+const IS_DEV = typeof import.meta !== 'undefined' && import.meta.env?.DEV;
+const devLog = (...args) => { if (IS_DEV) console.log(...args); };
+const devWarn = (...args) => { if (IS_DEV) console.warn(...args); };
+
 // ---------------------------------------------------------------------------
 // Socket
 // ---------------------------------------------------------------------------
@@ -11,7 +16,7 @@ let socket = null;
 
 function initSocket(onNotification) {
   if (typeof io === 'undefined') {
-    console.warn('[Socket] Socket.IO global not found. Check CDN script tag in index.html.');
+    devWarn('[Socket] Socket.IO global not found. Check CDN script tag in index.html.');
     return null;
   }
 
@@ -31,27 +36,27 @@ function initSocket(onNotification) {
   });
 
   socket.on('connect', () => {
-    console.log('[Socket] Connected — id:', socket.id);
+    devLog('[Socket] Connected — id:', socket.id);
     socket.emit('subscribe');
   });
 
   socket.on('notification', (data) => {
-    console.log('[Socket] Notification received:', data);
+    devLog('[Socket] Notification received:', data);
     if (typeof onNotification === 'function') {
       onNotification(data);
     }
   });
 
   socket.on('disconnect', (reason) => {
-    console.log('[Socket] Disconnected:', reason);
+    devLog('[Socket] Disconnected:', reason);
   });
 
   socket.on('connect_error', (err) => {
-    console.warn('[Socket] Connection error:', err.message);
+    devWarn('[Socket] Connection error:', err.message);
   });
 
   socket.on('reconnect', (attempt) => {
-    console.log(`[Socket] Reconnected after ${attempt} attempt(s)`);
+    devLog(`[Socket] Reconnected after ${attempt} attempt(s)`);
     socket.emit('subscribe');
   });
 
@@ -326,37 +331,7 @@ function getTopOngoingAnikoto(storeState, limit = 10, libraryItems = []) {
     .map(({ __rank, ...anime }) => anime);
 }
 
-function getLiveUpcoming() {
-  return [];
-}
-
-function getPredictiveUpcoming() {
-  return [];
-}
-
-function getUpcomingFeed() {
-  return [];
-}
-
-function getHybridUpcoming() {
-  return [];
-}
-
-function getEstimatedUpcomingGrouped() {
-  return [];
-}
-
-function keepNearestEpisodePerAnime() {
-  return [];
-}
-
-function getCleanUpcoming() {
-  return [];
-}
-
-function getUpcomingForCarousel() {
-  return [];
-}
+// NOTE: Upcoming feed helpers are not yet implemented — callers should gracefully handle empty arrays.
 
 // ---------------------------------------------------------------------------
 // Realtime sync service (previously core/syncService.js)
@@ -384,7 +359,7 @@ class SyncService {
     const userId = this.currentUser?.id;
     if (!userId) return;
 
-    console.log('[SyncService] 📡 Subscribing to real-time updates...');
+    devLog('[SyncService] 📡 Subscribing to real-time updates...');
 
     // 1. Library Sync Channel
     const libraryChannel = supabase
@@ -430,7 +405,7 @@ class SyncService {
     if (!this.libraryStore) return;
 
     const { eventType, new: newItem, old: oldItem } = payload;
-    console.log('[SyncService] Library change received:', eventType);
+    devLog('[SyncService] Library change received:', eventType);
 
     if (eventType === 'INSERT' || eventType === 'UPDATE') {
       // Ignore our own writes echoed back via realtime (prevents device/tab feedback loops).
@@ -508,7 +483,7 @@ class SyncService {
   handleProfileChange(payload) {
     if (payload.eventType === 'DELETE') return;
 
-    console.log('[SyncService] Profile change received');
+    devLog('[SyncService] Profile change received');
     const data = payload.new;
     const profile = {
       name: data.name,
@@ -529,25 +504,18 @@ class SyncService {
   handleSettingsChange(payload) {
     if (payload.eventType === 'DELETE') return;
 
-    console.log('[SyncService] Settings change received');
+    devLog('[SyncService] Settings change received');
     const data = payload.new;
+    // Only sync settings that are still actively used (theme and accent removed).
     const settings = {
-      darkTheme: data.dark_theme,
       notifications: data.notifications,
       autoplay: data.autoplay,
       dataSaver: data.data_saver,
       titleLang: data.title_lang,
-      defaultStatus: data.default_status,
-      accentColor: data.accent_color
+      defaultStatus: data.default_status
     };
 
     localStorage.setItem('Animyx_settings_v1', JSON.stringify(settings));
-
-    // Update global store
-    setState({
-      theme: settings.darkTheme ? 'dark' : 'light',
-      accentColor: settings.accentColor
-    });
 
     window.dispatchEvent(new CustomEvent('Animyx:settings-sync', { detail: settings }));
   }

@@ -1,5 +1,6 @@
 const express = require('express');
-const { jikanClient } = require('../utils');
+const xss = require('xss');
+const { jikanClient, logger } = require('../utils');
 const supabase = require('../database/supabase');
 const { apiResponse, apiError, createPaginationQuery, paginatedResponse } = require('../utils');
 const { requireEmailVerified } = require('../middleware/auth');
@@ -117,8 +118,8 @@ router.post('/me/follow', async (req, res) => {
       }
     }
 
-    const xss = require('xss');
-    title = clampText(xss(title), 255);
+    const xssTitle = xss(title);
+    title = clampText(xssTitle, 255);
 
     const parsedMalId = Number.parseInt(malId, 10);
     const normalizedStatus = ['plan', 'watching', 'completed', 'dropped'].includes(String(status || '').toLowerCase())
@@ -185,7 +186,7 @@ router.post('/me/follow', async (req, res) => {
           recordActivity(profile, actionText, payloadString);
         }
       } catch (err) {
-        console.error('Failed to trigger presence activity:', err.message);
+        logger.error('Failed to trigger presence activity:', { error: err.message });
       }
     }
 
@@ -199,6 +200,7 @@ router.post('/me/follow/batch', async (req, res) => {
   try {
     const items = Array.isArray(req.body?.items) ? req.body.items : [];
     if (!items.length) return apiResponse(res, [], 200, 'No items');
+    if (items.length > 500) return apiError(res, 'Batch too large (max 500 items)', 400);
 
     const nowIso = new Date().toISOString();
     const rows = items
@@ -576,28 +578,22 @@ router.get('/me/settings', async (req, res) => {
  */
 router.put('/me/settings', validateBody(UserSettingsSchema), async (req, res) => {
   try {
-    // req.body has been validated and parsed by Zod (UserSettingsSchema uses camelCase)
-    const dark_theme   = Boolean(req.body?.darkTheme);
+    // req.body has been validated by Zod (UserSettingsSchema)
     const notifications = Boolean(req.body?.notifications);
     const autoplay     = Boolean(req.body?.autoplay);
     const data_saver   = Boolean(req.body?.dataSaver);
-    // Zod enum already validated titleLang and defaultStatus
     const title_lang     = req.body?.titleLang    || 'english';
     const default_status = req.body?.defaultStatus || 'plan';
-    // Zod regex already validated accentColor hex format
-    const accent_color = req.body?.accentColor || '';
 
     const { data, error } = await supabase
       .from('user_settings')
       .upsert({
         user_id: req.user.id,
-        dark_theme,
         notifications,
         autoplay,
         data_saver,
         title_lang,
         default_status,
-        accent_color,
         updated_at: new Date().toISOString()
       }, { onConflict: 'user_id' })
       .select();

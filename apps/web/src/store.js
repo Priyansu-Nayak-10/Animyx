@@ -96,12 +96,16 @@ export const restoreKey = (key) => {
 };
 
 // ─── Cross-Tab Sync ───────────────────────────────────────────────────────────
+// Only sync a safe, explicit whitelist of keys across tabs.
+const CROSS_TAB_ALLOWED_KEYS = new Set(['currentUser', 'theme', 'sidebarCollapsed', 'unreadNotifications']);
+
 window.addEventListener('storage', (e) => {
   if (!e.key) return;
 
-  // Handle store-level keys (Animyx:theme, Animyx:accentColor, etc.)
+  // Handle store-level keys (Animyx:theme, etc.) — only whitelisted keys allowed
   if (e.key.startsWith('Animyx:')) {
     const key = e.key.replace('Animyx:', '');
+    if (!CROSS_TAB_ALLOWED_KEYS.has(key)) return; // security: block arbitrary key injection
     try {
       const newVal = e.newValue !== null ? JSON.parse(e.newValue) : null;
       if (JSON.stringify(state[key]) !== e.newValue) {

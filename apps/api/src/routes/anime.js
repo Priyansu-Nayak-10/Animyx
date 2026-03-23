@@ -79,7 +79,7 @@ router.get('/top', checkCache(TTL_24H), async (req, res) => {
  *       200:
  *         description: Array of airing anime
  */
-router.get('/airing', async (req, res) => {
+router.get('/airing', checkCache(TTL_12H), async (req, res) => {
     try {
         const limit = toBoundedLimit(req.query.limit, 25);
         const data = await jikanClient.get(`${JIKAN}/seasons/now`, { params: { limit } });

@@ -112,7 +112,7 @@ function createApp() {
   const corsOptions = {
     origin(origin, callback) {
       if (!origin) return callback(null, true); // allow non-browser requests
-      if (origin === 'null') return callback(null, true); // allow file:// and similar origins
+      // Note: 'null' origin (file://) is intentionally NOT allowed for security reasons.
       if (!allowedOrigins.length) {
         if (isProd) return callback(null, false); // restrict in production if no allowlist
         return callback(null, true);
