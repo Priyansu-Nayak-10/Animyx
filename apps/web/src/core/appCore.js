@@ -1099,13 +1099,5 @@ export {
   createDataStore,
   uniqueByMalId,
   getCombinedDiscoveryState,
-  getLiveUpcoming,
-  getPredictiveUpcoming,
-  getUpcomingFeed,
-  getHybridUpcoming,
-  getEstimatedUpcomingGrouped,
-  getTopOngoingAnikoto,
-  getUpcomingForCarousel,
-  keepNearestEpisodePerAnime,
-  getCleanUpcoming
+  getTopOngoingAnikoto
 };
