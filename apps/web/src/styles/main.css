@@ -6625,20 +6625,9 @@ body:not(.dark) .profile-banner-area {
     height: 84px;
     border-radius: 50%;
     padding: 3px;
-    background: linear-gradient(135deg, var(--brand-primary), var(--brand-accent));
-    animation: badge-ring-spin 6s linear infinite;
-    box-shadow: 0 0 20px rgba(124, 58, 237, 0.5);
+    background: var(--bg-card);
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.12);
     flex-shrink: 0;
-}
-
-@keyframes badge-ring-spin {
-    from {
-        filter: hue-rotate(0deg);
-    }
-
-    to {
-        filter: hue-rotate(360deg);
-    }
 }
 
 .profile-avatar-ring .profile-avatar-img {
@@ -7850,7 +7839,7 @@ body.dark .tracker-item-title {
 
 #profile-view .profile-banner-area {
     height: 154px;
-    background: linear-gradient(120deg, rgba(124, 58, 237, 0.9), rgba(6, 182, 212, 0.6), rgba(34, 197, 94, 0.45));
+    background: linear-gradient(120deg, rgba(14, 18, 34, 0.95), rgba(21, 27, 46, 0.9));
     background-size: cover;
     background-position: center;
     position: relative;
