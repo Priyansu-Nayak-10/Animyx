@@ -170,47 +170,7 @@ const initAuthEvents = async () => {
   continuePrev?.addEventListener('click', () => scrollContinue(-1));
   continueNext?.addEventListener('click', () => scrollContinue(1));
 
-  // ── Discover filter dropdowns ──────────────────────────────
-  function initDropdown(toggleId, listId, labelKey) {
-    const toggle = document.getElementById(toggleId);
-    const list = document.getElementById(listId);
-    if (!toggle || !list) return;
-
-    toggle.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const isOpen = list.classList.toggle('open');
-      toggle.setAttribute('aria-expanded', String(isOpen));
-    });
-
-    list.querySelectorAll('[data-value]').forEach(item => {
-      item.addEventListener('click', () => {
-        const labelEl = toggle.querySelector(`.${labelKey}-label, span:first-child`);
-        if (labelEl) labelEl.textContent = item.textContent;
-        list.classList.remove('open');
-        toggle.setAttribute('aria-expanded', 'false');
-        toggle.dataset.selected = item.dataset.value;
-      });
-    });
-
-    document.addEventListener('click', (e) => {
-      if (!list.contains(e.target) && e.target !== toggle) {
-        list.classList.remove('open');
-        toggle.setAttribute('aria-expanded', 'false');
-      }
-    });
-  }
-
-  initDropdown('discover-genre-toggle', 'discover-genre-list', 'genre');
-  initDropdown('discover-type-toggle', 'discover-type-list', 'type');
-  initDropdown('discover-sort-toggle', 'discover-sort-list', 'sort');
-
-  // ── Discover episode-count segment buttons ─────────────────
-  document.querySelectorAll('.discover-seg-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.discover-seg-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-    });
-  });
+  // ── Discover filter dropdowns and episode buttons are fully handled in search.js ────────
 
 
   // ── User initialisation ─────────────────────────────────────
