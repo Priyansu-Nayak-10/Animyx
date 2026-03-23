@@ -33,7 +33,34 @@ export const clearInlineError = (inputElement) => {
 };
 
 // --- Animations & State ---
+const initParticles = () => {
+    const container = document.getElementById('auth-particles');
+    if (!container) return;
+
+    const count = 50;
+    for (let i = 0; i < count; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'auth-particle';
+        
+        // Randomize
+        const size = Math.random() * 2 + 1;
+        const left = Math.random() * 100;
+        const duration = Math.random() * 10 + 10;
+        const delay = Math.random() * 15;
+        
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+        particle.style.left = `${left}%`;
+        particle.style.bottom = `-5px`;
+        particle.style.animationDuration = `${duration}s`;
+        particle.style.animationDelay = `-${delay}s`;
+        
+        container.appendChild(particle);
+    }
+};
+
 export const initAnimations = () => {
+    initParticles();
     // Input Focus Animations & Floating Labels
     const inputs = document.querySelectorAll('.auth-input');
 
