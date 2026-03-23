@@ -9,10 +9,16 @@ if (REDIS_URL) {
     const isTls = REDIS_URL.startsWith('rediss://');
     redis = new Redis(REDIS_URL, {
       maxRetriesPerRequest: null,
+      connectTimeout: 5000,
       ...(isTls ? { tls: { rejectUnauthorized: false } } : {})
+    });
+    // Add error listener to prevent "Unhandled error event" crashes
+    redis.on('error', (err) => {
+      logger.error('[Redis][Presence] Connection error', { error: err.message });
     });
   } catch (err) {
     logger.error('Failed to init Redis for presence data', { error: err.message });
+    redis = null;
   }
 }
 

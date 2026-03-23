@@ -1,7 +1,7 @@
 /**
  * main.js — Animyx Frontend Bootstrap
  *
- * Initialises: theme, accent colour, socket, notifications, bell button toggle.
+ * Initialises: socket, notifications, bell button toggle.
  * Loaded as <script type="module"> AFTER Socket.IO CDN script.
  */
 import './features/auth/sessionBootstrap.js';
@@ -40,50 +40,12 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-// ── Restore persisted preferences ────────────────────────────
-// Prioritize unified settings object
-const settingsRaw = localStorage.getItem('Animyx_settings_v1');
-if (settingsRaw) {
-  try {
-    const s = JSON.parse(settingsRaw);
-    if (s.darkTheme !== undefined) setState({ theme: s.darkTheme ? 'dark' : 'light' });
-    if (s.accentColor) setState({ accentColor: s.accentColor });
-  } catch { }
-} else {
-  // Fallback to individual legacy keys
-  restoreKey('theme');
-  restoreKey('accentColor');
-}
+// ── Fixed theme boot (dark only) ─────────────────────────────
+document.documentElement.setAttribute('data-theme', 'dark');
+document.body.classList.add('dark');
 
 restoreKey('currentUser');
-
-// Ensure changes are persisted back to their respective keys
-persistKey('theme');
-persistKey('accentColor');
 persistKey('currentUser');
-
-// ── Apply theme + accent ──────────────────────────────────────
-const applyTheme = (theme) => {
-  const next = theme === 'light' ? 'light' : 'dark';
-  document.documentElement.setAttribute('data-theme', next);
-  document.body.classList.toggle('dark', next === 'dark');
-  // Sync with localStorage for legacy / fallback
-  try {
-    localStorage.setItem('Animyx_theme', next);
-  } catch { }
-};
-
-const applyAccent = (color) => {
-  const allowedAccents = new Set(['#8b5cf6', '#7c3aed', '#6d28d9', '#a78bfa', '#c4b5fd', '#9333ea', '#7e22ce', '#581c87']);
-  const nextColor = allowedAccents.has(String(color || '').toLowerCase()) ? String(color).toLowerCase() : '#8b5cf6';
-  const root = document.documentElement;
-  root.style.setProperty('--brand-primary', nextColor);
-  root.style.setProperty('--accent', nextColor); // legacy fallback
-};
-
-// Initial application from synced state
-applyTheme(getState('theme') || 'dark');
-applyAccent(getState('accentColor') || '#8b5cf6');
 
 // ── Bootstrap on DOMContentLoaded ─────────────────────────────
 const initAuthEvents = async () => {
@@ -250,14 +212,6 @@ const initAuthEvents = async () => {
     });
   });
 
-  // ── Theme toggle sync ──────────────────────────────────────
-  const darkThemeToggle = document.getElementById('setting-dark-theme');
-  const syncThemeToggleState = () => {
-    if (darkThemeToggle) darkThemeToggle.checked = getState('theme') !== 'light';
-  };
-  if (darkThemeToggle) {
-    syncThemeToggleState();
-  }
 
   // ── User initialisation ─────────────────────────────────────
   const user = getState('currentUser');

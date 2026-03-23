@@ -6,7 +6,13 @@
  */
 
 const Sentry = require('@sentry/node');
-const { nodeProfilingIntegration } = require('@sentry/profiling-node');
+let nodeProfilingIntegration;
+try {
+  const profiling = require('@sentry/profiling-node');
+  nodeProfilingIntegration = profiling.nodeProfilingIntegration;
+} catch (e) {
+  console.warn('⚠️  Sentry profiling-node failed to load - profiling disabled');
+}
 
 /**
  * Initialize Sentry for error tracking and performance monitoring
@@ -49,8 +55,8 @@ function initializeSentry() {
       // Database integration (if using Prisma/TypeORM)
       // new Sentry.Integrations.Prisma(),
       
-      // Node profiling
-      nodeProfilingIntegration()
+      // Node profiling (if loaded safely)
+      ...(nodeProfilingIntegration ? [nodeProfilingIntegration()] : [])
     ],
 
     // Ignore specific errors

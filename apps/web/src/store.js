@@ -11,8 +11,7 @@ const initialState = {
 
   // UI
   activeView: 'dashboard',   // 'dashboard' | 'library' | 'search' | 'insights' | 'account'
-  theme: 'dark',             // 'dark' | 'light'
-  accentColor: 'var(--brand-primary)',
+  theme: 'dark',             // always dark
   sidebarCollapsed: false,
   modalOpen: null,           // null | 'animeDetail' | 'settings' | ...
 
@@ -118,8 +117,7 @@ window.addEventListener('storage', (e) => {
       const settings = e.newValue ? JSON.parse(e.newValue) : null;
       if (settings) {
         setState({
-          theme: settings.darkTheme ? 'dark' : 'light',
-          accentColor: settings.accentColor || 'var(--brand-primary)'
+          theme: settings.darkTheme ? 'dark' : 'light'
         });
         window.dispatchEvent(new CustomEvent('Animyx:settings-sync', { detail: settings }));
       }

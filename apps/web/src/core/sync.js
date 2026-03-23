@@ -4,7 +4,7 @@
  */
 
 import { authFetch, apiUrl, getAccessToken } from "../config.js";
-import { getState, setState } from "../store.js";
+import { getState } from "../store.js";
 import { getClientId } from "./utils.js"; // Renamed from clientId.js
 import { createApiClient } from "./api.js";
 
@@ -67,9 +67,15 @@ class SyncService {
   handleSettingsChange(p) {
     if (p.eventType === 'DELETE') return;
     const d = p.new;
-    const settings = { darkTheme: d.dark_theme, accentColor: d.accent_color };
+    const settings = {
+      notifications: d.notifications,
+      autoplay: d.autoplay,
+      dataSaver: d.data_saver,
+      titleLang: d.title_lang,
+      defaultStatus: d.default_status
+    };
     localStorage.setItem('Animyx_settings_v1', JSON.stringify(settings));
-    setState({ theme: settings.darkTheme ? 'dark' : 'light', accentColor: settings.accentColor });
+    window.dispatchEvent(new CustomEvent('Animyx:settings-sync', { detail: settings }));
   }
 }
 

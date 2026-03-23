@@ -400,7 +400,7 @@ function looksLikeSupabaseAuthKey(key) {
 }
 
 export async function clearAnimyxUserData({ keepPreferences = true } = {}) {
-  // keepPreferences=true keeps theme/accent, but clears library/profile/sync caches.
+  // keepPreferences param kept for API compatibility but theme/accent are no longer stored.
   for (const key of USER_SCOPED_LOCALSTORAGE_KEYS) safeRemoveStorageKey(localStorage, key);
   for (const key of USER_SCOPED_SESSIONSTORAGE_KEYS) safeRemoveStorageKey(sessionStorage, key);
 
@@ -408,11 +408,8 @@ export async function clearAnimyxUserData({ keepPreferences = true } = {}) {
     for (const prefix of LOCALSTORAGE_PREFIXES) {
       if (String(key).startsWith(prefix)) safeRemoveStorageKey(localStorage, key);
     }
-    // Clear store-level persisted keys, except preferences if requested.
+    // Clear all store-level persisted Animyx: keys.
     if (String(key).startsWith('Animyx:')) {
-      const suffix = String(key).slice('Animyx:'.length);
-      const isPreference = (suffix === 'theme' || suffix === 'accentColor');
-      if (keepPreferences && isPreference) return;
       safeRemoveStorageKey(localStorage, key);
     }
   });

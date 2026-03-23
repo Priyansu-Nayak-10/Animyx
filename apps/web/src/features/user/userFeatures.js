@@ -164,17 +164,6 @@ function applyBannerToPage(src) {
   }
 }
 
-function applyAccentColor(color) {
-  if (!color) return;
-  const root = document.documentElement;
-  root.style.setProperty("--brand-primary", color);
-  root.style.setProperty("--brand-secondary", color); // fallback to same for simplicity
-  root.style.setProperty("--brand-accent", color);
-  root.style.setProperty("--brand-glow", color);
-  root.style.setProperty("--accent", color); // legacy/shared
-  root.style.setProperty("--primary", color); // legacy internal
-  root.style.setProperty("--chart-purple", color); // Make charts follow accent
-}
 
 // ──────────────────────────────────────────────────
 //  PROFILE FEATURE
@@ -309,30 +298,12 @@ function urlBase64ToUint8Array(base64String) {
 }
 
 const DEFAULT_SETTINGS = Object.freeze({
-  darkTheme: true,
   notifications: false,
   autoplay: false,
   dataSaver: false,
   titleLang: "english",
-  defaultStatus: "plan",
-  accentColor: "#8b5cf6"
+  defaultStatus: "plan"
 });
-
-const PURPLE_ACCENT_SWATCHES = Object.freeze([
-  "#8b5cf6",
-  "#7c3aed",
-  "#6d28d9",
-  "#a78bfa",
-  "#c4b5fd",
-  "#9333ea",
-  "#7e22ce",
-  "#581c87"
-]);
-
-function normalizeAccentColor(color) {
-  const normalized = String(color || "").trim().toLowerCase();
-  return PURPLE_ACCENT_SWATCHES.find((swatch) => swatch === normalized) || DEFAULT_SETTINGS.accentColor;
-}
 
 async function fetchCloudSettings(storage) {
   const uid = getUserId();
@@ -344,13 +315,11 @@ async function fetchCloudSettings(storage) {
       if (data && Object.keys(data).length > 0) {
         // Map snake_case to camelCase
         const mapped = {
-          darkTheme: data.dark_theme,
           notifications: data.notifications,
           autoplay: data.autoplay,
           dataSaver: data.data_saver,
           titleLang: data.title_lang,
-          defaultStatus: data.default_status,
-          accentColor: data.accent_color
+          defaultStatus: data.default_status
         };
         storage?.setItem?.(SETTINGS_STORAGE_KEY, JSON.stringify(mapped));
       }
@@ -362,7 +331,7 @@ function readSettings(storage) {
   try {
     const raw = storage?.getItem?.(SETTINGS_STORAGE_KEY);
     const parsed = raw ? { ...DEFAULT_SETTINGS, ...JSON.parse(raw) } : { ...DEFAULT_SETTINGS };
-    return { ...parsed, accentColor: normalizeAccentColor(parsed.accentColor) };
+    return { ...parsed };
   } catch { return { ...DEFAULT_SETTINGS }; }
 }
 
@@ -374,13 +343,11 @@ async function writeSettings(storage, data) {
   try {
     // Map camelCase back to snake_case for DB
     const mapped = {
-      dark_theme: data.darkTheme,
       notifications: data.notifications,
       autoplay: data.autoplay,
       data_saver: data.dataSaver,
       title_lang: data.titleLang,
-      default_status: data.defaultStatus,
-      accent_color: normalizeAccentColor(data.accentColor)
+      default_status: data.defaultStatus
     };
     await authFetch(apiUrl('/users/me/settings'), {
       method: 'PUT',
@@ -390,11 +357,6 @@ async function writeSettings(storage, data) {
   } catch (err) { console.warn("Settings cloud save failed", err); }
 }
 
-function applyDarkTheme(enabled) {
-  const isDark = Boolean(enabled);
-  document.body.classList.toggle("dark", isDark);
-  document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
-}
 
 function applyDataSaver(enabled) {
   if (enabled) document.body.setAttribute("data-saver", "true");
@@ -403,13 +365,11 @@ function applyDataSaver(enabled) {
 
 function initSettings({ toast, libraryStore, storage = globalThis.localStorage } = {}) {
   const refs = {
-    darkTheme: document.getElementById("setting-dark-theme"),
     notifications: document.getElementById("setting-notifications"),
     autoplay: document.getElementById("setting-autoplay"),
     dataSaver: document.getElementById("setting-data-saver"),
     titleLang: document.getElementById("setting-title-lang"),
     defaultStatus: document.getElementById("setting-default-status"),
-    accentPicker: document.getElementById("accent-color-picker"),
     clearLibrary: document.getElementById("clear-library-btn"),
     resetLocal: document.getElementById("reset-local-data-btn"),
     deleteAccount: document.getElementById("delete-account-btn")
@@ -417,20 +377,12 @@ function initSettings({ toast, libraryStore, storage = globalThis.localStorage }
 
   function render() {
     const s = readSettings(storage);
-    if (refs.darkTheme) refs.darkTheme.checked = Boolean(s.darkTheme);
     if (refs.notifications) refs.notifications.checked = Boolean(s.notifications);
     if (refs.autoplay) refs.autoplay.checked = Boolean(s.autoplay);
     if (refs.dataSaver) refs.dataSaver.checked = Boolean(s.dataSaver);
     if (refs.titleLang) refs.titleLang.value = s.titleLang || "english";
     if (refs.defaultStatus) refs.defaultStatus.value = s.defaultStatus || "plan";
-    applyDarkTheme(s.darkTheme);
     applyDataSaver(s.dataSaver);
-    const accentColor = normalizeAccentColor(s.accentColor);
-    applyAccentColor(accentColor);
-    // Reflect active swatch
-    refs.accentPicker?.querySelectorAll(".accent-swatch").forEach(sw => {
-      sw.classList.toggle("active", sw.dataset.color === accentColor);
-    });
   }
 
   // Auto-sync on init
@@ -533,21 +485,7 @@ function initSettings({ toast, libraryStore, storage = globalThis.localStorage }
     toast?.show?.("Default status updated");
   }
 
-  function onSwatchClick(e) {
-    const swatch = e.target.closest(".accent-swatch");
-    if (!swatch) return;
-    const color = normalizeAccentColor(swatch.dataset.color);
-    if (!color) return;
-    writeSettings(storage, { ...readSettings(storage), accentColor: color });
-    setState({ accentColor: color });
-    applyAccentColor(color);
-    refs.accentPicker?.querySelectorAll(".accent-swatch").forEach(sw => {
-      sw.classList.toggle("active", sw === swatch);
-    });
-    toast?.show?.("Accent color updated ✓");
-  }
-
-  async function onClearLibrary() {
+async function onClearLibrary() {
     const confirmed = window.confirm(
       "WARNING: This will permanently delete your entire library (watchlist, completed, plan-to-watch). This cannot be undone.\n\nAre you sure?"
     );
@@ -611,13 +549,11 @@ function initSettings({ toast, libraryStore, storage = globalThis.localStorage }
     window.location.replace('/pages/signin.html');
   }
 
-  refs.darkTheme?.addEventListener("change", onDarkTheme);
   refs.notifications?.addEventListener("change", onNotifications);
   refs.autoplay?.addEventListener("change", onAutoplay);
   refs.dataSaver?.addEventListener("change", onDataSaver);
   refs.titleLang?.addEventListener("change", onTitleLang);
   refs.defaultStatus?.addEventListener("change", onDefaultStatus);
-  refs.accentPicker?.addEventListener("click", onSwatchClick);
   refs.clearLibrary?.addEventListener("click", onClearLibrary);
   refs.resetLocal?.addEventListener("click", onResetLocal);
   refs.deleteAccount?.addEventListener("click", onDeleteAccount);
@@ -627,13 +563,11 @@ function initSettings({ toast, libraryStore, storage = globalThis.localStorage }
   return Object.freeze({
     render,
     destroy() {
-      refs.darkTheme?.removeEventListener("change", onDarkTheme);
       refs.notifications?.removeEventListener("change", onNotifications);
       refs.autoplay?.removeEventListener("change", onAutoplay);
       refs.dataSaver?.removeEventListener("change", onDataSaver);
       refs.titleLang?.removeEventListener("change", onTitleLang);
       refs.defaultStatus?.removeEventListener("change", onDefaultStatus);
-      refs.accentPicker?.removeEventListener("click", onSwatchClick);
       refs.clearLibrary?.removeEventListener("click", onClearLibrary);
       refs.resetLocal?.removeEventListener("click", onResetLocal);
       refs.deleteAccount?.removeEventListener("click", onDeleteAccount);

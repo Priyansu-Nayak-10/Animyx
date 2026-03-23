@@ -7125,39 +7125,6 @@ body:not(.dark) .setting-row+.setting-row {
     line-height: 1.4;
 }
 
-/* Accent Color Picker */
-.accent-color-picker {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-}
-
-.accent-swatch {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    border: 2px solid transparent;
-    cursor: pointer;
-    transition: all 0.2s;
-    position: relative;
-}
-
-.accent-swatch:hover {
-    transform: scale(1.2);
-    box-shadow: 0 0 10px currentColor;
-}
-
-.accent-swatch.active {
-    border-color: white;
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3), 0 0 12px rgba(255, 255, 255, 0.2);
-    transform: scale(1.1);
-}
-
-body:not(.dark) .accent-swatch.active {
-    border-color: rgba(0, 0, 0, 0.5);
-    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.15);
-}
 
 /* Danger Zone */
 .danger-zone-card {
