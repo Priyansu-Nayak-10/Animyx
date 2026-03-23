@@ -11,7 +11,6 @@ const { z } = require('zod');
 
 const AnimeSearchSchema = z.object({
   q: z.string()
-    .min(1, 'Search query required')
     .max(100, 'Query too long (max 100 chars)')
     .optional()
     .default(''),
