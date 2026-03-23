@@ -90,6 +90,8 @@ const LibraryAddSchema = z.object({
 // User Settings Schemas
 // ============================================================================
 
+const TitleLangEnum = z.enum(['english', 'japanese']);
+
 const UserSettingsSchema = z.object({
   notifications: z.boolean().optional(),
   autoplay: z.boolean().optional(),

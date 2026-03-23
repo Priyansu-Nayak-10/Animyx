@@ -9,9 +9,9 @@
   <link rel="stylesheet" href="../src/styles/main.css">
   <link rel="stylesheet" href="/css/quickactions.css">
 
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#140f26">
-    <link rel="apple-touch-icon" href="/images/favicon.png">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#140f26">
+  <link rel="apple-touch-icon" href="/images/favicon.png">
 </head>
 
 <body>
@@ -31,8 +31,8 @@
           </button>
         </div>
         <div class="nav-section">
-        <h3 class="nav-section-title">Main</h3>
-        <nav class="nav-list">
+          <h3 class="nav-section-title">Main</h3>
+          <nav class="nav-list">
             <a class="nav-item active" href="#" data-target="dashboard-view">
               <span class="material-icons nav-icon">dashboard</span>
               <span class="nav-item-text">Dashboard</span>
@@ -87,20 +87,24 @@
         </button>
       </div>
     </aside>
-    <button class="sidebar-backdrop" type="button" aria-label="Close navigation" data-sidebar-close tabindex="-1"></button>
+    <button class="sidebar-backdrop" type="button" aria-label="Close navigation" data-sidebar-close
+      tabindex="-1"></button>
 
 
     <main class="main-viewport main-area">
       <header class="navbar app-header">
         <div class="navbar-inner">
-          <button class="sidebar-toggle-btn" type="button" aria-label="Open navigation" aria-expanded="false" data-sidebar-toggle>
+          <button class="sidebar-toggle-btn" type="button" aria-label="Open navigation" aria-expanded="false"
+            data-sidebar-toggle>
             <span class="material-icons">menu</span>
           </button>
           <div class="search-wrapper" style="position: relative;">
             <span class="material-icons search-icon">search</span>
-            <input id="global-search-input" class="search-input" placeholder="Search anime titles..."
-              type="text" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="search-suggestions" aria-autocomplete="list" />
-            <div id="search-suggestions" class="search-suggestions-container" style="display: none;" role="listbox"></div>
+            <input id="global-search-input" class="search-input" placeholder="Search anime titles..." type="text"
+              autocomplete="off" role="combobox" aria-expanded="false" aria-controls="search-suggestions"
+              aria-autocomplete="list" />
+            <div id="search-suggestions" class="search-suggestions-container" style="display: none;" role="listbox">
+            </div>
           </div>
           <div class="navbar-controls">
             <div class="sync-indicator" id="sync-indicator" aria-label="Sync status" title="Sync status">
@@ -146,7 +150,8 @@
 
               <div class="stats-grid">
                 <div class="card clip-placeholder-card group" style="border: 2px dashed var(--surface-border-strong);">
-                  <span class="placeholder-text" style="color: var(--text-muted); font-weight: 600; font-size: 0.75rem;">
+                  <span class="placeholder-text"
+                    style="color: var(--text-muted); font-weight: 600; font-size: 0.75rem;">
                     Insert Your Favorite Clip
                   </span>
                 </div>
@@ -218,7 +223,8 @@
                     <svg viewBox="0 0 200 200" class="genre-pie" id="completed-genre-pie"
                       aria-label="Completed genre distribution chart"></svg>
                   </div>
-                  <p class="anime-card-meta meta-note-centered">See your full genre intelligence, studio trends, and activity history in Insights.</p>
+                  <p class="anime-card-meta meta-note-centered">See your full genre intelligence, studio trends, and
+                    activity history in Insights.</p>
                 </div>
 
                 <!-- My Tracker Feed -->
@@ -254,8 +260,11 @@
                       <p class="anime-card-meta meta-tight">Most anticipated anime next season</p>
                     </div>
                     <div style="display:flex;align-items:center;gap:0.5rem;">
-                      <span id="upcoming-last-updated" class="anime-card-meta meta-tight" style="font-size:0.7rem;opacity:0.6;"></span>
-                      <button id="upcoming-refresh-btn" type="button" title="Refresh upcoming anime" style="background:none;border:none;cursor:pointer;padding:4px;border-radius:6px;display:flex;align-items:center;color:var(--text-muted);transition:color 0.2s,transform 0.3s;" aria-label="Refresh">
+                      <span id="upcoming-last-updated" class="anime-card-meta meta-tight"
+                        style="font-size:0.7rem;opacity:0.6;"></span>
+                      <button id="upcoming-refresh-btn" type="button" title="Refresh upcoming anime"
+                        style="background:none;border:none;cursor:pointer;padding:4px;border-radius:6px;display:flex;align-items:center;color:var(--text-muted);transition:color 0.2s,transform 0.3s;"
+                        aria-label="Refresh">
                         <span class="material-icons" style="font-size:1.1rem;">refresh</span>
                       </button>
                     </div>
@@ -287,7 +296,8 @@
                 <div class="card-header" style="margin-bottom: 1rem;">
                   <div>
                     <h3 class="card-title" style="margin-bottom: 0.15rem;">Insights Snapshot</h3>
-                    <p class="anime-card-meta" style="margin-bottom: 0;">A compact preview of your full analytics profile.</p>
+                    <p class="anime-card-meta" style="margin-bottom: 0;">A compact preview of your full analytics
+                      profile.</p>
                   </div>
                 </div>
                 <div class="quick-stats-list">
@@ -323,7 +333,8 @@
                     Genres</p>
                   <div id="quick-top-genres" class="genres-list"></div>
                 </div>
-                <p class="anime-card-meta" style="margin: 1rem 0 0;">For weekly activity trends, streaks, studio spotlight, and deeper breakdowns, open Insights.</p>
+                <p class="anime-card-meta" style="margin: 1rem 0 0;">For weekly activity trends, streaks, studio
+                  spotlight, and deeper breakdowns, open Insights.</p>
               </div>
             </div>
 
@@ -335,7 +346,10 @@
           <div class="dashboard-grid">
             <div class="main-column" style="grid-column: span 12;">
               <div class="advanced-search-header">
-                <h2 class="section-title mb-4" style="display:flex;align-items:center;gap:0.5rem;"><span style="background:linear-gradient(135deg,var(--brand-primary),var(--brand-accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">Discover Anime</span><span style="color:var(--text-muted);font-weight:400;">•</span><span style="font-size:0.9rem;font-weight:500;color:var(--text-secondary);">Smart Filters</span></h2>
+                <h2 class="section-title mb-4" style="display:flex;align-items:center;gap:0.5rem;"><span
+                    style="background:linear-gradient(135deg,var(--brand-primary),var(--brand-accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">Discover
+                    Anime</span><span style="color:var(--text-muted);font-weight:400;">•</span><span
+                    style="font-size:0.9rem;font-weight:500;color:var(--text-secondary);">Smart Filters</span></h2>
                 <div class="discover-filter-panel" aria-label="Discover filters">
                   <div class="discover-filter-row discover-filter-row-top">
                     <div class="discover-field discover-field-genre">
@@ -421,10 +435,12 @@
                     <div class="wl-history-actions">
                       <span class="wl-history-sub" id="continue-watching-count">0</span>
                       <div class="wl-strip-nav" id="continue-watching-nav" aria-label="Continue watching navigation">
-                        <button class="wl-nav-btn" id="continue-watching-prev" type="button" aria-label="Previous" data-watchlist-action="continue-prev">
+                        <button class="wl-nav-btn" id="continue-watching-prev" type="button" aria-label="Previous"
+                          data-watchlist-action="continue-prev">
                           <span class="material-icons" aria-hidden="true">chevron_left</span>
                         </button>
-                        <button class="wl-nav-btn" id="continue-watching-next" type="button" aria-label="Next" data-watchlist-action="continue-next">
+                        <button class="wl-nav-btn" id="continue-watching-next" type="button" aria-label="Next"
+                          data-watchlist-action="continue-next">
                           <span class="material-icons" aria-hidden="true">chevron_right</span>
                         </button>
                       </div>
@@ -511,10 +527,13 @@
                 <div class="insights-empty-card" role="status" aria-live="polite">
                   <div class="insights-empty-eyebrow">Insights</div>
                   <div class="insights-empty-title">No data yet</div>
-                  <div class="insights-empty-subtitle">Track anime to unlock genre intelligence, status breakdown, and analytics.</div>
+                  <div class="insights-empty-subtitle">Track anime to unlock genre intelligence, status breakdown, and
+                    analytics.</div>
                   <div class="insights-empty-actions">
-                    <button class="insights-empty-btn insights-empty-btn-primary" type="button" data-empty-action="browse">Browse anime</button>
-                    <button class="insights-empty-btn" type="button" data-empty-action="add">Add your first anime</button>
+                    <button class="insights-empty-btn insights-empty-btn-primary" type="button"
+                      data-empty-action="browse">Browse anime</button>
+                    <button class="insights-empty-btn" type="button" data-empty-action="add">Add your first
+                      anime</button>
                   </div>
                 </div>
               </div>
@@ -618,7 +637,8 @@
                   <p class="anime-card-meta">Stacked weekly totals for the last 12 weeks of engagement.</p>
                 </div>
                 <div class="activity-mode-toggle" role="group" aria-label="Chart display mode">
-                  <button class="activity-toggle-btn is-active" type="button" data-activity-mode="absolute">Totals</button>
+                  <button class="activity-toggle-btn is-active" type="button"
+                    data-activity-mode="absolute">Totals</button>
                   <button class="activity-toggle-btn" type="button" data-activity-mode="normalized">Normalized</button>
                 </div>
                 <div class="activity-legend">
@@ -654,11 +674,13 @@
                 </div>
                 <div class="discovery-item">
                   <div class="discovery-label">Genre Gaps</div>
-                  <div id="insight-gaps-text" class="discovery-value">Watch more anime to unlock genre gap analysis.</div>
+                  <div id="insight-gaps-text" class="discovery-value">Watch more anime to unlock genre gap analysis.
+                  </div>
                 </div>
                 <div class="discovery-item">
                   <div class="discovery-label">Suggested Next Step</div>
-                  <div id="insight-suggested-genre" class="discovery-value">Watch more to get personalized suggestions!</div>
+                  <div id="insight-suggested-genre" class="discovery-value">Watch more to get personalized suggestions!
+                  </div>
                 </div>
               </div>
             </div>
@@ -670,7 +692,8 @@
                 <div class="persona-radar-container">
                   <svg viewBox="0 0 200 200" id="insight-persona-radar" class="persona-radar-svg"></svg>
                 </div>
-                <p id="insight-persona-type" class="panel-description text-center">Analyzing your viewing patterns...</p>
+                <p id="insight-persona-type" class="panel-description text-center">Analyzing your viewing patterns...
+                </p>
               </div>
 
               <div class="insight-panel">
@@ -770,7 +793,8 @@
                   <div>
                     <p class="anime-card-meta" style="margin-bottom: 0.35rem;">Identity Center</p>
                     <h2 class="section-title" style="margin-bottom: 0.35rem;">Profile</h2>
-                    <p class="anime-card-meta" style="margin-bottom: 0;">Manage your public identity, avatar, banner, and social profile links.</p>
+                    <p class="anime-card-meta" style="margin-bottom: 0;">Manage your public identity, avatar, banner,
+                      and social profile links.</p>
                   </div>
                 </div>
 
@@ -836,7 +860,8 @@
               <div>
                 <p class="anime-card-meta" style="margin-bottom: 0.35rem;">Preferences Center</p>
                 <h2 class="section-title" style="margin-bottom: 0.35rem;">Settings</h2>
-                <p class="anime-card-meta" style="margin-bottom: 0;">Control app appearance, notifications, playback behavior, and default library actions.</p>
+                <p class="anime-card-meta" style="margin-bottom: 0;">Control app appearance, notifications, playback
+                  behavior, and default library actions.</p>
               </div>
             </div>
 
@@ -930,7 +955,8 @@
               <div class="setting-row">
                 <div class="setting-info">
                   <span class="setting-title" style="color:#ef4444;">Reset This Device</span>
-                  <span class="setting-desc">Clears local cache, offline sync data, and signs you out on this browser. Use this if things feel stale.</span>
+                  <span class="setting-desc">Clears local cache, offline sync data, and signs you out on this browser.
+                    Use this if things feel stale.</span>
                 </div>
                 <button id="reset-local-data-btn" class="danger-btn">
                   <span class="material-icons" style="font-size:1rem;">restart_alt</span> Reset
@@ -940,7 +966,8 @@
               <div class="setting-row">
                 <div class="setting-info">
                   <span class="setting-title" style="color:#ef4444;">Delete Account</span>
-                  <span class="setting-desc">Permanently deletes your Animyx account and all synced data. This cannot be undone.</span>
+                  <span class="setting-desc">Permanently deletes your Animyx account and all synced data. This cannot be
+                    undone.</span>
                 </div>
                 <button id="delete-account-btn" class="danger-btn">
                   <span class="material-icons" style="font-size:1rem;">person_remove</span> Delete
@@ -958,7 +985,8 @@
               <div>
                 <p class="anime-card-meta" style="margin-bottom: 0.35rem;">Data Center</p>
                 <h2 class="section-title" style="margin-bottom: 0.35rem;">Import & Export</h2>
-                <p class="anime-card-meta" style="margin-bottom: 0;">Back up your library, download account data, and import MyAnimeList XML safely.</p>
+                <p class="anime-card-meta" style="margin-bottom: 0;">Back up your library, download account data, and
+                  import MyAnimeList XML safely.</p>
               </div>
             </div>
 
@@ -983,7 +1011,8 @@
               <span class="material-icons"
                 style="font-size: 3.5rem; color: var(--primary); margin-bottom: 1rem; display:block;">download_for_offline</span>
               <h3 style="font-size: 1.4rem; font-weight: 700; margin-bottom: 0.5rem;">Download Library Archive</h3>
-              <p style="color: var(--text-muted); max-width: 480px; margin: 0 auto 2rem; line-height: 1.6; font-size:0.9rem;">
+              <p
+                style="color: var(--text-muted); max-width: 480px; margin: 0 auto 2rem; line-height: 1.6; font-size:0.9rem;">
                 Export a
                 secure copy of your entire watchlist, completed series, ratings, and profile settings.</p>
 
@@ -1010,7 +1039,8 @@
               <span class="material-icons"
                 style="font-size: 3.5rem; color: var(--accent); margin-bottom: 1rem; display:block;">upload_file</span>
               <h3 style="font-size: 1.4rem; font-weight: 700; margin-bottom: 0.5rem;">Import MyAnimeList Data</h3>
-              <p style="color: var(--text-muted); max-width: 480px; margin: 0 auto 1.5rem; line-height: 1.6; font-size:0.9rem;">
+              <p
+                style="color: var(--text-muted); max-width: 480px; margin: 0 auto 1.5rem; line-height: 1.6; font-size:0.9rem;">
                 Migrating to Animyx? Upload your exported MyAnimeList XML file to instantly merge your progress.</p>
 
               <!-- Drag and Drop Zone -->
@@ -1037,7 +1067,8 @@
                     style="height:100%; width:0%; background: #8b5cf6; transition: width 0.3s ease;"></div>
                 </div>
                 <p id="mal-status-message"
-                  style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0;">Ready to upload.</p>
+                  style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0;">Ready to
+                  upload.</p>
               </div>
 
               <div style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: center;">
@@ -1105,14 +1136,12 @@
   <div id="notif-panel">
     <div class="notif-panel-header">
       <span class="notif-panel-title">Notifications</span>
-      <button id="notif-mark-all-btn"
-        class="notif-panel-action">Mark all
+      <button id="notif-mark-all-btn" class="notif-panel-action">Mark all
         read</button>
     </div>
     <div id="notif-list"></div>
     <div class="notif-panel-footer">
-      <button id="notif-clear-btn"
-        class="notif-panel-action notif-panel-action-muted">Clear all</button>
+      <button id="notif-clear-btn" class="notif-panel-action notif-panel-action-muted">Clear all</button>
     </div>
   </div>
 
