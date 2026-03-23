@@ -5,7 +5,13 @@ export function renderAnimeGrid(container, animeList, loading = false) {
   if (loading) {
     container.innerHTML = Array.from({ length: 12 })
       .map(() => `
-        <div class="anime-card skeleton" style="height: 320px; border-radius: 8px; background: rgba(167,139,250,0.08); animation: pulse 1.5s infinite;"></div>
+        <article class="skeleton-card skeleton" style="--skeleton-aspect: 2/3;">
+          <div class="skeleton-poster"></div>
+          <div class="skeleton-body">
+            <div class="skeleton-line short mb-2"></div>
+            <div class="skeleton-line medium"></div>
+          </div>
+        </article>
       `)
       .join("");
     return;

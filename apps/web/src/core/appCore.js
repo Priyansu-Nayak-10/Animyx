@@ -754,6 +754,9 @@ export function initLibraryCloudSync({ libraryStore, toast = null, syncIntervalM
   let warnedUnavailable = false;
   let lastStatus = '';
   let hasPendingSync = false;
+  let lastKnownGoodSnapshot = signature(libraryStore.getAll());
+  let lastKnownGoodItems = libraryStore.getAll();
+  const ROLLBACK_THRESHOLD = 3;
 
   function setStatus(next, extra = {}) {
     const value = String(next || '');
@@ -820,6 +823,8 @@ export function initLibraryCloudSync({ libraryStore, toast = null, syncIntervalM
     try {
       await pushLibrary(current);
       lastSyncedSig = signature(libraryStore.getAll());
+      lastKnownGoodSnapshot = lastSyncedSig;
+      lastKnownGoodItems = libraryStore.getAll();
       void syncKvSet('pendingSync', false);
       hasPendingSync = false;
       lastSyncedAt = Date.now();
@@ -830,6 +835,26 @@ export function initLibraryCloudSync({ libraryStore, toast = null, syncIntervalM
       setStatus('synced', { lastSyncedAt });
     } catch (error) {
       console.warn('[CloudSync] Push failed:', error?.message || error);
+      
+      // OPTIMISTIC ROLLBACK: If we've failed too many times, revert to last known good state.
+      if (retryAttempt >= ROLLBACK_THRESHOLD) {
+        console.error('[CloudSync] Persistent sync failure. Rolling back to last known good state.');
+        if (toast?.show) {
+          toast.show("Failed to sync changes to cloud. Reverting to last saved state.", "error", 4000);
+        }
+        
+        suppressSync = true;
+        libraryStore.init(lastKnownGoodItems);
+        suppressSync = false;
+        
+        retryAttempt = 0;
+        void syncKvSet('retryAttempt', 0);
+        void syncKvSet('pendingSync', false);
+        hasPendingSync = false;
+        clearRetryTimer();
+        setStatus('synced', { lastSyncedAt });
+        return;
+      }
       if (isOfflineError(error)) {
         setStatus('offline', { queued: true });
         void syncKvSet('pendingSync', true);

@@ -786,11 +786,11 @@ function initSearchAdvanced({
 
     if (loading) {
       refs.results.innerHTML = Array.from({ length: Math.min(ui.pageSize, 10) }).map(() => `
-        <article class="anime-card-v2" style="pointer-events: none;">
-          <div class="anime-modal-skeleton" style="width: 100%; aspect-ratio: 2/3; border-radius: 0.5rem; margin-bottom: 0.75rem;"></div>
-          <div class="anime-card-content">
-            <div class="anime-modal-skeleton anime-modal-line-skeleton short" style="height: 14px; margin-bottom: 8px;"></div>
-            <div class="anime-modal-skeleton anime-modal-line-skeleton" style="height: 12px; width: 60%;"></div>
+        <article class="skeleton-card skeleton" style="--skeleton-aspect: 2/3;">
+          <div class="skeleton-poster"></div>
+          <div class="skeleton-body">
+            <div class="skeleton-line short mb-2"></div>
+            <div class="skeleton-line medium"></div>
           </div>
         </article>
       `).join("");

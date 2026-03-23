@@ -422,12 +422,31 @@ function initWatchlistBoard({ libraryStore, toast = null }) {
     // Rendered outside the main grid so they remain stable while filtering/sorting.
         try { renderHighlights(); } catch { }
 
-    if (!rows.length) {
+    if (!libraryStore.isReady?.() || !rows.length) {
       if (chunkFrameId) {
         cancelAnimationFrame(chunkFrameId);
         chunkFrameId = 0;
       }
       renderSeq += 1;
+      
+      if (!libraryStore.isReady?.()) {
+        watchlistBoard.innerHTML = `
+          <div class="watchlist-grid">
+            ${Array.from({ length: 6 }).map(() => `
+              <article class="skeleton-card skeleton" style="--skeleton-aspect: 2/3;">
+                <div class="skeleton-poster"></div>
+                <div class="skeleton-body">
+                  <div class="skeleton-line short mb-2"></div>
+                  <div class="skeleton-line medium"></div>
+                </div>
+              </article>
+            `).join("")}
+          </div>
+        `;
+        renderPremiumWatchingCard();
+        return;
+      }
+
       const emptyText = uiState.statusFilter === STATUS_FILTERS.ALL
         ? "No titles in your watchlist yet."
         : `No ${uiState.statusFilter} titles right now.`;
