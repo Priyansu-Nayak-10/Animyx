@@ -206,8 +206,8 @@ async function safeFetch(url, options = {}, retries = 2) {
 // API helpers + normalization pipeline
 // ---------------------------------------------------------------------------
 
-const apiResponse = (res, data, statusCode = 200, message = 'Success') => {
-  return res.status(statusCode).json({ success: true, message, data });
+const apiResponse = (res, data, statusCode = 200, message = 'Success', meta = {}) => {
+  return res.status(statusCode).json({ success: true, message, data, ...meta });
 };
 
 const apiError = (res, message = 'Internal Server Error', statusCode = 500, error = null) => {
