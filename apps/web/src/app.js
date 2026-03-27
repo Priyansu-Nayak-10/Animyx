@@ -101,37 +101,6 @@ const initAuthEvents = async () => {
     });
   }
 
-  // ── Hero carousel ──────────────────────────────────────────
-  const heroPrevBtn = document.querySelector('.hero-prev');
-  const heroNextBtn = document.querySelector('.hero-next');
-  const heroSlides = document.querySelector('.hero-slides');
-
-  function getHeroSlideCount() {
-    return heroSlides ? heroSlides.children.length : 0;
-  }
-
-  let heroCurrentIndex = 0;
-  let heroAutoTimer = null;
-
-  function scrollHeroTo(index) {
-    const count = getHeroSlideCount();
-    if (!count) return;
-    heroCurrentIndex = ((index % count) + count) % count;
-    if (heroSlides) heroSlides.style.transform = `translateX(-${heroCurrentIndex * 100}%)`;
-    // Update indicators
-    document.querySelectorAll('.hero-indicator').forEach((dot, i) => {
-      dot.classList.toggle('active', i === heroCurrentIndex);
-    });
-  }
-
-  function startHeroAuto() {
-    clearInterval(heroAutoTimer);
-    heroAutoTimer = setInterval(() => scrollHeroTo(heroCurrentIndex + 1), 5000);
-  }
-
-  heroPrevBtn?.addEventListener('click', () => { scrollHeroTo(heroCurrentIndex - 1); startHeroAuto(); });
-  heroNextBtn?.addEventListener('click', () => { scrollHeroTo(heroCurrentIndex + 1); startHeroAuto(); });
-
   // ── Upcoming refresh button ────────────────────────────────
   const upcomingRefreshBtn = document.getElementById('upcoming-refresh-btn');
   upcomingRefreshBtn?.addEventListener('click', () => {
