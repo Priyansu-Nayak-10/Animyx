@@ -26,6 +26,29 @@ function initSeasonTabs(mainNavContainer, subNavContainer, onTabChange) {
     yearToggle.innerHTML = `Year ${year} <span class="chevron">&#9662;</span>`;
   }
 
+  function updateTabVisibility(year) {
+    const currentYear = new Date().getFullYear();
+    const isPast = year < currentYear;
+    
+    const upcomingTab = mainBtns.find(b => b.dataset.tab === 'upcoming');
+    const topTab = mainBtns.find(b => b.dataset.tab === 'top');
+    
+    if (upcomingTab) {
+      upcomingTab.style.opacity = isPast ? '0.3' : '1';
+      upcomingTab.style.pointerEvents = isPast ? 'none' : 'auto';
+    }
+    
+    if (topTab) {
+      topTab.style.opacity = isPast ? '0.3' : '1';
+      topTab.style.pointerEvents = isPast ? 'none' : 'auto';
+    }
+    
+    if (isPast && (activeTab === 'upcoming' || activeTab === 'top')) {
+      const seasonTab = mainBtns.find(b => b.dataset.tab === 'season');
+      if (seasonTab) seasonTab.click();
+    }
+  }
+
   function renderYearMenu() {
     if (!yearMenu) return;
     yearMenu.innerHTML = '';
@@ -79,11 +102,13 @@ function initSeasonTabs(mainNavContainer, subNavContainer, onTabChange) {
   function selectYear(year) {
     selectedYear = year;
     setYearLabel(selectedYear);
+    updateTabVisibility(selectedYear);
     closeYearMenu();
     renderYearMenu();
     renderSeasons();
-    if (activeTab === 'season') {
-      onTabChange('season_spec', { year: selectedYear, season: selectedSeason });
+    if (activeTab === 'season' || activeTab === 'completed') {
+      const targetEvent = activeTab === 'completed' ? 'completed_spec' : 'season_spec';
+      onTabChange(targetEvent, { year: selectedYear, season: selectedSeason });
     }
   }
 
@@ -101,8 +126,9 @@ function initSeasonTabs(mainNavContainer, subNavContainer, onTabChange) {
         if (selectedSeason === season) return;
         selectedSeason = season;
         renderSeasons();
-        if (activeTab === 'season') {
-          onTabChange('season_spec', { year: selectedYear, season: selectedSeason });
+        if (activeTab === 'season' || activeTab === 'completed') {
+          const targetEvent = activeTab === 'completed' ? 'completed_spec' : 'season_spec';
+          onTabChange(targetEvent, { year: selectedYear, season: selectedSeason });
         }
       });
       stripEl.appendChild(btn);
@@ -159,7 +185,8 @@ function initSeasonTabs(mainNavContainer, subNavContainer, onTabChange) {
     subNavContainer.style.display = 'grid';
     renderSeasons();
     renderYearMenu();
-    onTabChange('season_spec', { year: selectedYear, season: selectedSeason });
+    const targetEvent = activeTab === 'completed' ? 'completed_spec' : 'season_spec';
+    onTabChange(targetEvent, { year: selectedYear, season: selectedSeason });
   }
 
   mainBtns.forEach((btn) => {
@@ -168,7 +195,7 @@ function initSeasonTabs(mainNavContainer, subNavContainer, onTabChange) {
       btn.classList.add('active');
       activeTab = btn.dataset.tab || 'season';
 
-      if (activeTab === 'season') {
+      if (activeTab === 'season' || activeTab === 'completed') {
         activateSeasonTab();
       } else {
         subNavContainer.style.display = 'none';
@@ -179,6 +206,7 @@ function initSeasonTabs(mainNavContainer, subNavContainer, onTabChange) {
 
   bindYearDropdown();
   setYearLabel(selectedYear);
+  updateTabVisibility(selectedYear);
   renderYearMenu();
   renderSeasons();
   onTabChange('season_spec', { year: selectedYear, season: selectedSeason });

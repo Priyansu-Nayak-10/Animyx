@@ -1,6 +1,6 @@
 import { initSeasonTabs } from './seasonTabs.js';
-import { renderAnimeGrid } from './animeGrid.js';
-import { bindHoverPreviews } from './animePreviewCard.js';
+import { renderAnimeGrid, resolveAiringStatus } from './season.js';
+import { bindHoverPreviews } from './season.js';
 import { normalizeAnime, dedupeAnimeList } from '../../core/utils.js';
 import { STATUS } from '../../store.js';
 
@@ -77,6 +77,24 @@ function initSeasonBrowser({ api, toast, libraryStore, modal }) {
         } else if (tabId === 'season_spec') {
             const { year, season } = params;
             fetchAndRender(() => api.getSeasonalAnime(year, season, 1), `season_${year}_${season}`);
+        } else if (tabId === 'completed_spec') {
+            const { year, season } = params;
+            const fetchFiltered = async () => {
+                const payload = await api.getSeasonalAnime(year, season, 1);
+                const array = Array.isArray(payload) ? payload : (payload?.data || []);
+
+                // Return structured object if that's what's expected,
+                // but `fetchAndRender` extracts `payload?.data` so we can just return array.
+                // Though, let's keep the identical payload structure
+                if (!Array.isArray(payload) && payload?.data) {
+                    return {
+                        ...payload,
+                        data: payload.data.filter((a) => resolveAiringStatus(a) === 'completed')
+                    };
+                }
+                return array.filter((a) => resolveAiringStatus(a) === 'completed');
+            }
+            fetchAndRender(fetchFiltered, `completed_${year}_${season}`);
         }
     });
 

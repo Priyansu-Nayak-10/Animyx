@@ -1,6 +1,20 @@
 import { normalizeAnime, dedupeAnimeList } from '../../core/utils.js';
 import { STATUS } from '../../store.js';
 
+export function resolveAiringStatus(anime) {
+  const total = Number(anime.total_episodes || anime.episodes || 0);
+  const aired = Number(anime.released_episodes || anime.episodes_aired || anime.episodesReleased || anime.progress || 0);
+  const statusStr = String(anime.airing_status || anime.status || '').toLowerCase();
+  
+  if (total > 0 && aired >= total) return "completed";
+  if (statusStr.includes("finished") || statusStr === "completed") return "completed";
+  
+  const endDate = anime.aired?.to;
+  if (endDate && new Date(endDate).getTime() < Date.now()) return "completed";
+  
+  return statusStr.includes("not yet") ? "upcoming" : "airing";
+}
+
 export function renderAnimeGrid(container, animeList, loading = false) {
   if (loading) {
     container.innerHTML = Array.from({ length: 12 })
@@ -80,7 +94,8 @@ export function renderAnimeGrid(container, animeList, loading = false) {
 
       const totalEp = anime.total_episodes || anime.episodes || 0;
       const releasedEp = anime.released_episodes || anime.episodes_aired || anime.episodesReleased || 0;
-      const status = anime.airing_status || anime.status || '';
+      const rawStatus = anime.airing_status || anime.status || '';
+      const resolvedStatus = resolveAiringStatus(anime) || rawStatus;
       const nextAt = anime.next_airing?.timestamp || '';
       const airingDay = anime.airing_day || '';
 
@@ -93,7 +108,7 @@ export function renderAnimeGrid(container, animeList, loading = false) {
           score="${anime.score || ''}"
           episodes="${totalEp}"
           released-episodes="${releasedEp}"
-          status="${status}"
+          status="${resolvedStatus}"
           next-airing-at="${nextAt}"
           airing-day="${airingDay}"
           year="${anime.year || ''}"
