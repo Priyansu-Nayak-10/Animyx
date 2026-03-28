@@ -158,13 +158,17 @@ class AnimeCard extends HTMLElement {
             episodeDisplay = episodes > 0 ? `${episodes} eps` : '?';
         }
 
-        let airingTextHtml = '';
+        let statusBadgeHtml = '';
+        let statusColor = 'var(--text-muted)';
         if (isUpcoming) {
-            airingTextHtml = '<span class="airing-day">Airing Soon</span>';
+            statusBadgeHtml = '<span class="status-text">Airing Soon</span>';
+            statusColor = '#f59e0b';
         } else if (isAiring) {
-            airingTextHtml = `<span class="airing-day">Airing ${airingDay || ''}</span>`;
+            statusBadgeHtml = `<span class="status-text">Airing ${airingDay || ''}</span>`;
+            statusColor = '#10b981';
         } else {
-            airingTextHtml = '<span>Completed</span>';
+            statusBadgeHtml = '<span class="status-text">Completed</span>';
+            statusColor = '#94a3b8';
         }
 
         this.shadowRoot.innerHTML = `
@@ -333,13 +337,21 @@ class AnimeCard extends HTMLElement {
           background: var(--text-muted);
         }
 
-        .countdown {
-          color: var(--chart-purple);
+        .status-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: var(--status-color);
+          box-shadow: 0 0 8px var(--status-color);
+        }
+
+        .status-text {
+          color: var(--status-color);
           font-weight: 600;
         }
 
-        .airing-day {
-          color: var(--chart-blue);
+        .countdown {
+          color: var(--chart-purple);
           font-weight: 600;
         }
       </style>
@@ -357,8 +369,9 @@ class AnimeCard extends HTMLElement {
       <div class="content">
         <h3 class="title" title="${title}">${title}</h3>
         <div class="meta-wrapper">
-          <div class="meta">
-              ${airingTextHtml}
+          <div class="meta" style="--status-color: ${statusColor}">
+              <div class="status-dot"></div>
+              ${statusBadgeHtml}
               <div class="meta-dot"></div>
               <span>${episodeDisplay}</span>
           </div>

@@ -224,6 +224,48 @@ function initSearchAdvanced({
   let renderSeq = 0;
   let chunkFrameId = 0;
 
+  const SEARCH_HISTORY_KEY = 'Animyx_search_history';
+
+  function getSearchHistory() {
+    try {
+      const stored = localStorage.getItem(SEARCH_HISTORY_KEY);
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function saveSearchHistory(query) {
+    const q = String(query || "").trim();
+    if (!q) return;
+    try {
+      let history = getSearchHistory();
+      history = history.filter(item => item.toLowerCase() !== q.toLowerCase());
+      history.unshift(q);
+      if (history.length > 5) history = history.slice(0, 5);
+      localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(history));
+    } catch {}
+  }
+
+  function renderSearchHistory() {
+    const history = getSearchHistory();
+    if (!history.length || !refs.suggestions) return;
+    
+    refs.suggestions.innerHTML = `
+      <div class="search-dropdown-shell">
+        <div class="search-dropdown-heading" style="margin-bottom: 8px;">Recent Searches</div>
+        ${history.map(item => `
+          <button type="button" class="suggestion-item search-history-item" data-search-action="history-search" data-query="${escapeHtml(item)}" style="align-items: center;">
+            <span class="material-icons" style="color: var(--text-muted); font-size: 1.1rem; margin-right: 8px;">history</span>
+            <span class="suggestion-title">${escapeHtml(item)}</span>
+          </button>
+        `).join("")}
+      </div>
+    `;
+    clearLiveSearchState();
+    setDropdownOpen(true);
+  }
+
   const GENRE_OPTIONS = [
     { name: "Action", id: 1 }, { name: "Adventure", id: 2 }, { name: "Cars", id: 3 }, { name: "Comedy", id: 4 },
     { name: "Dementia", id: 5 }, { name: "Demons", id: 6 }, { name: "Drama", id: 8 }, { name: "Ecchi", id: 9 },
@@ -741,6 +783,8 @@ function initSearchAdvanced({
     ui.hasSearched = true;
     const reqId = ++ui.searchRequestSeq;
 
+    saveSearchHistory(query);
+
     abortLiveSearchRequest();
     hideSuggestions();
     syncSearchQueryParam(query);
@@ -845,6 +889,14 @@ function initSearchAdvanced({
       return;
     }
 
+    if (action === "history-search") {
+      event.preventDefault();
+      const query = actionBtn.getAttribute("data-query");
+      if (refs.globalSearchInput) refs.globalSearchInput.value = query;
+      void performQuery(query, 1);
+      return;
+    }
+
     if (action === "page") {
       const nextPage = Number(actionBtn.getAttribute("data-page") || 1);
       if (!Number.isFinite(nextPage) || nextPage < 1) return;
@@ -924,6 +976,10 @@ function initSearchAdvanced({
 
   const onGlobalInput = () => {
     const query = String(refs.globalSearchInput?.value || "").trim();
+    if (query.length === 0) {
+      renderSearchHistory();
+      return;
+    }
     if (query.length < 2) {
       abortLiveSearchRequest();
       hideSuggestions();
@@ -934,7 +990,9 @@ function initSearchAdvanced({
 
   const onGlobalFocus = () => {
     const query = String(refs.globalSearchInput?.value || "").trim();
-    if (query.length >= 2) {
+    if (query.length === 0) {
+      renderSearchHistory();
+    } else if (query.length >= 2) {
       void fetchLiveSuggestionsManaged(query);
     }
   };

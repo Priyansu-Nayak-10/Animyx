@@ -699,11 +699,11 @@ body.dark .search-wrapper {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
-    transform: translateY(0);
     /* FIX: Return to flow when active so it determines container height */
     position: relative;
     height: auto;
     overflow: visible;
+    animation: fadeInView 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @keyframes fadeInView {
