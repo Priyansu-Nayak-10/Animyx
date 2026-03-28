@@ -117,6 +117,20 @@ export function initSeasonBrowser({ api, toast, libraryStore, modal }) {
                 return array.filter((a) => resolveAiringStatus(a) === 'completed');
             }
             fetchAndRender(fetchFiltered, `completed_${year}_${season}`);
+        } else if (tabId === 'upcoming_spec') {
+            const { year, season } = params;
+            const fetchFiltered = async () => {
+                const payload = await api.getSeasonalAnime(year, season, 1);
+                const array = Array.isArray(payload) ? payload : (payload?.data || []);
+                if (!Array.isArray(payload) && payload?.data) {
+                    return {
+                        ...payload,
+                        data: payload.data.filter((a) => resolveAiringStatus(a) === 'upcoming')
+                    };
+                }
+                return array.filter((a) => resolveAiringStatus(a) === 'upcoming');
+            }
+            fetchAndRender(fetchFiltered, `upcoming_spec_${year}_${season}`);
         }
     });
 

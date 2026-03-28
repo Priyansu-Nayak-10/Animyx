@@ -106,8 +106,14 @@ export function initSeasonTabs(mainNavContainer, subNavContainer, onTabChange) {
     closeYearMenu();
     renderYearMenu();
     renderSeasons();
-    if (activeTab === 'season' || activeTab === 'completed') {
-      const targetEvent = activeTab === 'completed' ? 'completed_spec' : 'season_spec';
+    renderSeasons();
+    if (activeTab === 'season' || activeTab === 'completed' || activeTab === 'upcoming') {
+      const specMap = {
+        season: 'season_spec',
+        completed: 'completed_spec',
+        upcoming: 'upcoming_spec'
+      };
+      const targetEvent = specMap[activeTab] || 'season_spec';
       onTabChange(targetEvent, { year: selectedYear, season: selectedSeason });
     }
   }
@@ -126,8 +132,14 @@ export function initSeasonTabs(mainNavContainer, subNavContainer, onTabChange) {
         if (selectedSeason === season) return;
         selectedSeason = season;
         renderSeasons();
-        if (activeTab === 'season' || activeTab === 'completed') {
-          const targetEvent = activeTab === 'completed' ? 'completed_spec' : 'season_spec';
+        renderSeasons();
+        if (activeTab === 'season' || activeTab === 'completed' || activeTab === 'upcoming') {
+          const specMap = {
+            season: 'season_spec',
+            completed: 'completed_spec',
+            upcoming: 'upcoming_spec'
+          };
+          const targetEvent = specMap[activeTab] || 'season_spec';
           onTabChange(targetEvent, { year: selectedYear, season: selectedSeason });
         }
       });
@@ -182,10 +194,18 @@ export function initSeasonTabs(mainNavContainer, subNavContainer, onTabChange) {
   }
 
   function activateSeasonTab() {
-    subNavContainer.style.display = 'grid';
+    const shouldShowSubNav = (activeTab === 'completed' || activeTab === 'upcoming');
+    subNavContainer.style.display = shouldShowSubNav ? 'grid' : 'none';
+
     renderSeasons();
     renderYearMenu();
-    const targetEvent = activeTab === 'completed' ? 'completed_spec' : 'season_spec';
+
+    const specMap = {
+      season: 'season_spec',
+      completed: 'completed_spec',
+      upcoming: 'upcoming_spec'
+    };
+    const targetEvent = specMap[activeTab] || 'season_spec';
     onTabChange(targetEvent, { year: selectedYear, season: selectedSeason });
   }
 
@@ -195,7 +215,7 @@ export function initSeasonTabs(mainNavContainer, subNavContainer, onTabChange) {
       btn.classList.add('active');
       activeTab = btn.dataset.tab || 'season';
 
-      if (activeTab === 'season' || activeTab === 'completed') {
+      if (activeTab === 'season' || activeTab === 'completed' || activeTab === 'upcoming') {
         activateSeasonTab();
       } else {
         subNavContainer.style.display = 'none';
