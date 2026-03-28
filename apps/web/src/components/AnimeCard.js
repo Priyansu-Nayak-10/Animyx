@@ -135,6 +135,7 @@ class AnimeCard extends HTMLElement {
         }
 
         const isAiring = status.includes('airing');
+        const isUpcoming = status.includes('upcoming');
 
         const countdownText = nextAt ? buildCountdownText(nextAt) : '';
 
@@ -151,8 +152,19 @@ class AnimeCard extends HTMLElement {
             } else {
                 episodeDisplay = 'Ongoing';
             }
+        } else if (isUpcoming) {
+            episodeDisplay = episodes > 0 ? `${episodes} eps` : 'TBA';
         } else {
             episodeDisplay = episodes > 0 ? `${episodes} eps` : '?';
+        }
+
+        let airingTextHtml = '';
+        if (isUpcoming) {
+            airingTextHtml = '<span class="airing-day">Airing Soon</span>';
+        } else if (isAiring) {
+            airingTextHtml = `<span class="airing-day">Airing ${airingDay || ''}</span>`;
+        } else {
+            airingTextHtml = '<span>Completed</span>';
         }
 
         this.shadowRoot.innerHTML = `
@@ -346,7 +358,7 @@ class AnimeCard extends HTMLElement {
         <h3 class="title" title="${title}">${title}</h3>
         <div class="meta-wrapper">
           <div class="meta">
-              ${isAiring ? `<span class="airing-day">Airing ${airingDay || 'Soon'}</span>` : '<span>Completed</span>'}
+              ${airingTextHtml}
               <div class="meta-dot"></div>
               <span>${episodeDisplay}</span>
           </div>

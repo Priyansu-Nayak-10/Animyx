@@ -82,10 +82,10 @@ function initSeasonBrowser({ api, toast, libraryStore, modal }) {
                 if (!Array.isArray(payload) && payload?.data) {
                     return {
                         ...payload,
-                        data: payload.data.filter((a) => resolveAiringStatus(a) !== 'completed')
+                        data: payload.data.filter((a) => resolveAiringStatus(a) === 'airing')
                     };
                 }
-                return array.filter((a) => resolveAiringStatus(a) !== 'completed');
+                return array.filter((a) => resolveAiringStatus(a) === 'airing');
             }
             fetchAndRender(fetchFiltered, `season_${year}_${season}`);
         } else if (tabId === 'completed_spec') {
