@@ -1,4 +1,4 @@
-function initSeasonTabs(mainNavContainer, subNavContainer, onTabChange) {
+export function initSeasonTabs(mainNavContainer, subNavContainer, onTabChange) {
   const mainBtns = Array.from(mainNavContainer.querySelectorAll('button[data-tab]'));
   const stripEl = subNavContainer.querySelector('[data-season-strip]');
   const yearToggle = document.getElementById('season-dropdown-toggle');
@@ -204,12 +204,10 @@ function initSeasonTabs(mainNavContainer, subNavContainer, onTabChange) {
     });
   });
 
-  bindYearDropdown();
-  setYearLabel(selectedYear);
-  updateTabVisibility(selectedYear);
-  renderYearMenu();
-  renderSeasons();
-  onTabChange('season_spec', { year: selectedYear, season: selectedSeason });
+    bindYearDropdown();
+    setYearLabel(selectedYear);
+    updateTabVisibility(selectedYear);
+    renderYearMenu();
+    renderSeasons();
+    onTabChange('season_spec', { year: selectedYear, season: selectedSeason });
 }
-
-export { initSeasonTabs } from './season.js';

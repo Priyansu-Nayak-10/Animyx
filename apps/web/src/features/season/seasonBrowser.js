@@ -4,7 +4,7 @@ import { bindHoverPreviews } from './season.js';
 import { normalizeAnime, dedupeAnimeList } from '../../core/utils.js';
 import { STATUS } from '../../store.js';
 
-function initSeasonBrowser({ api, toast, libraryStore, modal }) {
+export function initSeasonBrowser({ api, toast, libraryStore, modal }) {
     const viewEl = document.getElementById('season-view');
     if (!viewEl) return null;
 
@@ -71,7 +71,18 @@ function initSeasonBrowser({ api, toast, libraryStore, modal }) {
 
     initSeasonTabs(mainNavContainer, subNavContainer, (tabId, params) => {
         if (tabId === 'upcoming') {
-            fetchAndRender(() => api.getUpcomingAnime(1), 'upcoming');
+            const fetchFiltered = async () => {
+                const payload = await api.getUpcomingAnime(1);
+                const array = Array.isArray(payload) ? payload : (payload?.data || []);
+                if (!Array.isArray(payload) && payload?.data) {
+                    return {
+                        ...payload,
+                        data: payload.data.filter((a) => resolveAiringStatus(a) === 'upcoming')
+                    };
+                }
+                return array.filter((a) => resolveAiringStatus(a) === 'upcoming');
+            }
+            fetchAndRender(fetchFiltered, 'upcoming');
         } else if (tabId === 'top') {
             fetchAndRender(() => api.getTop(30), 'top');
         } else if (tabId === 'season_spec') {
@@ -155,6 +166,4 @@ function initSeasonBrowser({ api, toast, libraryStore, modal }) {
         }
     };
 }
-
-export { initSeasonBrowser } from './season.js';
 
