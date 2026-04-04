@@ -10,6 +10,7 @@
   <title>Dashboard • Animyx</title>
   <link rel="icon" href="/images/favicon.png" />
   <link rel="stylesheet" href="../src/styles/main.css">
+  <link rel="stylesheet" href="../src/styles/enhancements.css">
   <link rel="stylesheet" href="/css/quickactions.css">
 
   <link rel="manifest" href="/manifest.json">
@@ -101,7 +102,7 @@
             data-sidebar-toggle>
             <span class="material-icons">menu</span>
           </button>
-          <div class="search-wrapper">
+          <div class="search-wrapper" style="position: relative;">
             <span class="material-icons search-icon">search</span>
             <input id="global-search-input" class="search-input" placeholder="Search anime titles..." type="text"
               autocomplete="off" role="combobox" aria-expanded="false" aria-controls="search-suggestions"
@@ -283,7 +284,7 @@
               <div id="premium-watching-container"></div>
               <div class="card recommendations-container">
                 <h3 class="card-title">Recommended For You</h3>
-                <div id="recommended-list" class="recommendations-list custom-scrollbar" style="height: 280px;">
+                <div id="recommended-list" class="recommendations-list custom-scrollbar" style="max-height: 420px;">
                 </div>
               </div>
 

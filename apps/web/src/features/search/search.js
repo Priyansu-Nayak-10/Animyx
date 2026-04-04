@@ -253,10 +253,10 @@ function initSearchAdvanced({
     
     refs.suggestions.innerHTML = `
       <div class="search-dropdown-shell">
-        <div class="search-dropdown-heading">Recent Searches</div>
+        <div class="search-dropdown-heading" style="margin-bottom: 8px;">Recent Searches</div>
         ${history.map(item => `
-          <button type="button" class="suggestion-item search-history-item" data-search-action="history-search" data-query="${escapeHtml(item)}">
-            <span class="material-icons suggestion-icon">history</span>
+          <button type="button" class="suggestion-item search-history-item" data-search-action="history-search" data-query="${escapeHtml(item)}" style="align-items: center;">
+            <span class="material-icons" style="color: var(--text-muted); font-size: 1.1rem; margin-right: 8px;">history</span>
             <span class="suggestion-title">${escapeHtml(item)}</span>
           </button>
         `).join("")}

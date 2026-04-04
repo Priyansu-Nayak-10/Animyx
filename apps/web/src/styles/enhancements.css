@@ -733,7 +733,7 @@
   to { transform: rotate(360deg); }
 }
 
-/* ── 25. WATCHLIST ENHANCEMENTS ─────────────────────────────── */
+/* ── 25. WATCHLIST ENHANCEMENTS ─────────────────────────── */
 
 /* Watchlist item — premium slide-right hover */
 .watchlist-item {
@@ -1067,7 +1067,7 @@
   border-color: rgba(91, 179, 255, 0.3) !important;
 }
 
-/* ── 38. REDUCED MOTION SAFETY ──────────────────────────────── */
+/* ── 25. REDUCED MOTION SAFETY ──────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -1087,3 +1087,4 @@
     animation: none !important;
   }
 }
+
