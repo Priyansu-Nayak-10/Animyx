@@ -2412,9 +2412,11 @@ body.dark .border-dashed:hover {
 }
 .reco-card {
     display: flex;
-    align-items: center;
+    align-items: stretch;
+    flex-shrink: 0;
     gap: 0.65rem;
     padding: 0.5rem 0.7rem;
+    min-height: 118px;
     border-radius: 16px;
     background: radial-gradient(circle at 20% 20%, rgba(124, 58, 237, 0.08), rgba(15, 23, 42, 0.95));
     border: 1px solid rgba(255, 255, 255, 0.06);
@@ -2429,8 +2431,8 @@ body.dark .border-dashed:hover {
 }
 
 .reco-thumb-wrap {
-    width: 80px;
-    height: 106px;
+    width: 84px;
+    height: 112px;
     border-radius: 10px;
     overflow: hidden;
     flex-shrink: 0;
@@ -2447,6 +2449,8 @@ body.dark .border-dashed:hover {
 .reco-body {
     display: flex;
     flex-direction: column;
+    justify-content: space-between;
+    flex: 1;
     gap: 0.28rem;
     min-width: 0;
 }
