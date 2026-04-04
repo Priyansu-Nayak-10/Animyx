@@ -2136,7 +2136,7 @@ body.dark .border-dashed:hover {
 
 .recommendations-container {
     padding: 1.5rem;
-    min-height: 430px;
+    min-height: 340px;
     display: flex;
     flex-direction: column;
     overflow: hidden;
