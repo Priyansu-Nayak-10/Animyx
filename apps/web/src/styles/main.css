@@ -2143,7 +2143,7 @@ body.dark .border-dashed:hover {
 }
 
 .recommendations-list {
-    --reco-visible-cards: 4;
+    --reco-visible-cards: 3;
     --reco-card-min-height: 126px;
     --reco-list-gap: 1rem;
     flex: 0 0 auto;
