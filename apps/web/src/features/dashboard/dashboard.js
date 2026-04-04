@@ -350,7 +350,9 @@ export function initTrackerFeed({ libraryStore, milestones = null }) {
 export function initRecommendations({ store, libraryStore, selectors, toast = null }) {
   const dashboardRoot = document.getElementById("dashboard-view") || document;
   const refs = { recommendedList: document.getElementById("recommended-list"), quickTotal: document.getElementById("quick-total"), quickPlan: document.getElementById("quick-plan"), quickGenres: document.getElementById("quick-genres"), quickTopGenres: document.getElementById("quick-top-genres"), personalityName: document.getElementById("anime-personality-name"), personalityDesc: document.getElementById("anime-personality-desc"), dashboardGenreSvg: document.getElementById("completed-genre-pie"), dashboardGenreLegend: dashboardRoot.querySelector(".stats-container .legend") };
+  const VISIBLE_RECOMMENDATION_CARDS = 3;
   let backendRecs = null;
+  let recommendationResizeRaf = 0;
 
   async function fetchRecs() {
     try {
@@ -403,6 +405,41 @@ export function initRecommendations({ store, libraryStore, selectors, toast = nu
     </article>`;
   }
 
+  function applyRecommendationViewport() {
+    if (!refs.recommendedList) return;
+    const cards = Array.from(refs.recommendedList.querySelectorAll(".reco-card"));
+
+    if (!cards.length) {
+      refs.recommendedList.style.maxHeight = "";
+      refs.recommendedList.style.overflowY = "visible";
+      return;
+    }
+
+    const visibleCount = Math.min(VISIBLE_RECOMMENDATION_CARDS, cards.length);
+    const gapRaw = getComputedStyle(refs.recommendedList).rowGap || getComputedStyle(refs.recommendedList).gap || "0";
+    const gap = Number.parseFloat(gapRaw) || 0;
+    const visibleHeight = cards
+      .slice(0, visibleCount)
+      .reduce((sum, card) => sum + card.getBoundingClientRect().height, 0)
+      + (visibleCount > 1 ? (gap * (visibleCount - 1)) : 0);
+
+    refs.recommendedList.style.maxHeight = `${Math.ceil(visibleHeight)}px`;
+    refs.recommendedList.style.overflowY = cards.length > VISIBLE_RECOMMENDATION_CARDS ? "auto" : "visible";
+  }
+
+  function syncRecommendationViewport() {
+    applyRecommendationViewport();
+    requestAnimationFrame(() => applyRecommendationViewport());
+  }
+
+  function onRecommendationResize() {
+    if (recommendationResizeRaf) cancelAnimationFrame(recommendationResizeRaf);
+    recommendationResizeRaf = requestAnimationFrame(() => {
+      recommendationResizeRaf = 0;
+      applyRecommendationViewport();
+    });
+  }
+
   function render() {
     const libraryItems = libraryStore.getAll(), stats = libraryStore.getStats(), genres = topGenres(libraryItems, 3), personality = derivePersonality(stats), completed = libraryItems.filter(i => String(i?.status || "").toLowerCase() === "completed");
     if (refs.quickTotal) refs.quickTotal.textContent = String(stats.total);
@@ -422,6 +459,7 @@ export function initRecommendations({ store, libraryStore, selectors, toast = nu
     }
     const rows = (backendRecs?.length) ? backendRecs : (() => { const topGenresList = topGenreNames(libraryItems), eid = new Set(libraryItems.map(i => Number(i?.malId || 0))); return selectors.getCombinedDiscoveryState(store.getState()).filter(a => !eid.has(Number(a?.malId || 0))).sort((l,r) => { const lm = (l?.genres || []).filter(g => topGenresList.includes(g)).length, rm = (r?.genres || []).filter(g => topGenresList.includes(g)).length; return rm !== lm ? rm - lm : Number(r?.score || 0) - Number(l?.score || 0); }).slice(0, 10); })();
     if (refs.recommendedList) refs.recommendedList.innerHTML = rows.length ? rows.map(buildRecommendationCard).join("") : `<div class="tracker-empty" style="text-align: center; padding: 2rem 1rem;"><span class="material-icons" style="font-size: 2.5rem; color: var(--text-gray-600); margin-bottom: 0.5rem;">auto_awesome</span><p class="anime-card-meta">Add anime to your watchlist to unlock personalized recommendations.</p></div>`;
+    syncRecommendationViewport();
   }
 
   function onClick(e) {
@@ -431,9 +469,10 @@ export function initRecommendations({ store, libraryStore, selectors, toast = nu
   }
 
   refs.recommendedList?.addEventListener("click", onClick);
+  window.addEventListener("resize", onRecommendationResize);
   const unsubs = [store.subscribe(render), libraryStore.subscribe(render)];
   render(); fetchRecs();
-  return Object.freeze({ render, destroy() { refs.recommendedList?.removeEventListener("click", onClick); unsubs.forEach(fn => fn()); } });
+  return Object.freeze({ render, destroy() { refs.recommendedList?.removeEventListener("click", onClick); window.removeEventListener("resize", onRecommendationResize); if (recommendationResizeRaf) cancelAnimationFrame(recommendationResizeRaf); unsubs.forEach(fn => fn()); } });
 }
 
 // ── Upcoming Widget Module ───────────────────────────────────────────────────
