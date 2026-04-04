@@ -346,13 +346,13 @@
 /* ── 9. RECOMMENDATION CARDS ENHANCEMENT ────────────────── */
 
 .reco-card {
-  transition: transform 0.25s var(--ease-spring), box-shadow 0.25s ease, border-color 0.25s ease !important;
+  transition: transform 0.25s var(--ease-spring), box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
 .reco-card:hover {
-  transform: translateY(-3px) !important;
-  border-color: rgba(124, 58, 237, 0.45) !important;
-  box-shadow: 0 12px 28px rgba(2, 6, 23, 0.4), 0 0 0 1px rgba(124, 58, 237, 0.15) !important;
+  transform: translateY(-2px);
+  border-color: rgba(124, 58, 237, 0.45);
+  box-shadow: 0 12px 28px rgba(2, 6, 23, 0.4), 0 0 0 1px rgba(124, 58, 237, 0.15);
 }
 
 /* Reco thumb — zoom on hover */
@@ -361,25 +361,25 @@
 }
 
 .reco-thumb {
-  transition: transform 0.35s ease !important;
+  transition: filter 0.35s ease;
 }
 
 .reco-card:hover .reco-thumb {
-  transform: scale(1.06);
+  filter: brightness(1.06);
 }
 
 /* Reco add button — micro bounce */
 .reco-add-btn {
-  transition: transform 0.2s var(--ease-spring), filter 0.2s ease, box-shadow 0.2s ease !important;
+  transition: transform 0.2s var(--ease-spring), filter 0.2s ease, box-shadow 0.2s ease;
 }
 
 .reco-add-btn:hover {
-  transform: translateY(-2px) scale(1.03) !important;
+  transform: translateY(-1px);
   box-shadow: 0 6px 16px rgba(139, 92, 246, 0.35);
 }
 
 .reco-add-btn:active {
-  transform: scale(0.97) !important;
+  transform: translateY(0);
 }
 
 /* ── 10. UPCOMING RELEASES ENHANCEMENT ──────────────────── */
@@ -1087,4 +1087,3 @@
     animation: none !important;
   }
 }
-
