@@ -113,6 +113,7 @@ export function bindNavigation() {
   });
 
   document.addEventListener("keydown", (event) => {
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
     if (event.key === "Escape") {
       setSidebarOpen(false);
     }

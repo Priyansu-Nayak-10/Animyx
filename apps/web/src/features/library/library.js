@@ -1206,6 +1206,7 @@ function initAnimeModal({ controller, libraryStore, toast = null }) {
   }
 
   function onKeydown(event) {
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
     if (event.key === "Escape") close();
   }
 

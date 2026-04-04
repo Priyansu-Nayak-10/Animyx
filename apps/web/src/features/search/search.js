@@ -931,6 +931,8 @@ function initSearchAdvanced({
   }
 
   const onGlobalKeydown = (event) => {
+    // Never interfere with browser/system shortcuts (zoom, tab switch, etc.).
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
     const query = String(refs.globalSearchInput?.value || "").trim();
     if (event.key === "Escape") {
       abortLiveSearchRequest();
@@ -1023,6 +1025,7 @@ function initSearchAdvanced({
   document.addEventListener("click", onDocumentClick);
 
   const onDocumentKeydown = (event) => {
+    if (event.ctrlKey || event.metaKey || event.altKey) return;
     if (event.key !== "Escape") return;
     closeDiscoverDropdowns();
     abortLiveSearchRequest();

@@ -154,6 +154,7 @@ export function initSeasonTabs(mainNavContainer, subNavContainer, onTabChange) {
     });
 
     yearToggle.addEventListener('keydown', (event) => {
+      if (event.ctrlKey || event.metaKey || event.altKey) return;
       if (event.key === 'ArrowDown' || event.key === 'Enter' || event.key === ' ') {
         event.preventDefault();
         openYearMenu();
@@ -161,6 +162,7 @@ export function initSeasonTabs(mainNavContainer, subNavContainer, onTabChange) {
     });
 
     yearMenu.addEventListener('keydown', (event) => {
+      if (event.ctrlKey || event.metaKey || event.altKey) return;
       if (!yearMenu.classList.contains('open')) return;
       const items = Array.from(yearMenu.querySelectorAll('.season-dropdown-item'));
       if (!items.length) return;
