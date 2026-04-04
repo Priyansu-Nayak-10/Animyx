@@ -11754,12 +11754,12 @@ body.sidebar-open .sidebar-backdrop {
 .reco-card {
     display: flex;
     gap: 12px;
-    padding: 10px;
+    padding: 6px 10px;
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid var(--border-glass);
     border-radius: 12px;
-    margin-bottom: 8px;
-    height: 70px;
+    margin-bottom: 4px;
+    height: 52px;
     align-items: center;
     transition: all 0.2s ease;
     box-sizing: border-box;
@@ -11772,8 +11772,8 @@ body.sidebar-open .sidebar-backdrop {
 }
 
 .reco-thumb-wrap {
-    width: 44px;
-    height: 50px;
+    width: 32px;
+    height: 40px;
     flex-shrink: 0;
     border-radius: 6px;
     overflow: hidden;
@@ -11796,7 +11796,7 @@ body.sidebar-open .sidebar-backdrop {
 }
 
 .reco-title {
-    font-size: 0.825rem;
+    font-size: 0.775rem;
     font-weight: 600;
     color: var(--text-primary);
     white-space: nowrap;
