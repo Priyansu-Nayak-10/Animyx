@@ -106,7 +106,7 @@ function createLogger(context = 'app') {
  * Send errors to external error tracking service (Sentry, etc)
  * Can be extended to integrate with Sentry or similar
  */
-function sendToErrorTracker(context, level, message, data) {
+function sendToErrorTracker(context, level, _message, _data) {
   if (process.env.SENTRY_DSN && level === 'error') {
     // Placeholder for Sentry integration
     // In production, this would be: Sentry.captureException(new Error(message), { extra: data });

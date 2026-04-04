@@ -16,7 +16,7 @@ const supabase = require('./supabase');
     console.warn('RPC approach failed, trying direct column check...');
     // Supabase JS client can't run raw DDL, so we just verify the column exists
     // by doing a select
-    const { data, error: selErr } = await supabase
+    const { error: selErr } = await supabase
       .from('followed_anime')
       .select('image')
       .limit(1);

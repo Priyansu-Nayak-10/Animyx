@@ -98,7 +98,8 @@ router.get('/me/followed', validateQuery(PaginationSchema), async (req, res) => 
  */
 router.post('/me/follow', async (req, res) => {
   try {
-    let { malId, title, isAiring, totalEpisodes, status, nextEpisode } = req.body;
+    const { malId, status, nextEpisode } = req.body;
+    let { title, isAiring, totalEpisodes } = req.body;
     if (!malId) return apiError(res, 'malId is required', 400);
 
     if (!title) {

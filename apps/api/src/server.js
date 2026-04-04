@@ -14,10 +14,8 @@ const fs = require('fs');
 const http = require('http');
 const express = require('express');
 const cors = require('cors');
-const axios = require('axios');
 const { jikanClient, processAnimeList, nextAiringTimestamp, logger } = require('./utils');
 
-const { DateTime } = require('luxon');
 const { publicRouter: animePublicRoutes, privateRouter: animePrivateRoutes } = require('./routes/anime');
 const userRoutes = require('./routes/user');
 const notificationRoutes = require('./routes/notifications');
@@ -289,7 +287,7 @@ function createApp() {
   app.use(sentryErrorHandler);
 
   // Global error handler for async route errors
-  app.use((err, req, res, next) => {
+  app.use((err, req, res, _next) => {
     logger.error('Unhandled error', err, {
       method: req.method,
       path: req.path,

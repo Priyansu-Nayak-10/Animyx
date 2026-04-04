@@ -1,18 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const privateRouter = express.Router();
-const axios = require('axios');
 const { jikanClient } = require('../utils');
 const supabase = require('../database/supabase');
 const { apiResponse, apiError, processAnimeList } = require('../utils');
-const { validate } = require('../middleware/validate');
 const { checkCache } = require('../middleware/cache');
 const {
   validateQuery,
-  AnimeSearchSchema,
-  AnimeSeasonSchema,
-  AnimeMalIdSchema,
-  PaginationSchema
+  AnimeSearchSchema
 } = require('../middleware/schemas');
 
 const JIKAN = process.env.JIKAN_API_URL || 'https://api.jikan.moe/v4';

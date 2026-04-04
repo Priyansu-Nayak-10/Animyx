@@ -12,7 +12,6 @@
 
 const cron = require('node-cron');
 const Parser = require('rss-parser');
-const axios = require('axios');
 
 const supabase = require('../database/supabase.js');
 const { jikanClient, logger, checkAnime } = require('../utils');
@@ -330,7 +329,8 @@ async function buildRecommendations() {
     let page = 0;
     let processedUsers = 0;
 
-    while (true) {
+    let hasMoreUsers = true;
+    while (hasMoreUsers) {
       const { data: rows, error } = await supabase
         .from('followed_anime')
         .select('user_id')
@@ -338,9 +338,13 @@ async function buildRecommendations() {
 
       if (error) {
         logger.error(error, { context: 'recommendations.job fetch users' });
-        break;
+        hasMoreUsers = false;
+        continue;
       }
-      if (!rows || rows.length === 0) break;
+      if (!rows || rows.length === 0) {
+        hasMoreUsers = false;
+        continue;
+      }
 
       const userIds = [...new Set(rows.map((row) => row.user_id).filter(Boolean))];
 
@@ -375,14 +379,18 @@ async function scanActiveAnime() {
   try {
     console.log('[Cron] Starting active anime scan...');
     let page = 0;
-    while (true) {
+    let hasMoreFollows = true;
+    while (hasMoreFollows) {
       const { data: follows, error } = await supabase
         .from('anime_follows')
         .select('mal_id')
         .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
 
       if (error) throw error;
-      if (!follows || follows.length === 0) break;
+      if (!follows || follows.length === 0) {
+        hasMoreFollows = false;
+        continue;
+      }
 
       for (const anime of follows) {
         await checkAnime(anime);
