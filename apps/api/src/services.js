@@ -3,8 +3,9 @@ const Redis = require('ioredis');
 const { logger } = require('./utils');
 
 const REDIS_URL = process.env.REDIS_URL;
+const IS_TEST = process.env.NODE_ENV === 'test';
 let redis = null;
-if (REDIS_URL) {
+if (REDIS_URL && !IS_TEST) {
   try {
     const isTls = REDIS_URL.startsWith('rediss://');
     redis = new Redis(REDIS_URL, {

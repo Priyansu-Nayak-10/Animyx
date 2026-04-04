@@ -9150,10 +9150,12 @@ body:not(.dark) #profile-view .profile-save-hint {
     max-height: 280px;
     overflow-y: auto;
     scroll-behavior: smooth;
-    background: linear-gradient(135deg, rgba(10, 8, 22, 0.96), rgba(76, 29, 149, 0.34));
-    border: 1px solid rgba(196, 181, 253, 0.14);
+    background: linear-gradient(135deg, rgba(10, 8, 22, 0.98), rgba(46, 21, 92, 0.97));
+    border: 1px solid rgba(196, 181, 253, 0.22);
     border-radius: 14px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 14px 46px rgba(0, 0, 0, 0.56), 0 0 0 1px rgba(139, 92, 246, 0.14);
+    backdrop-filter: blur(12px) saturate(125%);
+    -webkit-backdrop-filter: blur(12px) saturate(125%);
     padding: 8px;
     display: block;
     opacity: 0;
@@ -9176,7 +9178,7 @@ body:not(.dark) #profile-view .profile-save-hint {
     box-sizing: border-box;
     padding: 10px 12px;
     border-radius: 10px;
-    background: rgba(167, 139, 250, 0.06);
+    background: rgba(167, 139, 250, 0.1);
     border: none;
     color: rgba(243, 232, 255, 0.78);
     text-align: left;
@@ -9187,7 +9189,7 @@ body:not(.dark) #profile-view .profile-save-hint {
 
 .season-dropdown-item:hover {
     transform: translateY(-1px);
-    background: rgba(167, 139, 250, 0.1);
+    background: rgba(167, 139, 250, 0.16);
     color: rgba(243, 232, 255, 0.92);
     box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
 }

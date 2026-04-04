@@ -18,7 +18,8 @@ jest.mock('../../src/middleware/auth', () => {
         authenticate: (req, res, next) => {
             req.user = { id: 'mock-user-1' };
             next();
-        }
+        },
+        requireEmailVerified: (_req, _res, next) => next()
     };
 });
 
@@ -26,6 +27,9 @@ describe('POST /api/import/mal', () => {
     let app;
 
     beforeAll(() => {
+        process.env.SUPABASE_URL = 'https://example.supabase.co';
+        process.env.SUPABASE_SERVICE_KEY = 'service-key';
+        process.env.JWT_SECRET = 'test-secret';
         app = createApp();
     });
 

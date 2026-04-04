@@ -9,7 +9,8 @@ const notificationRoutes = require('../../src/routes/notifications');
 
 describe('notifications api', () => {
   test('returns only current user notifications', async () => {
-    const limit = jest.fn().mockResolvedValue({
+    const countEq = jest.fn().mockResolvedValue({ count: 1, error: null });
+    const range = jest.fn().mockResolvedValue({
       data: [{
         id: 1,
         user_id: 'auth-user',
@@ -19,9 +20,12 @@ describe('notifications api', () => {
       }],
       error: null
     });
-    const order = jest.fn().mockReturnValue({ limit });
-    const eq = jest.fn().mockReturnValue({ order });
-    const select = jest.fn().mockReturnValue({ eq });
+    const order = jest.fn().mockReturnValue({ range });
+    const dataEq = jest.fn().mockReturnValue({ order });
+    const select = jest.fn().mockImplementation((_columns, options) => {
+      if (options?.head) return { eq: countEq };
+      return { eq: dataEq };
+    });
     supabase.from.mockReturnValue({ select });
 
     const app = express();
@@ -34,7 +38,7 @@ describe('notifications api', () => {
     const res = await request(app).get('/api/notifications/me');
 
     expect(res.status).toBe(200);
-    expect(eq).toHaveBeenCalledWith('user_id', 'auth-user');
+    expect(dataEq).toHaveBeenCalledWith('user_id', 'auth-user');
     expect(res.body.data[0]).toMatchObject({ type: 'SEQUEL_ANNOUNCED', message: 'Update' });
   });
 });
