@@ -359,6 +359,50 @@ export function initRecommendations({ store, libraryStore, selectors, toast = nu
     } catch { backendRecs = []; }
   }
 
+  function formatScore(score) {
+    const parsed = Number(score);
+    if (!Number.isFinite(parsed) || parsed <= 0) return "";
+    return parsed.toFixed(1).replace(/\.0$/, "");
+  }
+
+  function buildRecommendationCard(anime) {
+    const malId = Number(anime?.malId || anime?.mal_id || 0);
+    const title = escapeHtml(anime?.title || "Untitled");
+    const image = escapeHtml(
+      anime?.image
+      || anime?.poster
+      || anime?.images?.jpg?.large_image_url
+      || anime?.images?.jpg?.image_url
+      || "https://via.placeholder.com/225x320?text=No+Image"
+    );
+    const genres = Array.isArray(anime?.genres) ? anime.genres.filter(Boolean).slice(0, 3) : [];
+    const genresLabel = escapeHtml(genres.join(", ") || "Genre TBD");
+    const scoreLabel = formatScore(anime?.score);
+    const type = String(anime?.type || "").trim().toUpperCase();
+    const year = Number.parseInt(anime?.year, 10);
+    const chips = [
+      type ? `<span class="reco-chip">${escapeHtml(type)}</span>` : "",
+      Number.isFinite(year) && year > 1900 ? `<span class="reco-chip">${year}</span>` : ""
+    ].filter(Boolean).join("");
+
+    return `<article class="reco-card" data-id="${malId}">
+      <div class="reco-thumb-wrap">
+        <img class="reco-thumb" src="${image}" alt="${title}" loading="lazy" decoding="async">
+        ${scoreLabel ? `<span class="reco-score-badge"><span class="material-icons" aria-hidden="true">star</span>${scoreLabel}</span>` : ""}
+      </div>
+      <div class="reco-body">
+        <div class="reco-text">
+          <div class="reco-title" title="${title}">${title}</div>
+          <div class="reco-genres">${genresLabel}</div>
+        </div>
+        <div class="reco-footer">
+          <div class="reco-meta">${chips || '<span class="reco-chip reco-chip-muted">Fresh Pick</span>'}</div>
+          <button class="reco-add-btn" type="button" data-reco-action="add-plan" data-id="${malId}">Add to Plan</button>
+        </div>
+      </div>
+    </article>`;
+  }
+
   function render() {
     const libraryItems = libraryStore.getAll(), stats = libraryStore.getStats(), genres = topGenres(libraryItems, 3), personality = derivePersonality(stats), completed = libraryItems.filter(i => String(i?.status || "").toLowerCase() === "completed");
     if (refs.quickTotal) refs.quickTotal.textContent = String(stats.total);
@@ -377,7 +421,7 @@ export function initRecommendations({ store, libraryStore, selectors, toast = nu
       }
     }
     const rows = (backendRecs?.length) ? backendRecs : (() => { const topGenresList = topGenreNames(libraryItems), eid = new Set(libraryItems.map(i => Number(i?.malId || 0))); return selectors.getCombinedDiscoveryState(store.getState()).filter(a => !eid.has(Number(a?.malId || 0))).sort((l,r) => { const lm = (l?.genres || []).filter(g => topGenresList.includes(g)).length, rm = (r?.genres || []).filter(g => topGenresList.includes(g)).length; return rm !== lm ? rm - lm : Number(r?.score || 0) - Number(l?.score || 0); }).slice(0, 10); })();
-    if (refs.recommendedList) refs.recommendedList.innerHTML = rows.length ? rows.map((a) => `<div class="reco-card" data-id="${Number(a?.malId || a?.mal_id || 0)}"><div class="reco-thumb-wrap"><img class="reco-thumb" src="${escapeHtml(a?.image || "")}" alt="${escapeHtml(a?.title || "")}"></div><div class="reco-body"><div class="reco-title" title="${escapeHtml(a?.title || "")}">${escapeHtml(a?.title || "")}</div><div class="reco-genres">${(a?.genres || []).slice(0, 3).join(", ") || "Genre TBD"}</div><button class="reco-add-btn" type="button" data-reco-action="add-plan" data-id="${Number(a?.malId || a?.mal_id || 0)}">Add to Plan</button></div></div>`).join("") : `<div class="tracker-empty" style="text-align: center; padding: 2rem 1rem;"><span class="material-icons" style="font-size: 2.5rem; color: var(--text-gray-600); margin-bottom: 0.5rem;">auto_awesome</span><p class="anime-card-meta">Add anime to your watchlist to unlock personalized recommendations.</p></div>`;
+    if (refs.recommendedList) refs.recommendedList.innerHTML = rows.length ? rows.map(buildRecommendationCard).join("") : `<div class="tracker-empty" style="text-align: center; padding: 2rem 1rem;"><span class="material-icons" style="font-size: 2.5rem; color: var(--text-gray-600); margin-bottom: 0.5rem;">auto_awesome</span><p class="anime-card-meta">Add anime to your watchlist to unlock personalized recommendations.</p></div>`;
   }
 
   function onClick(e) {
