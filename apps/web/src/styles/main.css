@@ -11967,3 +11967,119 @@ body.sidebar-open .sidebar-backdrop {
     opacity: 0.6;
 }
 
+
+/* --- Search & History Dropdown Fix (Image 5) --- */
+.search-suggestions-container {
+    background: #121420;
+    border: 1px solid var(--border-glass);
+    border-radius: 12px;
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6);
+    margin-top: 8px;
+    padding: 8px;
+    z-index: 1000;
+}
+
+.search-dropdown-shell {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.search-dropdown-heading {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 8px 12px;
+}
+
+.suggestion-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    text-align: left;
+    width: 100%;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.suggestion-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+}
+
+.suggestion-title {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: inherit;
+}
+
+.suggestion-img {
+    width: 32px;
+    height: 44px;
+    border-radius: 4px;
+    object-fit: cover;
+    margin-right: 12px;
+}
+
+.search-history-item {
+    gap: 8px;
+}
+
+/* --- Filter & Action Buttons (Image 6) --- */
+.discover-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.filter-btn {
+    padding: 0.6rem 1.75rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.850rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.search-btn {
+    background: var(--brand-primary);
+    border: 1px solid var(--brand-primary);
+    color: white;
+    box-shadow: 0 0 10px rgba(124, 58, 237, 0.25);
+}
+
+.search-btn:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 0 16px rgba(124, 58, 237, 0.35);
+}
+
+.reset-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-glass);
+    color: var(--text-secondary);
+}
+
+.reset-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
+}
+
+.suggestion-icon {
+    color: var(--text-muted);
+    font-size: 1.15rem;
+    margin-right: 12px;
+    width: 20px;
+    text-align: center;
+}
+
