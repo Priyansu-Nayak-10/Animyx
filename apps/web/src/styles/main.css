@@ -637,10 +637,10 @@ body.dark .search-wrapper {
 }
 
 .search-wrapper:focus-within {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.08);
     border-color: var(--brand-primary);
-    box-shadow: 0 0 20px rgba(124, 58, 237, 0.2);
-    transform: translateY(-1px);
+    box-shadow: 0 0 16px rgba(124, 58, 237, 0.25), 0 4px 12px rgba(0,0,0,0.1);
+    outline: none; /* Prevent double border/glow */
 }
 
 .search-icon {
@@ -11705,4 +11705,265 @@ body.sidebar-open .sidebar-backdrop {
   font-weight: 700;
 }
 
+
+/* --- Layout Recovery for Component Grids --- */
+.milestone-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+}
+
+@media (max-width: 480px) {
+    .milestone-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    transition: background 0.2s ease;
+}
+
+.stat-row:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.recommendations-list {
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 4px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--brand-primary) transparent;
+}
+
+.recommendations-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.recommendations-list::-webkit-scrollbar-thumb {
+    background: var(--brand-primary);
+    border-radius: 10px;
+}
+
+/* --- Discover & Seasonal Filter UI --- */
+.discover-filter-panel {
+    background: var(--glass-bg);
+    border: 1px solid var(--border-glass);
+    border-radius: 16px;
+    padding: 1.25rem;
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.discover-filter-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    align-items: flex-end;
+}
+
+.discover-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 140px;
+}
+
+.discover-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.discover-input {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-glass);
+    border-radius: 10px;
+    padding: 0.6rem 1rem;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+    min-height: 40px;
+}
+
+.discover-input:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--brand-primary);
+}
+
+.discover-dropdown {
+    position: relative;
+    width: 100%;
+}
+
+.discover-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    width: 100%;
+    background: #121420;
+    border: 1px solid var(--border-glass);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    z-index: 50;
+    display: none;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.discover-menu.is-open {
+    display: block;
+}
+
+/* Seasonal Year Dropdown Fix */
+.season-dropdown-toggle {
+    background: var(--glass-bg);
+    border: 1px solid var(--border-glass);
+    border-radius: 10px;
+    padding: 0.5rem 1rem;
+    color: var(--text-primary);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.season-dropdown-toggle:hover {
+    border-color: var(--brand-primary);
+    background: rgba(255,255,255,0.08);
+}
+
+.season-dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 200px;
+    background: #181A2A;
+    border: 1px solid var(--border-glass);
+    border-radius: 8px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    display: none;
+    z-index: 100;
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+.season-dropdown-menu.open {
+    display: block;
+}
+
+.season-dropdown-item {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    text-align: left;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.season-dropdown-item:hover {
+    background: var(--brand-primary);
+    color: white;
+}
+
+.season-dropdown-item.active {
+    color: var(--brand-primary);
+    font-weight: 700;
+}
+
+.season-pill {
+    padding: 0.5rem 1.25rem;
+    border-radius: 9999px;
+    background: var(--glass-bg);
+    border: 1px solid var(--border-glass);
+    color: var(--text-secondary);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.season-pill:hover {
+    border-color: var(--brand-primary);
+    color: var(--text-primary);
+}
+
+.season-pill.active {
+    background: var(--brand-primary);
+    border-color: var(--brand-primary);
+    color: white;
+    box-shadow: 0 0 15px rgba(124, 58, 237, 0.4);
+}
+
+.discover-segment {
+    display: flex;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-glass);
+    border-radius: 10px;
+    padding: 2px;
+    overflow: hidden;
+}
+
+.discover-seg-btn {
+    flex: 1;
+    padding: 0.5rem 0.75rem;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.discover-seg-btn:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.discover-seg-btn.active {
+    background: var(--brand-primary);
+    color: white;
+}
+
+.discover-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 10px;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border-glass);
+    color: var(--text-secondary);
+}
+
+.discover-chip-colored {
+    background: rgba(124, 58, 237, 0.15);
+    border-color: rgba(124, 58, 237, 0.3);
+    color: var(--brand-glow);
+}
+
+.discover-caret {
+    font-size: 0.8rem;
+    margin-left: 0.5rem;
+    opacity: 0.6;
+}
 
