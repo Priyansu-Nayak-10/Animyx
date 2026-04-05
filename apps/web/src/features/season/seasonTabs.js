@@ -24,57 +24,31 @@ export function initSeasonTabs(mainNavContainer, subNavContainer, onTabChange) {
 
   function clearFloatingYearMenuPosition() {
     if (!yearMenu) return;
-    yearMenu.style.removeProperty('top');
-    yearMenu.style.removeProperty('left');
-    yearMenu.style.removeProperty('width');
+    yearMenu.style.removeProperty('min-width');
     yearMenu.style.removeProperty('max-height');
-    yearMenu.style.removeProperty('transform-origin');
-    yearMenu.removeAttribute('data-placement');
   }
 
   function positionYearMenu() {
-    if (!yearMenu || !yearToggle || !yearMenu.classList.contains('open')) return;
+    if (!yearMenu || !yearToggle) return;
+    const items = Array.from(yearMenu.querySelectorAll('.season-dropdown-item'));
+    const itemHeight = Math.max(34, Number(items[0]?.offsetHeight || 36));
+    const visibleRows = Math.min(5, Math.max(1, items.length || 1));
+    const verticalPadding = 16;
     const rect = yearToggle.getBoundingClientRect();
-    const viewportPadding = 10;
-    const desiredWidth = Math.max(220, Math.round(rect.width));
-    const width = Math.min(260, Math.max(200, Math.min(desiredWidth, window.innerWidth - (viewportPadding * 2))));
-    const spaceBelow = Math.max(0, window.innerHeight - rect.bottom - viewportPadding);
-    const spaceAbove = Math.max(0, rect.top - viewportPadding);
-    const openUpward = spaceBelow < 170 && spaceAbove > spaceBelow;
-    const availableHeight = (openUpward ? spaceAbove : spaceBelow) - 8;
-    const maxHeight = Math.max(150, Math.min(320, availableHeight > 0 ? availableHeight : 150));
-    let left = rect.right - width;
-    left = Math.max(viewportPadding, Math.min(left, window.innerWidth - width - viewportPadding));
-    const top = openUpward
-      ? Math.max(viewportPadding, rect.top - maxHeight - 8)
-      : (rect.bottom + 8);
+    const minWidth = Math.max(200, Math.round(rect.width));
+    const maxHeight = (itemHeight * visibleRows) + verticalPadding;
 
-    yearMenu.style.width = `${width}px`;
-    yearMenu.style.left = `${Math.round(left)}px`;
-    yearMenu.style.top = `${Math.round(top)}px`;
+    yearMenu.style.minWidth = `${minWidth}px`;
     yearMenu.style.maxHeight = `${Math.round(maxHeight)}px`;
-    yearMenu.style.transformOrigin = openUpward ? 'bottom right' : 'top right';
-    yearMenu.setAttribute('data-placement', openUpward ? 'top' : 'bottom');
   }
 
   function bindFloatingMenuPositioning() {
     if (removeFloatingListeners) return;
-    let rafId = 0;
-    const schedulePosition = () => {
-      if (rafId) cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(() => {
-        rafId = 0;
-        positionYearMenu();
-      });
-    };
-
+    const schedulePosition = () => positionYearMenu();
     window.addEventListener('resize', schedulePosition, { passive: true });
-    window.addEventListener('scroll', schedulePosition, true);
 
     removeFloatingListeners = () => {
       window.removeEventListener('resize', schedulePosition);
-      window.removeEventListener('scroll', schedulePosition, true);
-      if (rafId) cancelAnimationFrame(rafId);
       removeFloatingListeners = null;
     };
   }
@@ -131,6 +105,10 @@ export function initSeasonTabs(mainNavContainer, subNavContainer, onTabChange) {
       });
       yearMenu.appendChild(btn);
     });
+
+    if (yearMenu.classList.contains('open')) {
+      positionYearMenu();
+    }
   }
 
   function closeYearMenu({ focusToggle = true } = {}) {

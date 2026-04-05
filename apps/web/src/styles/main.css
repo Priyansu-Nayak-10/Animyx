@@ -9296,13 +9296,14 @@ body:not(.dark) #profile-view .profile-save-hint {
 }
 
 .season-dropdown-menu {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 240px;
-    max-height: 280px;
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: max(220px, 100%);
+    max-height: 204px;
     overflow-y: auto;
     scroll-behavior: smooth;
+    overscroll-behavior: contain;
     background: linear-gradient(135deg, rgba(18, 12, 34, 0.98), rgba(42, 20, 80, 0.98));
     border: 1px solid rgba(196, 181, 253, 0.22);
     border-radius: 14px;
