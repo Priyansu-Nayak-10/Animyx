@@ -182,7 +182,11 @@ function createLibraryStore(options = {}) {
 
   function persist() {
     if (!storage?.setItem) return;
-    storage.setItem(storageKey, JSON.stringify(items));
+    try {
+      storage.setItem(storageKey, JSON.stringify(items));
+    } catch {
+      // Ignore storage failures (quota/private mode) to keep in-memory UX functional.
+    }
   }
 
   function load() {

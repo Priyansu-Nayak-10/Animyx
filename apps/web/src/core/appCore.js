@@ -531,6 +531,8 @@ const cloudSyncApi = createApiClient();
 
 const SYNC_DB = 'Animyx_sync_v1';
 const SYNC_STORE = 'kv';
+const FOLLOWED_PAGE_LIMIT = 100;
+const FOLLOW_BATCH_SIZE = 500;
 let syncDbPromise = null;
 
 function openSyncDb() {
@@ -638,14 +640,7 @@ async function pushLibrary(localItems) {
       .filter(([id]) => id)
   );
 
-  const remoteRes = await authFetch(apiUrl('/users/me/followed'));
-  if (!remoteRes.ok) {
-    const error = new Error(`Remote diff load failed (${remoteRes.status})`);
-    error.status = remoteRes.status;
-    throw error;
-  }
-  const remoteJson = await remoteRes.json();
-  const remoteRows = Array.isArray(remoteJson?.data) ? remoteJson.data : [];
+  const remoteRows = await fetchAllRemoteFollowed('Remote diff load');
   const remoteIds = new Set(remoteRows.map((row) => Number(row?.mal_id || 0)).filter(Boolean));
 
   const clientId = getClientId();
@@ -668,31 +663,65 @@ async function pushLibrary(localItems) {
     };
   });
 
-  await authFetch(apiUrl('/users/me/follow/batch'), {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ items })
-  });
-
-  const toRemove = [...remoteIds].filter((malId) => !localById.has(malId));
-  if (toRemove.length) {
-    await authFetch(apiUrl('/users/me/unfollow/batch'), {
+  for (let offset = 0; offset < items.length; offset += FOLLOW_BATCH_SIZE) {
+    const chunk = items.slice(offset, offset + FOLLOW_BATCH_SIZE);
+    if (!chunk.length) continue;
+    const res = await authFetch(apiUrl('/users/me/follow/batch'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ malIds: toRemove })
+      body: JSON.stringify({ items: chunk })
     });
+    if (!res.ok) {
+      const error = new Error(`Batch follow failed (${res.status})`);
+      error.status = res.status;
+      throw error;
+    }
+  }
+
+  const toRemove = [...remoteIds].filter((malId) => !localById.has(malId));
+  for (let offset = 0; offset < toRemove.length; offset += FOLLOW_BATCH_SIZE) {
+    const chunk = toRemove.slice(offset, offset + FOLLOW_BATCH_SIZE);
+    if (!chunk.length) continue;
+    const res = await authFetch(apiUrl('/users/me/unfollow/batch'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ malIds: chunk })
+    });
+    if (!res.ok) {
+      const error = new Error(`Batch unfollow failed (${res.status})`);
+      error.status = res.status;
+      throw error;
+    }
   }
 }
 
-async function fetchRemoteLibrary() {
-  const res = await authFetch(apiUrl('/users/me/followed'));
-  if (!res.ok) {
-    const error = new Error(`Remote load failed (${res.status})`);
-    error.status = res.status;
-    throw error;
+async function fetchAllRemoteFollowed(errorPrefix = 'Remote load') {
+  const allRows = [];
+  let page = 1;
+  let hasNext = true;
+
+  while (hasNext) {
+    const res = await authFetch(apiUrl(`/users/me/followed?page=${page}&limit=${FOLLOWED_PAGE_LIMIT}`));
+    if (!res.ok) {
+      const error = new Error(`${errorPrefix} failed (${res.status})`);
+      error.status = res.status;
+      throw error;
+    }
+
+    const json = await res.json();
+    const rows = Array.isArray(json?.data) ? json.data : [];
+    allRows.push(...rows);
+
+    const next = Boolean(json?.meta?.hasNext);
+    hasNext = next && rows.length > 0;
+    page += 1;
   }
-  const json = await res.json();
-  const rows = Array.isArray(json?.data) ? json.data : [];
+
+  return allRows;
+}
+
+async function fetchRemoteLibrary() {
+  const rows = await fetchAllRemoteFollowed('Remote load');
   return rows.map(toLibraryItem).filter((item) => Number(item?.malId || 0));
 }
 
