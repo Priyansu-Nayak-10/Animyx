@@ -9301,13 +9301,15 @@ body:not(.dark) #profile-view .profile-save-hint {
     max-height: 280px;
     overflow-y: auto;
     scroll-behavior: smooth;
-    background: linear-gradient(135deg, rgba(10, 8, 22, 0.98), rgba(46, 21, 92, 0.97));
+    background: linear-gradient(135deg, #120c22, #2a1450);
     border: 1px solid rgba(196, 181, 253, 0.22);
     border-radius: 14px;
     box-shadow: 0 14px 46px rgba(0, 0, 0, 0.56), 0 0 0 1px rgba(139, 92, 246, 0.14);
-    backdrop-filter: blur(12px) saturate(125%);
-    -webkit-backdrop-filter: blur(12px) saturate(125%);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     padding: 8px;
+    isolation: isolate;
+    mix-blend-mode: normal;
     display: block;
     opacity: 0;
     transform: translateY(-6px) scale(0.95);
@@ -9329,7 +9331,7 @@ body:not(.dark) #profile-view .profile-save-hint {
     box-sizing: border-box;
     padding: 10px 12px;
     border-radius: 10px;
-    background: rgba(167, 139, 250, 0.1);
+    background: rgba(167, 139, 250, 0.16);
     border: none;
     color: rgba(243, 232, 255, 0.78);
     text-align: left;
