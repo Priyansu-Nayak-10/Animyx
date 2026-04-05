@@ -56,8 +56,29 @@ function parseDurationMinutes(value) {
   return 24;
 }
 
+function toTimestampMs(value) {
+  if (value == null) return 0;
+  if (value instanceof Date) {
+    const ts = value.getTime();
+    return Number.isFinite(ts) && ts > 0 ? ts : 0;
+  }
+  if (typeof value === "number" && Number.isFinite(value)) {
+    if (value <= 0) return 0;
+    return value < 1e12 ? Math.trunc(value * 1000) : Math.trunc(value);
+  }
+  const text = String(value || "").trim();
+  if (!text) return 0;
+  if (/^\d+$/.test(text)) {
+    const n = Number(text);
+    if (!Number.isFinite(n) || n <= 0) return 0;
+    return n < 1e12 ? Math.trunc(n * 1000) : Math.trunc(n);
+  }
+  const parsed = Date.parse(text);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+}
+
 function toDateKey(timestamp) {
-  const date = new Date(Number(timestamp || 0));
+  const date = new Date(toTimestampMs(timestamp));
   if (Number.isNaN(date.getTime())) return "";
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
@@ -78,10 +99,22 @@ function calculateCompletionStreak(timestamps) {
 }
 
 function normalizeGenreNames(value) {
-  return (Array.isArray(value) ? value : [])
-    .map((genre) => (typeof genre === "string" ? genre : genre?.name))
-    .map((genre) => String(genre || "").trim())
-    .filter(Boolean);
+  if (Array.isArray(value)) {
+    return value
+      .map((genre) => (typeof genre === "string" ? genre : genre?.name))
+      .map((genre) => String(genre || "").trim())
+      .filter(Boolean);
+  }
+  if (typeof value === "string") {
+    return value
+      .split(/[|,/]/g)
+      .map((genre) => String(genre || "").trim())
+      .filter(Boolean);
+  }
+  if (value && typeof value === "object" && typeof value.name === "string") {
+    return [String(value.name).trim()].filter(Boolean);
+  }
+  return [];
 }
 
 function normalizeStudioName(item) {
@@ -176,15 +209,19 @@ function renderWeeklyActivityChart(container, items) {
   const msPerWeek = 7 * 24 * 60 * 60 * 1000;
 
   items.forEach((item) => {
-    const updatedAt = Number(item?.updatedAt || 0);
-    const completedAt = Number(item?.completedAt || 0);
-    const watchProgressAt = Number(item?.watchProgressAt || 0) || updatedAt;
-    const watchlistAddedAt = Number(item?.watchlistAddedAt || 0) || (String(item?.status || "").toLowerCase() === "plan" ? updatedAt : 0);
+    const status = String(item?.status || "").toLowerCase();
+    const updatedAt = toTimestampMs(item?.updatedAt || item?.updated_at || item?.lastUpdatedAt);
+    const completedAt = toTimestampMs(item?.completedAt || item?.completed_at);
+    const watchProgressAt = toTimestampMs(item?.watchProgressAt || item?.watch_progress_at) || updatedAt;
+    const watchlistAddedAt = toTimestampMs(item?.watchlistAddedAt || item?.watchlist_added_at || item?.createdAt || item?.created_at)
+      || (status === "plan" ? updatedAt : 0);
     const title = String(item?.title || "Unknown");
+    const watchedEpisodes = Math.max(0, Number(item?.watchedEpisodes ?? item?.progress ?? 0));
+    const watchEpisodes = watchedEpisodes > 0 ? watchedEpisodes : (status === "watching" ? 1 : 0);
     [
-      { ts: watchProgressAt, type: 'watching', title, episodes: 1 },
-      { ts: completedAt, type: 'completed', title },
-      { ts: watchlistAddedAt, type: 'planning', title }
+      { ts: watchProgressAt, type: "watching", title, episodes: watchEpisodes },
+      { ts: completedAt, type: "completed", title },
+      { ts: watchlistAddedAt, type: "planning", title }
     ].forEach(e => {
       if (!e.ts || e.ts < startMs || e.ts > endMs) return;
       const idx = Math.floor((e.ts - startMs) / msPerWeek);
@@ -238,8 +275,12 @@ function renderWeeklyActivityChart(container, items) {
     }).join("");
   }
 
+  const panel = container.closest(".activity-chart-panel");
+  const activeButton = panel?.querySelector("[data-activity-mode].is-active");
+  const activeMode = activeButton?.getAttribute("data-activity-mode") || panel?.getAttribute("data-activity-mode") || "absolute";
+
   container.innerHTML = `
-    <div class="insight-activity-chart" data-activity-mode="absolute">${buildRows("absolute")}</div>
+    <div class="insight-activity-chart" data-activity-mode="${escapeHtml(activeMode)}">${buildRows(activeMode)}</div>
     <div class="activity-summary">
       <div class="activity-summary-item"><span class="summary-label">Most Active Week</span><span class="summary-value">${escapeHtml(mostActiveText)}</span></div>
       <div class="activity-summary-item"><span class="summary-label">Total Activity</span><span class="summary-value">${totalActivity}</span></div>
@@ -248,18 +289,45 @@ function renderWeeklyActivityChart(container, items) {
   `;
 
   const chart = container.querySelector(".insight-activity-chart");
-  const panel = container.closest(".activity-chart-panel");
   const toggleButtons = panel?.querySelectorAll("[data-activity-mode]");
   if (chart && toggleButtons?.length) {
+    panel?.setAttribute("data-activity-mode", activeMode);
     toggleButtons.forEach((btn) => {
-      btn.addEventListener("click", () => {
+      btn.onclick = () => {
         const mode = btn.getAttribute("data-activity-mode") || "absolute";
         toggleButtons.forEach((node) => node.classList.toggle("is-active", node === btn));
+        panel?.setAttribute("data-activity-mode", mode);
         chart.setAttribute("data-activity-mode", mode);
         chart.innerHTML = buildRows(mode);
-      });
+      };
     });
+
+    chart.onmouseover = (event) => {
+      const column = event.target.closest(".activity-column");
+      if (!column) return;
+      chart.classList.add("is-hovering");
+      chart.querySelectorAll(".activity-column").forEach((node) => node.classList.toggle("is-hovered", node === column));
+    };
+    chart.onmouseleave = () => {
+      chart.classList.remove("is-hovering");
+      chart.querySelectorAll(".activity-column").forEach((node) => node.classList.remove("is-hovered"));
+    };
   }
+}
+
+function applyRecentActivityViewport(container, visibleItems = 4) {
+  if (!container) return;
+  const rows = Array.from(container.querySelectorAll(".activity-timeline-item"));
+  if (rows.length <= visibleItems) {
+    container.style.removeProperty("max-height");
+    container.style.overflowY = "visible";
+    return;
+  }
+  const height = rows
+    .slice(0, visibleItems)
+    .reduce((sum, row) => sum + row.getBoundingClientRect().height, 0);
+  container.style.maxHeight = `${Math.ceil(height)}px`;
+  container.style.overflowY = "auto";
 }
 
 function renderPersonaRadar(svg, genreCount) {
@@ -380,10 +448,12 @@ function calculateInsights(items) {
     if (item?.status === STATUS.COMPLETED) {
       completedRows.push(item);
       item.genres.forEach((genre) => { const key = String(genre || "").trim(); if (key) genreCount[key] = (genreCount[key] || 0) + 1; });
-      const completedAt = Number(item?.completedAt || 0);
+      const completedAt = toTimestampMs(item?.completedAt || item?.completed_at);
       if (completedAt > 0 && (!lastCompletedAnime || completedAt > lastCompletedAnime.completedAt)) lastCompletedAnime = { title: String(item?.title || "Unknown"), completedAt };
     }
-    const eventTime = item?.status === STATUS.COMPLETED ? Number(item?.completedAt || 0) : Number(item?.updatedAt || 0);
+    const eventTime = item?.status === STATUS.COMPLETED
+      ? toTimestampMs(item?.completedAt || item?.completed_at)
+      : toTimestampMs(item?.updatedAt || item?.updated_at);
     if (eventTime > 0) recentActivity.push({ title: String(item?.title || "Unknown"), status: humanizeStatus(item?.status), timestamp: eventTime });
   });
 
@@ -394,7 +464,7 @@ function calculateInsights(items) {
 
   return {
     totalEpisodesWatched, estimatedWatchTime: formatWatchTime(totalWatchMinutes), averageUserRating: ratingValues.length ? (ratingValues.reduce((s, v) => s + v, 0) / ratingValues.length).toFixed(1) : "0.0",
-    totalCompleted: breakdown.completed, totalWatching: breakdown.watching, totalPlan: breakdown.plan, completionStreak: calculateCompletionStreak(completedRows.map(i => Number(i.completedAt || 0))),
+    totalCompleted: breakdown.completed, totalWatching: breakdown.watching, totalPlan: breakdown.plan, completionStreak: calculateCompletionStreak(completedRows.map((i) => toTimestampMs(i.completedAt || i.completed_at))),
     favoriteStudio: pickTopCount(studioCount), lastCompletedAnime: lastCompletedAnime?.title || "No data", statusBreakdown: breakdown, genreDistribution: { sorted: otherCount > 0 ? [...sortedGenres.slice(0, 3), ["Others", otherCount]] : sortedGenres.slice(0, 3), otherCount, all: genreCount },
     recentActivity: recentActivity.sort((a, b) => b.timestamp - a.timestamp), playerStats: calculatePlayerStats(totalEpisodesWatched, breakdown.completed), studioCount
   };
@@ -484,6 +554,8 @@ export function initInsights({ libraryStore }) {
       const acts = insights.recentActivity.slice(0, MAX_ACTIVITY);
       if (!acts.length) {
         refs.recentActivity.innerHTML = '<div class="activity-empty"><span class="material-icons">history_toggle_off</span><p>No recent activity yet</p></div>';
+        refs.recentActivity.style.removeProperty("max-height");
+        refs.recentActivity.style.overflowY = "visible";
       } else {
         const now = Date.now();
         refs.recentActivity.innerHTML = acts.map(entry => {
@@ -493,11 +565,21 @@ export function initInsights({ libraryStore }) {
           const statusClass = String(entry.status || '').toLowerCase();
           return `<div class="activity-timeline-item"><div class="activity-dot activity-dot-${statusClass}"></div><div class="activity-timeline-body"><span class="activity-timeline-title">${escapeHtml(entry.title)}</span><div class="activity-timeline-meta"><span class="activity-status-tag ${statusClass}">${escapeHtml(entry.status)}</span><span>${relTime}</span></div></div></div>`;
         }).join('');
+        applyRecentActivityViewport(refs.recentActivity, 4);
+        requestAnimationFrame(() => applyRecentActivityViewport(refs.recentActivity, 4));
       }
     }
   }  // end render()
 
+  const handleResize = () => applyRecentActivityViewport(refs.recentActivity, 4);
+  window.addEventListener("resize", handleResize, { passive: true });
   const unsubscribe = libraryStore.subscribe(render);
   render();
-  return Object.freeze({ render, destroy() { unsubscribe(); } });
+  return Object.freeze({
+    render,
+    destroy() {
+      window.removeEventListener("resize", handleResize);
+      unsubscribe();
+    }
+  });
 }

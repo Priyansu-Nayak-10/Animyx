@@ -11810,6 +11810,31 @@ body.sidebar-open .sidebar-backdrop {
 }
 
 /* ── Recent Activity Timeline ─────────────────────────────── */
+.activity-timeline-feed {
+  overflow-y: visible;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  padding-right: 0.35rem;
+}
+
+.activity-timeline-feed::-webkit-scrollbar {
+  width: 8px;
+}
+
+.activity-timeline-feed::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.activity-timeline-feed::-webkit-scrollbar-thumb {
+  background: rgba(139, 92, 246, 0.34);
+  border-radius: 999px;
+  border: 2px solid rgba(10, 8, 22, 0.82);
+}
+
+.activity-timeline-feed::-webkit-scrollbar-thumb:hover {
+  background: rgba(167, 139, 250, 0.56);
+}
+
 .activity-timeline-item {
   display: flex;
   align-items: flex-start;
