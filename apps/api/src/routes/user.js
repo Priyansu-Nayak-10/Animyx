@@ -98,8 +98,10 @@ router.get('/me/followed', validateQuery(PaginationSchema), async (req, res) => 
  */
 router.post('/me/follow', async (req, res) => {
   try {
-    const { malId, status, nextEpisode } = req.body;
+    const { malId, status } = req.body;
+    const nextEpisodeInput = req.body?.nextEpisode ?? req.body?.next_episode;
     let { title, isAiring, totalEpisodes } = req.body;
+    if (totalEpisodes == null) totalEpisodes = req.body?.total_episodes;
     if (!malId) return apiError(res, 'malId is required', 400);
 
     if (!title) {
@@ -126,18 +128,20 @@ router.post('/me/follow', async (req, res) => {
     const normalizedStatus = ['plan', 'watching', 'completed', 'dropped'].includes(String(status || '').toLowerCase())
       ? String(status).toLowerCase()
       : 'plan';
-    const parsedNextEpisode = Math.max(0, Number.parseInt(nextEpisode, 10) || 0);
+    const parsedNextEpisode = Math.max(0, Number.parseInt(nextEpisodeInput, 10) || 0);
 
-    const clientId = clampText(req.body?.clientId, 80);
-    const mutationId = clampText(req.body?.mutationId, 120);
-    const watchlistAddedAt = isoFromMs(req.body?.watchlistAddedAt);
-    const watchProgressAt = isoFromMs(req.body?.watchProgressAt);
-    const completedAt = isoFromMs(req.body?.completedAt);
-    const ratingUpdatedAt = isoFromMs(req.body?.ratingUpdatedAt);
-    const userRatingRaw = Number(req.body?.userRating);
+    const clientId = clampText(req.body?.clientId ?? req.body?.client_id, 80);
+    const mutationId = clampText(req.body?.mutationId ?? req.body?.mutation_id, 120);
+    const watchlistAddedAt = isoFromMs(req.body?.watchlistAddedAt ?? req.body?.watchlist_added_at);
+    const watchProgressAt = isoFromMs(req.body?.watchProgressAt ?? req.body?.watch_progress_at);
+    const completedAt = isoFromMs(req.body?.completedAt ?? req.body?.completed_at);
+    const ratingUpdatedAt = isoFromMs(req.body?.ratingUpdatedAt ?? req.body?.rating_updated_at);
+    const updatedAt = isoFromMs(req.body?.updatedAt ?? req.body?.updated_at);
+    const userRatingRaw = Number(req.body?.userRating ?? req.body?.user_rating);
     const userRating = Number.isFinite(userRatingRaw) && userRatingRaw > 0 ? Math.min(10, Math.max(1, userRatingRaw)) : null;
 
     const nowIso = new Date().toISOString();
+    const resolvedUpdatedAt = updatedAt || nowIso;
     const resolvedWatchlistAddedAt = watchlistAddedAt || (normalizedStatus === 'plan' ? nowIso : null);
     const resolvedWatchProgressAt = watchProgressAt || (parsedNextEpisode > 0 ? nowIso : null);
     const resolvedCompletedAt = completedAt || (normalizedStatus === 'completed' ? nowIso : null);
@@ -155,7 +159,7 @@ router.post('/me/follow', async (req, res) => {
         is_airing: Boolean(isAiring),
         total_episodes: Number.parseInt(totalEpisodes, 10) || 0,
         user_rating: userRating,
-        updated_at: nowIso,
+        updated_at: resolvedUpdatedAt,
         watchlist_added_at: resolvedWatchlistAddedAt,
         watch_progress_at: resolvedWatchProgressAt,
         completed_at: resolvedCompletedAt,
@@ -206,20 +210,22 @@ router.post('/me/follow/batch', async (req, res) => {
     const nowIso = new Date().toISOString();
     const rows = items
       .map((item) => {
-        const malId = Number.parseInt(item?.malId, 10);
+        const malId = Number.parseInt(item?.malId ?? item?.mal_id, 10);
         if (!malId) return null;
         const normalizedStatus = ['plan', 'watching', 'completed', 'dropped'].includes(String(item?.status || '').toLowerCase())
           ? String(item.status).toLowerCase()
           : 'plan';
-        const parsedNextEpisode = Math.max(0, Number.parseInt(item?.nextEpisode, 10) || 0);
-        const userRatingRaw = Number(item?.userRating);
+        const parsedNextEpisode = Math.max(0, Number.parseInt(item?.nextEpisode ?? item?.next_episode, 10) || 0);
+        const userRatingRaw = Number(item?.userRating ?? item?.user_rating);
         const userRating = Number.isFinite(userRatingRaw) && userRatingRaw > 0 ? Math.min(10, Math.max(1, userRatingRaw)) : null;
 
-        const watchlistAddedAt = isoFromMs(item?.watchlistAddedAt);
-        const watchProgressAt = isoFromMs(item?.watchProgressAt);
-        const completedAt = isoFromMs(item?.completedAt);
-        const ratingUpdatedAt = isoFromMs(item?.ratingUpdatedAt);
+        const watchlistAddedAt = isoFromMs(item?.watchlistAddedAt ?? item?.watchlist_added_at);
+        const watchProgressAt = isoFromMs(item?.watchProgressAt ?? item?.watch_progress_at);
+        const completedAt = isoFromMs(item?.completedAt ?? item?.completed_at);
+        const ratingUpdatedAt = isoFromMs(item?.ratingUpdatedAt ?? item?.rating_updated_at);
+        const updatedAt = isoFromMs(item?.updatedAt ?? item?.updated_at);
 
+        const resolvedUpdatedAt = updatedAt || nowIso;
         const resolvedWatchlistAddedAt = watchlistAddedAt || (normalizedStatus === 'plan' ? nowIso : null);
         const resolvedWatchProgressAt = watchProgressAt || (parsedNextEpisode > 0 ? nowIso : null);
         const resolvedCompletedAt = completedAt || (normalizedStatus === 'completed' ? nowIso : null);
@@ -233,15 +239,15 @@ router.post('/me/follow/batch', async (req, res) => {
           status: normalizedStatus,
           next_episode: parsedNextEpisode,
           is_airing: Boolean(item?.isAiring),
-          total_episodes: Number.parseInt(item?.totalEpisodes, 10) || 0,
+          total_episodes: Number.parseInt(item?.totalEpisodes ?? item?.total_episodes, 10) || 0,
           user_rating: userRating,
-          updated_at: nowIso,
+          updated_at: resolvedUpdatedAt,
           watchlist_added_at: resolvedWatchlistAddedAt,
           watch_progress_at: resolvedWatchProgressAt,
           completed_at: resolvedCompletedAt,
           rating_updated_at: resolvedRatingUpdatedAt,
-          client_id: clampText(item?.clientId, 80) || null,
-          mutation_id: clampText(item?.mutationId, 120) || null
+          client_id: clampText(item?.clientId ?? item?.client_id, 80) || null,
+          mutation_id: clampText(item?.mutationId ?? item?.mutation_id, 120) || null
         };
       })
       .filter(Boolean);

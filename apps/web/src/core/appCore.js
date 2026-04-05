@@ -614,6 +614,46 @@ function toLibraryItem(row) {
   };
 }
 
+function parseIsoMs(value) {
+  const numeric = Number(value || 0);
+  if (Number.isFinite(numeric) && numeric > 0) return Math.trunc(numeric);
+  const parsed = Date.parse(String(value || ''));
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+}
+
+function sameString(left, right) {
+  return String(left || '') === String(right || '');
+}
+
+function sameNumber(left, right) {
+  return Number(left || 0) === Number(right || 0);
+}
+
+function sameNullableRating(left, right) {
+  const l = Number(left);
+  const r = Number(right);
+  const lv = Number.isFinite(l) && l > 0 ? Math.min(10, Math.max(1, l)) : null;
+  const rv = Number.isFinite(r) && r > 0 ? Math.min(10, Math.max(1, r)) : null;
+  return lv === rv;
+}
+
+function isPayloadEquivalentToRemote(payload, remoteRow) {
+  if (!payload || !remoteRow) return false;
+  return (
+    sameString(payload.title, remoteRow.title) &&
+    sameString(payload.image, remoteRow.image) &&
+    normalizeStatus(payload.status) === normalizeStatus(remoteRow.status) &&
+    sameNumber(payload.nextEpisode, remoteRow.next_episode) &&
+    sameNumber(payload.totalEpisodes, remoteRow.total_episodes) &&
+    sameNullableRating(payload.userRating, remoteRow.user_rating) &&
+    parseIsoMs(payload.updatedAt) === parseIsoMs(remoteRow.updated_at) &&
+    parseIsoMs(payload.watchlistAddedAt) === parseIsoMs(remoteRow.watchlist_added_at) &&
+    parseIsoMs(payload.watchProgressAt) === parseIsoMs(remoteRow.watch_progress_at) &&
+    parseIsoMs(payload.completedAt) === parseIsoMs(remoteRow.completed_at) &&
+    parseIsoMs(payload.ratingUpdatedAt) === parseIsoMs(remoteRow.rating_updated_at)
+  );
+}
+
 function signature(items = []) {
   return [...(items || [])]
     .map((item) => ({
@@ -642,29 +682,61 @@ async function pushLibrary(localItems) {
 
   const remoteRows = await fetchAllRemoteFollowed('Remote diff load');
   const remoteIds = new Set(remoteRows.map((row) => Number(row?.mal_id || 0)).filter(Boolean));
+  const remoteById = new Map(
+    (remoteRows || [])
+      .map((row) => [Number(row?.mal_id || 0), row])
+      .filter(([id]) => id)
+  );
 
   const clientId = getClientId();
   const items = [...localById.values()].map((item) => {
+    const malId = Number(item?.malId || 0);
+    const remoteRow = remoteById.get(malId) || null;
     const progress = Math.max(0, Number(item?.progress ?? item?.watchedEpisodes ?? 0));
+    const normalizedStatus = normalizeStatus(item?.status);
+    const remoteUpdatedAt = parseIsoMs(remoteRow?.updated_at);
+    const remoteWatchlistAddedAt = parseIsoMs(remoteRow?.watchlist_added_at);
+    const remoteWatchProgressAt = parseIsoMs(remoteRow?.watch_progress_at);
+    const remoteCompletedAt = parseIsoMs(remoteRow?.completed_at);
+    const remoteRatingUpdatedAt = parseIsoMs(remoteRow?.rating_updated_at);
+    const localUpdatedAt = Number(item?.updatedAt || 0) || 0;
+    const localWatchlistAddedAt = Number(item?.watchlistAddedAt || 0) || 0;
+    const localWatchProgressAt = Number(item?.watchProgressAt || 0) || 0;
+    const localCompletedAt = Number(item?.completedAt || 0) || 0;
+    const localRatingUpdatedAt = Number(item?.ratingUpdatedAt || 0) || 0;
+
+    const updatedAtMs = localUpdatedAt || remoteUpdatedAt || Date.now();
+    const watchlistAddedAtMs = localWatchlistAddedAt || remoteWatchlistAddedAt || (normalizedStatus === 'plan' ? Date.now() : 0);
+    const watchProgressAtMs = localWatchProgressAt || remoteWatchProgressAt || (progress > 0 ? Date.now() : 0);
+    const completedAtMs = localCompletedAt || remoteCompletedAt || (normalizedStatus === 'completed' ? Date.now() : 0);
+    const ratingUpdatedAtMs = localRatingUpdatedAt || remoteRatingUpdatedAt || (Number(item?.userRating || 0) > 0 ? Date.now() : 0);
+
     return {
-      mal_id: Number(item?.malId || 0),
+      malId,
       title: item?.title || '',
       image: item?.image || '',
-      status: normalizeStatus(item?.status),
-      next_episode: progress,
-      total_episodes: Number(item?.episodes || 0),
-      user_rating: item?.userRating ?? null,
-      watchlist_added_at: new Date(Number(item?.watchlistAddedAt || 0) || Date.now()).toISOString(),
-      watch_progress_at: new Date(Number(item?.watchProgressAt || 0) || Date.now()).toISOString(),
-      completed_at: item?.completedAt ? new Date(item.completedAt).toISOString() : null,
-      rating_updated_at: item?.ratingUpdatedAt ? new Date(item.ratingUpdatedAt).toISOString() : null,
-      client_id: clientId,
-      mutation_id: `${clientId}:${Date.now().toString(36)}:${Math.random().toString(36).slice(2, 8)}`
+      status: normalizedStatus,
+      nextEpisode: progress,
+      totalEpisodes: Number(item?.episodes || 0),
+      userRating: item?.userRating ?? null,
+      updatedAt: updatedAtMs,
+      watchlistAddedAt: watchlistAddedAtMs,
+      watchProgressAt: watchProgressAtMs,
+      completedAt: completedAtMs || null,
+      ratingUpdatedAt: ratingUpdatedAtMs || null,
+      clientId,
+      mutationId: `${clientId}:${Date.now().toString(36)}:${Math.random().toString(36).slice(2, 8)}`
     };
   });
 
-  for (let offset = 0; offset < items.length; offset += FOLLOW_BATCH_SIZE) {
-    const chunk = items.slice(offset, offset + FOLLOW_BATCH_SIZE);
+  const toUpsert = items.filter((item) => {
+    const remoteRow = remoteById.get(Number(item?.malId || 0));
+    if (!remoteRow) return true;
+    return !isPayloadEquivalentToRemote(item, remoteRow);
+  });
+
+  for (let offset = 0; offset < toUpsert.length; offset += FOLLOW_BATCH_SIZE) {
+    const chunk = toUpsert.slice(offset, offset + FOLLOW_BATCH_SIZE);
     if (!chunk.length) continue;
     const res = await authFetch(apiUrl('/users/me/follow/batch'), {
       method: 'POST',
@@ -922,9 +994,8 @@ export function initLibraryCloudSync({ libraryStore, toast = null, syncIntervalM
       const rem = remoteById.get(id) || null;
 
       if (!rem) {
-        // Essential Change: Keep local items always during merge to avoid deletion on race conditions.
-        // We only "trust" remote deletions if we move to a true event-log sync.
-        merged.push(loc);
+        // Trust remote deletions unless we know there are local unsynced edits.
+        if (hasPendingSync) merged.push(loc);
         continue;
       }
 
@@ -1058,6 +1129,8 @@ export function initLibraryCloudSync({ libraryStore, toast = null, syncIntervalM
 
   const unsubscribe = libraryStore.subscribe(() => {
     if (destroyed || suppressSync || remoteApplyDepth > 0) return;
+    hasPendingSync = true;
+    void syncKvSet('pendingSync', true);
     if (syncing) {
       pendingSync = true;
       return;
