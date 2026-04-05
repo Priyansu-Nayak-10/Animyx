@@ -9324,6 +9324,29 @@ body:not(.dark) #profile-view .profile-save-hint {
     pointer-events: auto;
 }
 
+/* Keep seasonal dropdown above the card grid in all stacking contexts. */
+#season-view .premium-season-header {
+    position: relative;
+    z-index: 120;
+    overflow: visible;
+}
+
+#season-view .season-dropdown,
+#season-view .season-dropdown-toggle {
+    position: relative;
+    z-index: 130;
+}
+
+#season-view .season-dropdown-menu {
+    z-index: 2000;
+    background-color: #160f2a;
+}
+
+#season-view #season-anime-grid {
+    position: relative;
+    z-index: 1;
+}
+
 .season-dropdown-item {
     display: block;
     width: 100%;
