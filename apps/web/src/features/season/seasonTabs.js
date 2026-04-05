@@ -28,6 +28,8 @@ export function initSeasonTabs(mainNavContainer, subNavContainer, onTabChange) {
     yearMenu.style.removeProperty('left');
     yearMenu.style.removeProperty('width');
     yearMenu.style.removeProperty('max-height');
+    yearMenu.style.removeProperty('transform-origin');
+    yearMenu.removeAttribute('data-placement');
   }
 
   function positionYearMenu() {
@@ -36,14 +38,23 @@ export function initSeasonTabs(mainNavContainer, subNavContainer, onTabChange) {
     const viewportPadding = 10;
     const desiredWidth = Math.max(220, Math.round(rect.width));
     const width = Math.min(260, Math.max(200, Math.min(desiredWidth, window.innerWidth - (viewportPadding * 2))));
-    const maxHeight = Math.max(150, Math.min(320, window.innerHeight - rect.bottom - viewportPadding - 8));
+    const spaceBelow = Math.max(0, window.innerHeight - rect.bottom - viewportPadding);
+    const spaceAbove = Math.max(0, rect.top - viewportPadding);
+    const openUpward = spaceBelow < 170 && spaceAbove > spaceBelow;
+    const availableHeight = (openUpward ? spaceAbove : spaceBelow) - 8;
+    const maxHeight = Math.max(150, Math.min(320, availableHeight > 0 ? availableHeight : 150));
     let left = rect.right - width;
     left = Math.max(viewportPadding, Math.min(left, window.innerWidth - width - viewportPadding));
+    const top = openUpward
+      ? Math.max(viewportPadding, rect.top - maxHeight - 8)
+      : (rect.bottom + 8);
 
     yearMenu.style.width = `${width}px`;
     yearMenu.style.left = `${Math.round(left)}px`;
-    yearMenu.style.top = `${Math.round(rect.bottom + 8)}px`;
+    yearMenu.style.top = `${Math.round(top)}px`;
     yearMenu.style.maxHeight = `${Math.round(maxHeight)}px`;
+    yearMenu.style.transformOrigin = openUpward ? 'bottom right' : 'top right';
+    yearMenu.setAttribute('data-placement', openUpward ? 'top' : 'bottom');
   }
 
   function bindFloatingMenuPositioning() {
@@ -108,6 +119,7 @@ export function initSeasonTabs(mainNavContainer, subNavContainer, onTabChange) {
       const btn = document.createElement('button');
       btn.className = 'season-dropdown-item';
       btn.textContent = `${yr}`;
+      btn.dataset.year = String(yr);
       btn.setAttribute('type', 'button');
       btn.setAttribute('role', 'option');
       const isSelected = yr === selectedYear;
@@ -230,10 +242,10 @@ export function initSeasonTabs(mainNavContainer, subNavContainer, onTabChange) {
         el?.scrollIntoView?.({ block: 'nearest' });
         return;
       }
-      if (event.key === 'Enter') {
+      if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault();
         const el = items[focusedYearIndex >= 0 ? focusedYearIndex : 0];
-        const yr = Number(el?.textContent || 0);
+        const yr = Number(el?.dataset?.year || el?.textContent || 0);
         if (yr) selectYear(yr);
       }
     });
