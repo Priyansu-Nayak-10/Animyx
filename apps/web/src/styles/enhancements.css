@@ -138,7 +138,7 @@
 
 /* Search input — premium glow on focus */
 .search-wrapper:focus-within {
-  box-shadow: 0 0 0 1px var(--brand-primary), 0 0 20px var(--glow-purple), 0 4px 12px rgba(0,0,0,0.2) !important;
+  box-shadow: 0 0 20px var(--glow-purple), 0 4px 12px rgba(0,0,0,0.2) !important;
 }
 
 /* Profile pic — animated ring on hover */

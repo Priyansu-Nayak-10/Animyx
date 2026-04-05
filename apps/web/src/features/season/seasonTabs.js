@@ -20,6 +20,53 @@ export function initSeasonTabs(mainNavContainer, subNavContainer, onTabChange) {
   let activeTab = 'season';
   let focusedYearIndex = -1;
   let yearOptions = [];
+  let removeFloatingListeners = null;
+
+  function clearFloatingYearMenuPosition() {
+    if (!yearMenu) return;
+    yearMenu.style.removeProperty('top');
+    yearMenu.style.removeProperty('left');
+    yearMenu.style.removeProperty('width');
+    yearMenu.style.removeProperty('max-height');
+  }
+
+  function positionYearMenu() {
+    if (!yearMenu || !yearToggle || !yearMenu.classList.contains('open')) return;
+    const rect = yearToggle.getBoundingClientRect();
+    const viewportPadding = 10;
+    const desiredWidth = Math.max(220, Math.round(rect.width));
+    const width = Math.min(260, Math.max(200, Math.min(desiredWidth, window.innerWidth - (viewportPadding * 2))));
+    const maxHeight = Math.max(150, Math.min(320, window.innerHeight - rect.bottom - viewportPadding - 8));
+    let left = rect.right - width;
+    left = Math.max(viewportPadding, Math.min(left, window.innerWidth - width - viewportPadding));
+
+    yearMenu.style.width = `${width}px`;
+    yearMenu.style.left = `${Math.round(left)}px`;
+    yearMenu.style.top = `${Math.round(rect.bottom + 8)}px`;
+    yearMenu.style.maxHeight = `${Math.round(maxHeight)}px`;
+  }
+
+  function bindFloatingMenuPositioning() {
+    if (removeFloatingListeners) return;
+    let rafId = 0;
+    const schedulePosition = () => {
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        rafId = 0;
+        positionYearMenu();
+      });
+    };
+
+    window.addEventListener('resize', schedulePosition, { passive: true });
+    window.addEventListener('scroll', schedulePosition, true);
+
+    removeFloatingListeners = () => {
+      window.removeEventListener('resize', schedulePosition);
+      window.removeEventListener('scroll', schedulePosition, true);
+      if (rafId) cancelAnimationFrame(rafId);
+      removeFloatingListeners = null;
+    };
+  }
 
   function setYearLabel(year) {
     if (!yearToggle) return;
@@ -78,6 +125,8 @@ export function initSeasonTabs(mainNavContainer, subNavContainer, onTabChange) {
     if (!yearMenu || !yearToggle) return;
     yearMenu.classList.remove('open');
     yearToggle.setAttribute('aria-expanded', 'false');
+    if (removeFloatingListeners) removeFloatingListeners();
+    clearFloatingYearMenuPosition();
     if (focusToggle) yearToggle.focus();
   }
 
@@ -85,6 +134,8 @@ export function initSeasonTabs(mainNavContainer, subNavContainer, onTabChange) {
     if (!yearMenu || !yearToggle) return;
     yearMenu.classList.add('open');
     yearToggle.setAttribute('aria-expanded', 'true');
+    bindFloatingMenuPositioning();
+    positionYearMenu();
     const index = Math.max(0, yearOptions.indexOf(selectedYear));
     focusedYearIndex = index;
     const items = Array.from(yearMenu.querySelectorAll('.season-dropdown-item'));
@@ -106,11 +157,12 @@ export function initSeasonTabs(mainNavContainer, subNavContainer, onTabChange) {
     closeYearMenu();
     renderYearMenu();
     renderSeasons();
-    if (activeTab === 'season' || activeTab === 'completed' || activeTab === 'upcoming') {
+    if (activeTab === 'season' || activeTab === 'completed' || activeTab === 'upcoming' || activeTab === 'top') {
       const specMap = {
         season: 'season_spec',
         completed: 'completed_spec',
-        upcoming: 'upcoming_spec'
+        upcoming: 'upcoming_spec',
+        top: 'top'
       };
       const targetEvent = specMap[activeTab] || 'season_spec';
       onTabChange(targetEvent, { year: selectedYear, season: selectedSeason });

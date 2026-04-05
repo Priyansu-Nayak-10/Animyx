@@ -9263,6 +9263,8 @@ body:not(.dark) #profile-view .profile-save-hint {
     border-radius: 999px;
     border: 1px solid rgba(196, 181, 253, 0.18);
     background: rgba(20, 15, 38, 0.55);
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
     color: #f5f3ff;
     padding: 10px 14px;
     display: flex;
@@ -9294,14 +9296,14 @@ body:not(.dark) #profile-view .profile-save-hint {
 }
 
 .season-dropdown-menu {
-    position: absolute;
-    right: 0;
-    top: calc(100% + 8px);
+    position: fixed;
+    top: 0;
+    left: 0;
     width: 240px;
     max-height: 280px;
     overflow-y: auto;
     scroll-behavior: smooth;
-    background: linear-gradient(135deg, #120c22, #2a1450);
+    background: linear-gradient(135deg, rgba(18, 12, 34, 0.98), rgba(42, 20, 80, 0.98));
     border: 1px solid rgba(196, 181, 253, 0.22);
     border-radius: 14px;
     box-shadow: 0 14px 46px rgba(0, 0, 0, 0.56), 0 0 0 1px rgba(139, 92, 246, 0.14);
@@ -9315,7 +9317,7 @@ body:not(.dark) #profile-view .profile-save-hint {
     transform: translateY(-6px) scale(0.95);
     pointer-events: none;
     transition: transform 200ms ease, opacity 200ms ease;
-    z-index: 9999;
+    z-index: 12050;
 }
 
 .season-dropdown-menu.open {
@@ -9328,7 +9330,8 @@ body:not(.dark) #profile-view .profile-save-hint {
 #season-view .premium-season-header {
     position: relative;
     z-index: 120;
-    overflow: visible;
+    overflow: visible !important;
+    isolation: auto;
 }
 
 #season-view .season-dropdown,
@@ -9338,7 +9341,7 @@ body:not(.dark) #profile-view .profile-save-hint {
 }
 
 #season-view .season-dropdown-menu {
-    z-index: 2000;
+    z-index: 12050;
     background-color: #160f2a;
 }
 
@@ -9352,6 +9355,8 @@ body:not(.dark) #profile-view .profile-save-hint {
     width: 100%;
     margin: 0;
     box-sizing: border-box;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 500;
     padding: 10px 12px;
     border-radius: 10px;
     background: rgba(167, 139, 250, 0.16);
