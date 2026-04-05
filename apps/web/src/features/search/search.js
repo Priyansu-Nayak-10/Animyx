@@ -1026,12 +1026,13 @@ function initSearchAdvanced({
   refs.globalSearchInput?.addEventListener("focus", onGlobalFocus);
 
   // Close suggestions if clicked outside
-  document.addEventListener("click", (e) => {
+  const onOutsideSearchClick = (e) => {
     if (refs.searchWrapper && !refs.searchWrapper.contains(e.target)) {
       abortLiveSearchRequest();
       hideSuggestions();
     }
-  });
+  };
+  document.addEventListener("click", onOutsideSearchClick);
 
   const onDocumentClick = (e) => {
     const target = e.target;
@@ -1184,6 +1185,7 @@ function initSearchAdvanced({
     destroy() {
       cancelChunkRender();
       abortLiveSearchRequest();
+      document.removeEventListener("click", onOutsideSearchClick);
       document.removeEventListener("click", onDocumentClick);
       document.removeEventListener("keydown", onDocumentKeydown);
       unsubscribe();

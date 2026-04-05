@@ -1,5 +1,5 @@
 /* ============================================================
-   Animyx — Main stylesheet (merged)
+   Animyx â€” Main stylesheet (merged)
    Source: public/css/style.css + src/styles/style.css
    ============================================================ */
 
@@ -665,6 +665,12 @@ body.dark .search-wrapper {
     outline: none;
 }
 
+.search-input:focus-visible {
+    outline: 2px solid rgba(124, 58, 237, 0.7);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
 .search-input::placeholder {
     color: var(--text-muted);
 }
@@ -756,23 +762,6 @@ body.dark .icon-btn:hover {
     box-shadow: 0 0 4px rgba(239, 68, 68, 0.35);
     animation: pulse-red 2.8s ease-in-out infinite;
     will-change: transform, opacity;
-}
-
-@keyframes pulse-red {
-    0% {
-        transform: scale(0.96);
-        opacity: 0.75;
-    }
-
-    50% {
-        transform: scale(1);
-        opacity: 1;
-    }
-
-    100% {
-        transform: scale(0.96);
-        opacity: 0.75;
-    }
 }
 
 .user-greeting {
@@ -1366,20 +1355,6 @@ body.dark .card {
     animation: progressGlow 0.6s ease;
 }
 
-@keyframes progressGlow {
-    0% {
-        box-shadow: 0 0 0px rgba(91, 179, 255, 0);
-    }
-
-    50% {
-        box-shadow: 0 0 25px rgba(91, 179, 255, 0.7);
-    }
-
-    100% {
-        box-shadow: 0 0 0px rgba(91, 179, 255, 0);
-    }
-}
-
 .futuristic-card {
     background: linear-gradient(145deg, #54556a 0%, #4a4c62 45%, #434557 100%);
     border: 1px solid var(--border-glass);
@@ -1578,7 +1553,7 @@ body.dark .achievement-box.unlocked {
     box-shadow: 0 0 18px rgba(59, 130, 246, 0.28);
 }
 
-/* ── My Tracker Feed: HUD Console Upgrade ────────────────── */
+/* â”€â”€ My Tracker Feed: HUD Console Upgrade â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .tracker-feed-card {
     background: #0b1220 !important;
     border: 1px solid rgba(148, 163, 184, 0.15);
@@ -1853,7 +1828,7 @@ body.dark .news-badge-tokyo {
     white-space: nowrap;
 }
 
-/* â”€â”€ Global Skeleton / Pulse animation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* Ã¢â€â‚¬Ã¢â€â‚¬ Global Skeleton / Pulse animation Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬Ã¢â€â‚¬ */
 @keyframes pulse {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.45; }
@@ -2241,7 +2216,7 @@ body.dark .border-dashed:hover {
     border-color: rgba(96, 165, 250, 0.8);
 }
 
-/* ── Per-status active colours ── */
+/* â”€â”€ Per-status active colours â”€â”€ */
 .premium-card-actions .status-pill.status-plan.active {
     background: linear-gradient(135deg, #93c5fd 0%, #60a5fa 100%);
     color: #0b1a2e;
@@ -2393,7 +2368,7 @@ body.dark .border-dashed:hover {
     border-color: rgba(96, 165, 250, 0.8);
 }
 
-/* ── Per-status active colours for cover-actions (search/discover) ── */
+/* â”€â”€ Per-status active colours for cover-actions (search/discover) â”€â”€ */
 .cover-actions .status-pill.status-plan.active {
     background: linear-gradient(135deg, #93c5fd 0%, #60a5fa 100%);
     color: #0b1a2e;
@@ -3290,7 +3265,7 @@ body.dark #dashboard-view .news-list.custom-scrollbar::-webkit-scrollbar-thumb {
     top: 0; left: 0; right: 0; bottom: 0;
     background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
     transform: translateX(-100%);
-    animation: shimmer 2s infinite;
+    animation: slideShimmer 2s infinite;
     pointer-events: none;
     display: none;
 }
@@ -3299,7 +3274,7 @@ body.dark #dashboard-view .news-list.custom-scrollbar::-webkit-scrollbar-thumb {
     display: block;
 }
 
-@keyframes shimmer {
+@keyframes slideShimmer {
     100% { transform: translateX(100%); }
 }
 
@@ -3670,7 +3645,7 @@ body.dark .anime-card-v2 {
    Shared layout extras
    Moved from inline in app.html
    ======================= */
-/* Loading overlay â€” prevents flash of unauthenticated dashboard (FOUC) */
+/* Loading overlay Ã¢â‚¬â€ prevents flash of unauthenticated dashboard (FOUC) */
 #auth-loading-overlay {
     position: fixed;
     inset: 0;
@@ -3895,7 +3870,7 @@ body.dark .anime-card-v2 {
     filter: brightness(1.1);
 }
 
-/* ── Watchlist per-status active colours (wl-quick-right context) ── */
+/* â”€â”€ Watchlist per-status active colours (wl-quick-right context) â”€â”€ */
 .wl-quick-right .status-pill.status-plan.active {
     background: linear-gradient(135deg, #93c5fd 0%, #60a5fa 100%);
     color: #0b1a2e;
@@ -5237,9 +5212,6 @@ body.modal-open {
     transition: transform 0.3s ease;
 }
 
-.kpi-card:hover {
-    transform: translateY(-3px);
-}
 
 .kpi-label {
     font-size: 0.75rem;
@@ -5279,128 +5251,6 @@ body.modal-open {
 .insight-panel:hover {
     border-color: rgba(139, 92, 246, 0.3);
     box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
-}
-/* ═══════════════════════════════════════════════════════════
-   STATUS INTELLIGENCE — Premium 3-Column Analytics Redesign
-   ═══════════════════════════════════════════════════════════ */
-.si-panel { gap: 1.8rem; overflow: hidden; }
-.si-header { display: flex; flex-direction: column; gap: 4px; }
-.si-title { font-size: 1.15rem; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 0.5rem; color: var(--text-primary, #f1f5f9); letter-spacing: -0.01em; }
-.si-title-icon { font-size: 1.1rem; }
-.si-subtitle { margin: 0; font-size: 0.82rem; color: var(--text-muted, #94a3b8); }
-.si-grid { 
-    display: grid; 
-    grid-template-columns: 1fr 1fr; 
-    gap: 2.5rem; 
-    align-items: center; 
-}
-.si-col { display: flex; flex-direction: column; gap: 0.85rem; }
-.si-col-heading { margin: 0 0 0.25rem; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted, #94a3b8); }
-.si-col-chart { align-items: center; }
-.si-donut-wrapper { display: flex; flex-direction: column; align-items: center; gap: 1rem; width: 100%; }
-.si-donut-container { width: 140px; height: 140px; position: relative; display: flex; align-items: center; justify-content: center; }
-.si-donut-container .insight-donut-svg { width: 140px; height: 140px; filter: drop-shadow(0 0 18px rgba(139, 92, 246, 0.25)); animation: si-donut-in 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
-@keyframes si-donut-in { from { transform: scale(0.7) rotate(-30deg); opacity: 0; } to { transform: scale(1) rotate(0deg); opacity: 1; } }
-.si-donut-legend { display: flex; flex-direction: column; gap: 0.5rem; width: 100%; }
-.si-legend-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.82rem; }
-.si-legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
-.si-legend-label { flex: 1; color: var(--text-muted, #94a3b8); }
-.si-legend-val { font-weight: 800; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.1); }
-
-.si-col-heading { 
-    margin: 0 0 0.5rem; 
-    font-size: 0.75rem; 
-    font-weight: 800; 
-    letter-spacing: 0.15em; 
-    text-transform: uppercase; 
-    color: var(--accent, #8b5cf6);
-    opacity: 0.9;
-}
-.si-stat-card { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.9rem 1rem; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; backdrop-filter: blur(8px); transition: transform 200ms ease, border-color 200ms ease, box-shadow 200ms ease; cursor: default; }
-.si-stat-card:hover { transform: translateY(-2px); border-color: rgba(139,92,246,0.3); box-shadow: 0 8px 24px rgba(0,0,0,0.3), 0 0 0 1px rgba(139,92,246,0.15); }
-.si-stat-icon { font-size: 1.25rem; line-height: 1; margin-top: 1px; }
-.si-stat-body { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-.si-stat-label { font-size: 0.72rem; color: var(--text-muted, #94a3b8); font-weight: 500; letter-spacing: 0.03em; text-transform: uppercase; }
-.si-stat-value { font-size: 0.9rem; font-weight: 700; color: var(--text-primary, #f1f5f9); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px; }
-.si-analytic-card { 
-    position: relative; 
-    display: flex; 
-    align-items: center; 
-    gap: 1rem; 
-    padding: 1.1rem 1.25rem; 
-    border-radius: 14px; 
-    border: 1px solid transparent; 
-    overflow: hidden; 
-    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
-    cursor: default; 
-}
-
-.si-analytic-card:hover { 
-    transform: translateX(5px) scale(1.02); 
-}
-
-.si-analytic-glow { 
-    position: absolute; 
-    inset: 0; 
-    opacity: 0; 
-    transition: opacity 0.3s ease; 
-    border-radius: inherit; 
-    pointer-events: none; 
-}
-
-.si-analytic-card:hover .si-analytic-glow { opacity: 1; }
-
-.si-analytic-purple { 
-    background: linear-gradient(135deg, rgba(168, 85, 247, 0.18), rgba(107, 33, 168, 0.1)); 
-    border-color: rgba(168, 85, 247, 0.35); 
-}
-
-.si-analytic-purple:hover { 
-    background: linear-gradient(135deg, rgba(168, 85, 247, 0.25), rgba(107, 33, 168, 0.15));
-    box-shadow: 0 0 30px rgba(168, 85, 247, 0.3), inset 0 0 15px rgba(168, 85, 247, 0.1); 
-}
-
-.si-analytic-purple .si-analytic-glow { background: radial-gradient(circle at 20% 20%, rgba(168, 85, 247, 0.2), transparent 70%); }
-
-.si-analytic-blue { 
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.18), rgba(30, 64, 175, 0.1)); 
-    border-color: rgba(59, 130, 246, 0.35); 
-}
-
-.si-analytic-blue:hover { 
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(30, 64, 175, 0.15));
-    box-shadow: 0 0 30px rgba(59, 130, 246, 0.3), inset 0 0 15px rgba(59, 130, 246, 0.1); 
-}
-
-.si-analytic-blue .si-analytic-glow { background: radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.2), transparent 70%); }
-
-.si-analytic-green { 
-    background: linear-gradient(135deg, rgba(34, 197, 94, 0.18), rgba(20, 83, 45, 0.1)); 
-    border-color: rgba(34, 197, 94, 0.35); 
-}
-
-.si-analytic-green:hover { 
-    background: linear-gradient(135deg, rgba(34, 197, 94, 0.25), rgba(20, 83, 45, 0.15));
-    box-shadow: 0 0 30px rgba(34, 197, 94, 0.3), inset 0 0 15px rgba(34, 197, 94, 0.1); 
-}
-
-.si-analytic-green .si-analytic-glow { background: radial-gradient(circle at 20% 20%, rgba(34, 197, 94, 0.2), transparent 70%); }
-
-.si-analytic-icon { font-size: 1.6rem; line-height: 1; flex-shrink: 0; z-index: 1; filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.2)); }
-.si-analytic-body { display: flex; flex-direction: column; gap: 4px; z-index: 1; min-width: 0; }
-.si-analytic-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted, #94a3b8); opacity: 0.85; }
-.si-analytic-value { font-size: 1.15rem; font-weight: 800; color: var(--text-primary, #f8fafc); letter-spacing: -0.01em; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-@media (max-width: 1100px) {
-    .si-grid { grid-template-columns: 1fr 1fr; }
-    .si-col-chart { grid-column: 1 / -1; flex-direction: row; justify-content: center; gap: 2rem; }
-    .si-donut-wrapper { flex-direction: row; align-items: center; width: auto; gap: 1.5rem; }
-    .si-donut-legend { width: auto; min-width: 120px; }
-}
-@media (max-width: 720px) {
-    .si-grid { grid-template-columns: 1fr; }
-    .si-col-chart { flex-direction: column; align-items: center; }
-    .si-donut-wrapper { flex-direction: column; }
-    .si-donut-legend { width: 100%; flex-direction: row; justify-content: center; gap: 1rem; flex-wrap: wrap; }
 }
 
 .insight-panel.full-width {
@@ -5823,16 +5673,8 @@ body.modal-open {
     -ms-overflow-style: none !important;
 }
 
-html,
-body,
-* {
-    scrollbar-width: none !important;
-    -ms-overflow-style: none !important;
-}
-
-html::-webkit-scrollbar,
-body::-webkit-scrollbar,
-*::-webkit-scrollbar {
+.hide-scrollbar-universal::-webkit-scrollbar,
+.hide-scrollbar-universal *::-webkit-scrollbar {
     width: 0 !important;
     height: 0 !important;
     display: none !important;
@@ -6203,9 +6045,9 @@ body::-webkit-scrollbar,
     }
 }
 
-/* â”€â”€ PROFILE VIEW â”€â”€ */
+/* Ã¢â€â‚¬Ã¢â€â‚¬ PROFILE VIEW Ã¢â€â‚¬Ã¢â€â‚¬ */
 
-/* Grid: wider left so left â‰ˆ right visual weight */
+/* Grid: wider left so left Ã¢â€°Ë† right visual weight */
 .account-page-grid {
     display: grid;
     grid-template-columns: 400px 1fr;
@@ -6232,7 +6074,7 @@ body::-webkit-scrollbar,
     /* fix #3: stats no longer float */
 }
 
-/* Left + Right card: same shadow/border system â€” fix #1 */
+/* Left + Right card: same shadow/border system Ã¢â‚¬â€ fix #1 */
 .profile-hero-card,
 .profile-glass-card {
     border-radius: 1.25rem;
@@ -6250,7 +6092,7 @@ body:not(.dark) .profile-glass-card {
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
-/* Banner â€” fix #8: object-fit + controlled height */
+/* Banner Ã¢â‚¬â€ fix #8: object-fit + controlled height */
 .profile-banner-area {
     height: 120px;
     background: linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #4c1d95 70%, #6d28d9 100%);
@@ -6297,7 +6139,7 @@ body:not(.dark) .profile-banner-area {
     transform: translateY(-1px);
 }
 
-/* Avatar: fix #4 â€” cleaner overlap anchor, not too deep */
+/* Avatar: fix #4 Ã¢â‚¬â€ cleaner overlap anchor, not too deep */
 .profile-avatar-section {
     display: flex;
     align-items: flex-end;
@@ -6361,7 +6203,7 @@ body:not(.dark) .edit-avatar-btn {
     box-shadow: 0 0 10px rgba(124, 58, 237, 0.6);
 }
 
-/* Level Badge â€” sits right of avatar in the same row */
+/* Level Badge Ã¢â‚¬â€ sits right of avatar in the same row */
 .profile-level-badge {
     display: flex;
     align-items: center;
@@ -6387,7 +6229,7 @@ body:not(.dark) .edit-avatar-btn {
     letter-spacing: 0.04em;
 }
 
-/* Identity Info â€” fix #9: clear hierarchy: name huge, rank small */
+/* Identity Info Ã¢â‚¬â€ fix #9: clear hierarchy: name huge, rank small */
 .profile-identity-info {
     padding: 0.6rem 1.25rem 1.1rem;
     display: flex;
@@ -6408,7 +6250,7 @@ body:not(.dark) .profile-display-name {
     color: var(--text-primary);
 }
 
-/* Rank label and streak badge on same row â€” fix #9 */
+/* Rank label and streak badge on same row Ã¢â‚¬â€ fix #9 */
 .profile-rank-streak-row {
     display: flex;
     align-items: center;
@@ -6437,7 +6279,7 @@ body:not(.dark) .profile-display-name {
     border-radius: 2rem;
 }
 
-/* Stats Strip â€” now inside hero card, separated by a border â€” fix #3 */
+/* Stats Strip Ã¢â‚¬â€ now inside hero card, separated by a border Ã¢â‚¬â€ fix #3 */
 .profile-stats-strip {
     display: flex;
     align-items: center;
@@ -6491,8 +6333,8 @@ body:not(.dark) .pstat-divider {
     background: rgba(0, 0, 0, 0.08);
 }
 
-/* â”€â”€ RIGHT CARD: Glass Form Card â”€â”€
-   Same visual weight as left card â€” fix #1 & #5 */
+/* Ã¢â€â‚¬Ã¢â€â‚¬ RIGHT CARD: Glass Form Card Ã¢â€â‚¬Ã¢â€â‚¬
+   Same visual weight as left card Ã¢â‚¬â€ fix #1 & #5 */
 .profile-glass-card {
     display: flex;
     flex-direction: column;
@@ -6501,7 +6343,7 @@ body:not(.dark) .pstat-divider {
     /* padding controlled per-section */
 }
 
-/* Card Header â€” fix #5: fills right card top, balances banner */
+/* Card Header Ã¢â‚¬â€ fix #5: fills right card top, balances banner */
 .profile-card-header {
     display: flex;
     align-items: center;
@@ -6540,7 +6382,7 @@ body:not(.dark) .profile-card-header-title {
     margin-top: 0.1rem;
 }
 
-/* Form body â€” fix #6: uniform gap rhythm */
+/* Form body Ã¢â‚¬â€ fix #6: uniform gap rhythm */
 .profile-form-body {
     padding: 1.5rem;
     display: flex;
@@ -6549,7 +6391,7 @@ body:not(.dark) .profile-card-header-title {
     flex: 1;
 }
 
-/* Consistent form group spacing â€” fix #6 */
+/* Consistent form group spacing Ã¢â‚¬â€ fix #6 */
 .form-group {
     margin-bottom: 1.25rem;
 }
@@ -6593,7 +6435,7 @@ body:not(.dark) .profile-input {
     color: var(--text-muted);
 }
 
-/* Section sub-label inside the form â€” distinct from form labels â€” fix #9 */
+/* Section sub-label inside the form Ã¢â‚¬â€ distinct from form labels Ã¢â‚¬â€ fix #9 */
 .profile-form-section-label {
     display: flex;
     align-items: center;
@@ -6655,7 +6497,7 @@ body:not(.dark) .profile-input {
     font-size: 0.8rem;
 }
 
-/* Save Footer â€” fix #7: anchored with border-top divider */
+/* Save Footer Ã¢â‚¬â€ fix #7: anchored with border-top divider */
 .profile-save-footer {
     display: flex;
     align-items: center;
@@ -7107,7 +6949,7 @@ body:not(.dark) .profile-input {
     font-size: 1.1rem;
 }
 
-/* â”€â”€ SETTINGS VIEW â”€â”€ */
+/* Ã¢â€â‚¬Ã¢â€â‚¬ SETTINGS VIEW Ã¢â€â‚¬Ã¢â€â‚¬ */
 
 .settings-section-card {
     background: rgba(255, 255, 255, 0.04);
@@ -7296,7 +7138,7 @@ input:checked+.toggle-slider:before {
     transform: translateX(20px);
 }
 
-/* â”€â”€ EXPORT VIEW â”€â”€ */
+/* Ã¢â€â‚¬Ã¢â€â‚¬ EXPORT VIEW Ã¢â€â‚¬Ã¢â€â‚¬ */
 
 .export-preview-card {
     display: flex;
@@ -7461,7 +7303,7 @@ body:not(.dark) .export-main-card {
 
 
 /* -------------------------------------------------------
-   MY JOURNEY ï¿½ MILESTONE TILES
+   MY JOURNEY Ã¯Â¿Â½ MILESTONE TILES
 ------------------------------------------------------- */
 
 .milestone-grid {
@@ -7734,58 +7576,6 @@ body.dark .tracker-item-title {
     color: var(--text-muted);
     font-size: 0.75rem;
     line-height: 1.5;
-}
-
-/* Notification panel */
-#notif-panel {
-    position: fixed;
-    top: 4.7rem;
-    right: 1.5rem;
-    width: 320px;
-    max-height: 480px;
-    background: var(--bg-card);
-    border: 1px solid var(--glass-bg);
-    border-radius: 16px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-    z-index: 9999;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    transform: translateY(-8px) scale(0.97);
-    opacity: 0;
-    pointer-events: none;
-    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-#notif-panel.open {
-    opacity: 1;
-    pointer-events: auto;
-    transform: translateY(0) scale(1);
-}
-
-#notif-list {
-    flex: 1;
-    overflow-y: auto;
-    padding: 8px 0;
-}
-
-#notif-badge {
-    position: absolute;
-    top: 4px;
-    right: 4px;
-    min-width: 1.1rem;
-    height: 1.1rem;
-    background: #ef4444;
-    color: white;
-    border-radius: 999px;
-    font-size: 0.6rem;
-    font-weight: 800;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 0.25rem;
-    pointer-events: none;
-    animation: pulse-red 2.8s ease-in-out infinite;
 }
 
 /* Toast */
@@ -8293,9 +8083,9 @@ body:not(.dark) #profile-view .profile-save-hint {
     color: #64748b;
 }
 
-/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+/* Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â
    PREMIUM DONUT CHART
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+   Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â */
 
 /* Each SVG slice draws in from 0 opacity + slight scale */
 .donut-slice {
@@ -8415,8 +8205,8 @@ body:not(.dark) #profile-view .profile-save-hint {
 .activity-time { font-size: 0.7rem; color: var(--text-muted); white-space: nowrap; margin-left: 8px; }
 .activity-action { font-size: 0.8rem; line-height: 1.4; word-break: break-word; }
 .activity-poster { width: 42px; height: 60px; border-radius: 6px; object-fit: cover; border: 1px solid var(--border-color); flex-shrink: 0; }
-.live-pulse { width: 8px; height: 8px; background-color: #ef4444; border-radius: 50%; box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); animation: pulse-red 1.5s infinite; }
-@keyframes pulse-red { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+.live-pulse { width: 8px; height: 8px; background-color: #ef4444; border-radius: 50%; box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); animation: pulse-red-ring 1.5s infinite; }
+@keyframes pulse-red-ring { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
 .animate-slide-down { animation: slideDownIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 @keyframes slideDownIn { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -8526,7 +8316,7 @@ body:not(.dark) #profile-view .profile-save-hint {
     transform: scale(1.1);
 }
 /* -----------------------------------------------------------
-   ADVANCED INSIGHTS � Leveling, Heatmap & Persona
+   ADVANCED INSIGHTS ï¿½ Leveling, Heatmap & Persona
    ----------------------------------------------------------- */
 
 .insight-level-card {
@@ -8783,11 +8573,11 @@ body:not(.dark) #profile-view .profile-save-hint {
 
 /* --- BEGIN src/styles/style.css --- */
 /* ============================================================
-   Animyx 2.0 — Global Stylesheet
+   Animyx 2.0 â€” Global Stylesheet
    Extends and supplements index.html embedded styles
    ============================================================ */
 
-/* ── Notification Panel ──────────────────────────────────── */
+/* â”€â”€ Notification Panel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 #notif-panel {
     position: fixed;
     top: 60px;
@@ -8885,7 +8675,7 @@ body:not(.dark) #profile-view .profile-save-hint {
     font-size: 0.9rem;
 }
 
-/* ── Notification Badge ───────────────────────────────────── */
+/* â”€â”€ Notification Badge â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 #notif-badge {
     position: absolute;
     top: -4px;
@@ -8914,7 +8704,7 @@ body:not(.dark) #profile-view .profile-save-hint {
     }
 }
 
-/* ── Toast Notifications ─────────────────────────────────── */
+/* â”€â”€ Toast Notifications â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 #toast-root {
     position: fixed;
     bottom: 24px;
@@ -8955,7 +8745,7 @@ body:not(.dark) #profile-view .profile-save-hint {
     line-height: 1.4;
 }
 
-/* ── Scrollbar ───────────────────────────────────────────── */
+/* â”€â”€ Scrollbar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 ::-webkit-scrollbar {
     width: 5px;
 }
@@ -8973,7 +8763,7 @@ body:not(.dark) #profile-view .profile-save-hint {
     background: var(--accent, #8b5cf6);
 }
 
-/* ── Utility Classes ─────────────────────────────────────── */
+/* â”€â”€ Utility Classes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .sr-only {
     position: absolute;
     width: 1px;
@@ -9010,9 +8800,9 @@ body:not(.dark) #profile-view .profile-save-hint {
 }
 
 
-/* ═══════════════════════════════════════════════════════════
-   STATUS INTELLIGENCE — Premium 3-Column Analytics Redesign
-   ═══════════════════════════════════════════════════════════ */
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   STATUS INTELLIGENCE â€” Premium 3-Column Analytics Redesign
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 .si-panel { gap: 1.8rem; overflow: hidden; }
 .si-header { display: flex; flex-direction: column; gap: 4px; }
 .si-title { font-size: 1.15rem; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 0.5rem; color: var(--text-primary, #f1f5f9); letter-spacing: -0.01em; }
@@ -9440,7 +9230,7 @@ body:not(.dark) #profile-view .profile-save-hint {
     }
 }
 
-/* ── Dashboard Quick Stats: Genre Chips ── */
+/* â”€â”€ Dashboard Quick Stats: Genre Chips â”€â”€ */
 .genres-list {
     display: flex;
     flex-direction: row;
@@ -9847,8 +9637,11 @@ body {
 .app-container,
 .app-shell {
   height: 100vh;
+  height: 100dvh;
   min-height: 100vh;
+  min-height: 100dvh;
   max-height: 100vh;
+  max-height: 100dvh;
   width: 100%;
   max-width: 100%;
   overflow: hidden;
@@ -11280,7 +11073,7 @@ body {
 }
 
 .kpi-card:hover {
-  transform: translateY(-8px) scale(1.02);
+  transform: translateY(-4px);
   border-color: rgba(196, 181, 253, 0.3);
   box-shadow:
     0 28px 48px rgba(0, 0, 0, 0.5),
@@ -11679,11 +11472,11 @@ body {
 
 
 /* ============================================================
-   PREMIUM UX UPGRADES — Skeleton Shimmer, Image Blur-Up,
+   PREMIUM UX UPGRADES â€” Skeleton Shimmer, Image Blur-Up,
    Mobile Sidebar Backdrop Animation
    ============================================================ */
 
-/* ── Skeleton Shimmer Cards ──────────────────────────────── */
+/* â”€â”€ Skeleton Shimmer Cards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @keyframes premiumShimmer {
   0%   { background-position: -400px 0; }
   100% { background-position: 400px 0; }
@@ -11737,7 +11530,7 @@ body {
   gap: 0;
 }
 
-/* ── Image Blur-Up on Lazy Load ──────────────────────────── */
+/* â”€â”€ Image Blur-Up on Lazy Load â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 img[loading="lazy"] {
   filter: blur(8px);
   transition: filter 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -11748,7 +11541,7 @@ img.img-loaded {
   filter: blur(0);
 }
 
-/* ── Mobile Sidebar Backdrop Smooth Animation ────────────── */
+/* â”€â”€ Mobile Sidebar Backdrop Smooth Animation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .sidebar-backdrop {
   opacity: 0;
   transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1);
@@ -11775,7 +11568,7 @@ body.sidebar-open .sidebar-backdrop {
   }
 }
 
-/* ── Watchlist card hover premium zoom ───────────────────── */
+/* â”€â”€ Watchlist card hover premium zoom â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .wl-card-vertical .wl-card-poster {
   transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform;
@@ -11785,7 +11578,7 @@ body.sidebar-open .sidebar-backdrop {
   transform: scale(1.06);
 }
 
-/* ── Search skeleton card ────────────────────────────────── */
+/* â”€â”€ Search skeleton card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .premium-cover-card .cover-img {
   filter: blur(6px);
   transition: filter 0.35s cubic-bezier(0.4, 0, 0.2, 1);
@@ -11795,7 +11588,7 @@ body.sidebar-open .sidebar-backdrop {
   filter: blur(0);
 }
 
-/* ── Anime card image blur-up ────────────────────────────── */
+/* â”€â”€ Anime card image blur-up â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .cover-img-wrap img,
 .anime-card img,
 .wl-card-poster {
@@ -11809,7 +11602,7 @@ body.sidebar-open .sidebar-backdrop {
   filter: blur(0);
 }
 
-/* ── Recent Activity Timeline ─────────────────────────────── */
+/* â”€â”€ Recent Activity Timeline â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .activity-timeline-feed {
   overflow-y: visible;
   overflow-x: hidden;
@@ -11917,9 +11710,10 @@ body.sidebar-open .sidebar-backdrop {
   opacity: 0.4;
 }
 
-/* ── Radar Chart Dominant Label ───────────────────────────── */
+/* â”€â”€ Radar Chart Dominant Label â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 .radar-label-dominant {
   font-weight: 700;
 }
+
 
 

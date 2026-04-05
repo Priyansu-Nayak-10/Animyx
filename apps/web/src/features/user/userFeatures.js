@@ -671,8 +671,10 @@ function initExport({ libraryStore, toast } = {}) {
     }
   }
 
-  refs.jsonBtn?.addEventListener("click", () => setFormat("json"));
-  refs.csvBtn?.addEventListener("click", () => setFormat("csv"));
+  const onJsonClick = () => setFormat("json");
+  const onCsvClick = () => setFormat("csv");
+  refs.jsonBtn?.addEventListener("click", onJsonClick);
+  refs.csvBtn?.addEventListener("click", onCsvClick);
   refs.generateBtn?.addEventListener("click", onGenerate);
 
   setFormat("json");
@@ -681,8 +683,8 @@ function initExport({ libraryStore, toast } = {}) {
   return Object.freeze({
     render() { updatePreview(); },
     destroy() {
-      refs.jsonBtn?.removeEventListener("click", () => setFormat("json"));
-      refs.csvBtn?.removeEventListener("click", () => setFormat("csv"));
+      refs.jsonBtn?.removeEventListener("click", onJsonClick);
+      refs.csvBtn?.removeEventListener("click", onCsvClick);
       refs.generateBtn?.removeEventListener("click", onGenerate);
     }
   });
@@ -769,12 +771,15 @@ function initImport({ libraryStore, toast } = {}) {
   }
 
   // --- Click & Select Handlers ---
-  refs.dropZone?.addEventListener("click", () => refs.fileInput?.click());
-  refs.fileInput?.addEventListener("change", (e) => {
+  const onDropZoneClick = () => refs.fileInput?.click();
+  const onFileInputChange = (e) => {
     if (e.target.files?.length) handleFileSelection(e.target.files[0]);
     // Reset input so same file selection triggers change again if needed
     e.target.value = "";
-  });
+  };
+
+  refs.dropZone?.addEventListener("click", onDropZoneClick);
+  refs.fileInput?.addEventListener("change", onFileInputChange);
 
   refs.dropZone?.addEventListener("dragover", onDragOver);
   refs.dropZone?.addEventListener("dragleave", onDragLeave);
@@ -858,7 +863,8 @@ function initImport({ libraryStore, toast } = {}) {
 
   return Object.freeze({
     destroy() {
-      refs.dropZone?.removeEventListener("click", () => refs.fileInput?.click());
+      refs.dropZone?.removeEventListener("click", onDropZoneClick);
+      refs.fileInput?.removeEventListener("change", onFileInputChange);
       refs.dropZone?.removeEventListener("dragover", onDragOver);
       refs.dropZone?.removeEventListener("dragleave", onDragLeave);
       refs.dropZone?.removeEventListener("drop", onDrop);

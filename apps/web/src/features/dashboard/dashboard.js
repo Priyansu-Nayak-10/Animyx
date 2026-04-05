@@ -558,13 +558,35 @@ export function initClipCard({ storage = globalThis.localStorage } = {}) {
   const card = document.querySelector(".clip-placeholder-card"); if (!card) return { render() { }, destroy() { } };
   let clipSignature = "", livePreUrl = "", livePreTag = "img";
 
+  function normalizeMediaSrc(value) {
+    const raw = String(value || "").trim();
+    if (!raw) return "";
+    try {
+      const parsed = new URL(raw, globalThis.location?.origin || "http://localhost");
+      const protocol = String(parsed.protocol || "").toLowerCase();
+      if (protocol === "http:" || protocol === "https:" || protocol === "data:" || protocol === "blob:") {
+        return parsed.href;
+      }
+    } catch (_) {
+      return "";
+    }
+    return "";
+  }
+
   function render() {
     const saved = livePreUrl || String(storage?.getItem?.(DASHBOARD_CLIP_KEY) || "").trim();
     const sig = saved ? `f:${saved.length}:${saved.slice(0, 32)}` : "e";
     if (clipSignature === sig) return; clipSignature = sig;
     if (!saved) { card.innerHTML = `<input type="file" id="clip-upload" accept="video/*,image/*" hidden /><span class="placeholder-text">Insert Your Favorite Clip</span>`; card.classList.remove("has-media"); return; }
+    const safeSrc = normalizeMediaSrc(saved);
+    if (!safeSrc) {
+      storage?.removeItem?.(DASHBOARD_CLIP_KEY);
+      card.innerHTML = `<input type="file" id="clip-upload" accept="video/*,image/*" hidden /><span class="placeholder-text">Insert Your Favorite Clip</span>`;
+      card.classList.remove("has-media");
+      return;
+    }
     const tag = livePreUrl ? livePreTag : (String(saved).startsWith("data:video/") ? "video" : "img");
-    card.innerHTML = `${tag === "video" ? `<video class="clip-media" src="${saved}" autoplay muted loop playsinline preload="metadata"></video>` : `<img class="clip-media" src="${saved}" alt="Clip" loading="lazy" />`}<button type="button" class="remove-clip">Remove</button>`;
+    card.innerHTML = `${tag === "video" ? `<video class="clip-media" src="${safeSrc}" autoplay muted loop playsinline preload="metadata"></video>` : `<img class="clip-media" src="${safeSrc}" alt="Clip" loading="lazy" />`}<button type="button" class="remove-clip">Remove</button>`;
     card.classList.add("has-media");
   }
 

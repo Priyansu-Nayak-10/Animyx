@@ -52,9 +52,9 @@
 }
 
 .search-wrapper .search-input:focus-visible {
-  outline: none !important;
-  outline-offset: 0 !important;
-  border-radius: 0 !important;
+  outline: 2px solid rgba(124, 58, 237, 0.7);
+  outline-offset: 2px;
+  border-radius: 4px;
 }
 
 /* ── 3. PREMIUM SIDEBAR ENHANCEMENTS ─────────────────────── */
@@ -420,7 +420,7 @@
 }
 
 .news-item:hover {
-  transform: translateX(4px) !important;
+  transform: translateY(-2px);
   border-color: rgba(124, 58, 237, 0.25) !important;
 }
 
@@ -750,7 +750,7 @@
 }
 
 .watchlist-item:hover {
-  transform: translateX(6px) !important;
+  transform: translateX(5px);
   border-color: rgba(91, 179, 255, 0.3) !important;
   box-shadow: 0 8px 24px rgba(2, 6, 23, 0.35) !important;
 }
@@ -1021,12 +1021,11 @@
 /* ── 33. SEARCH SUGGESTIONS ENHANCEMENT ────────────────── */
 
 .suggestion-item {
-  transition: background 0.18s ease, transform 0.18s var(--ease-spring), padding-left 0.18s ease !important;
+  transition: background 0.18s ease, transform 0.18s var(--ease-spring) !important;
 }
 
 .suggestion-item:hover {
   transform: translateX(4px);
-  padding-left: 20px !important;
 }
 
 /* ── 34. PAGINATION ENHANCEMENT ────────────────────────── */
@@ -1036,7 +1035,7 @@
 }
 
 .page-btn:hover:not(:disabled) {
-  transform: translateY(-2px) !important;
+  transform: translateY(-1px) !important;
   box-shadow: 0 6px 14px rgba(91, 179, 255, 0.2) !important;
 }
 
@@ -1072,7 +1071,7 @@
 }
 
 .upcoming-item:hover {
-  transform: translateX(6px) !important;
+  transform: translateX(5px);
   border-color: rgba(91, 179, 255, 0.3) !important;
 }
 
