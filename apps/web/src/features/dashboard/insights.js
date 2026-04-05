@@ -159,162 +159,6 @@ function calculatePlayerStats(episodes, completed) {
   return { level, title, xp, nextLevelXp: Math.floor(nextLevelXp), progress: Math.min(100, Math.max(0, progress)) };
 }
 
-function startOfWeek(date) {
-  const dayIndex = (date.getDay() + 6) % 7;
-  const start = new Date(date);
-  start.setHours(0, 0, 0, 0);
-  start.setDate(start.getDate() - dayIndex);
-  return start;
-}
-
-function formatWeekLabel(startDate) {
-  const endDate = new Date(startDate);
-  endDate.setDate(endDate.getDate() + 6);
-  const startLabel = startDate.toLocaleDateString(undefined, { month: "short", day: "numeric" });
-  const endLabel = endDate.toLocaleDateString(undefined, { month: "short", day: "numeric" });
-  return `${startLabel} \u2013 ${endLabel}`;
-}
-
-function buildWeeklyTooltipHtml(label, watching, completed, planning) {
-  const lines = [];
-  lines.push(`<div class="tooltip-header">${escapeHtml(label)}</div>`);
-  const watchingTotal = watching?.totalEpisodes || 0;
-  const completedTotal = completed?.totalAnime || 0;
-  const planningTotal = planning?.totalAnime || 0;
-  if (watchingTotal > 0) lines.push(`<div class="tooltip-row"><span class="tooltip-indicator watch"></span><span>${watchingTotal} episodes watched</span></div>`);
-  if (completedTotal > 0) lines.push(`<div class="tooltip-row"><span class="tooltip-indicator complete"></span><span>${completedTotal} series finished</span></div>`);
-  if (planningTotal > 0) lines.push(`<div class="tooltip-row"><span class="tooltip-indicator plan"></span><span>${planningTotal} added to plan</span></div>`);
-  return lines.join("");
-}
-
-function renderWeeklyActivityChart(container, items) {
-  if (!container) return;
-  const now = new Date();
-  const currentWeekStart = startOfWeek(now);
-  const firstWeekStart = new Date(currentWeekStart);
-  firstWeekStart.setDate(firstWeekStart.getDate() - 7 * 11);
-  const weekBuckets = Array.from({ length: 12 }, (_, index) => {
-    const weekStart = new Date(firstWeekStart);
-    weekStart.setDate(weekStart.getDate() + index * 7);
-    return {
-      weekStart,
-      label: formatWeekLabel(weekStart),
-      watching: { totalEpisodes: 0, titles: [] },
-      completed: { totalAnime: 0, titles: [] },
-      planning: { totalAnime: 0, titles: [] }
-    };
-  });
-  const startMs = firstWeekStart.getTime();
-  const endMs = new Date(currentWeekStart.getTime() + 6 * 24 * 60 * 60 * 1000).getTime();
-  const msPerWeek = 7 * 24 * 60 * 60 * 1000;
-
-  items.forEach((item) => {
-    const status = String(item?.status || "").toLowerCase();
-    const updatedAt = toTimestampMs(item?.updatedAt || item?.updated_at || item?.lastUpdatedAt);
-    const completedAt = toTimestampMs(item?.completedAt || item?.completed_at);
-    const watchProgressAt = toTimestampMs(item?.watchProgressAt || item?.watch_progress_at) || updatedAt;
-    const watchlistAddedAt = toTimestampMs(item?.watchlistAddedAt || item?.watchlist_added_at || item?.createdAt || item?.created_at)
-      || (status === "plan" ? updatedAt : 0);
-    const title = String(item?.title || "Unknown");
-    const watchedEpisodes = Math.max(0, Number(item?.watchedEpisodes ?? item?.progress ?? 0));
-    const watchEpisodes = watchedEpisodes > 0 ? watchedEpisodes : (status === "watching" ? 1 : 0);
-    [
-      { ts: watchProgressAt, type: "watching", title, episodes: watchEpisodes },
-      { ts: completedAt, type: "completed", title },
-      { ts: watchlistAddedAt, type: "planning", title }
-    ].forEach(e => {
-      if (!e.ts || e.ts < startMs || e.ts > endMs) return;
-      const idx = Math.floor((e.ts - startMs) / msPerWeek);
-      if (idx < 0 || idx >= weekBuckets.length) return;
-      const week = weekBuckets[idx];
-      if (e.type === 'watching') {
-        week.watching.totalEpisodes += e.episodes;
-        const row = week.watching.titles.find(r => r.title === title);
-        if (row) row.episodes += e.episodes; else week.watching.titles.push({ title, episodes: e.episodes });
-      } else {
-        week[e.type].totalAnime += 1;
-        week[e.type].titles.push(title);
-      }
-    });
-  });
-
-  const totals = weekBuckets.map(w => ({ ...w, total: w.watching.totalEpisodes + w.completed.totalAnime + w.planning.totalAnime }));
-  const maxTotal = Math.max(1, ...totals.map(w => w.total));
-  const totalActivity = totals.reduce((sum, w) => sum + w.total, 0);
-  const mostActive = totals.reduce((best, w) => (w.total > best.total ? w : best), totals[0]);
-  let currentStreakWeeks = 0;
-  for (let i = totals.length - 1; i >= 0; i -= 1) { if (totals[i].total <= 0) break; currentStreakWeeks += 1; }
-
-  const mostActiveText = mostActive?.total ? `${mostActive.label} (${mostActive.total} updates)` : "No activity yet";
-
-  function buildRows(mode = "absolute") {
-    return totals.map((week, index) => {
-      const total = week.total;
-      const barScale = mode === "normalized" ? (total > 0 ? 100 : 0) : (total ? (total / maxTotal) * 100 : 0);
-      const tooltipHtml = buildWeeklyTooltipHtml(week.label, week.watching, week.completed, week.planning);
-      const barDelay = Math.min(index * 70, 700);
-      const segment = (value, className) => {
-        if (!total || !value) return "";
-        const height = (value / total) * 100;
-        return `<span class="activity-segment ${className}" style="height:${height}%" data-tooltip-html="${escapeHtml(tooltipHtml)}"></span>`;
-      };
-      return `
-        <div class="activity-column${total ? "" : " is-empty"}">
-          <div class="activity-total-float">${total}</div>
-          <div class="activity-bar-vertical">
-            <div class="activity-bar-fill" style="height:${barScale}%; --bar-delay:${barDelay}ms">
-              ${segment(week.watching.totalEpisodes, "segment-watch")}
-              ${segment(week.completed.totalAnime, "segment-complete")}
-              ${segment(week.planning.totalAnime, "segment-planning")}
-            </div>
-          </div>
-          <div class="activity-count">${total ? total : "-"}</div>
-          <div class="activity-label">${escapeHtml(week.label)}</div>
-        </div>
-      `;
-    }).join("");
-  }
-
-  const panel = container.closest(".activity-chart-panel");
-  const activeButton = panel?.querySelector("[data-activity-mode].is-active");
-  const activeMode = activeButton?.getAttribute("data-activity-mode") || panel?.getAttribute("data-activity-mode") || "absolute";
-
-  container.innerHTML = `
-    <div class="insight-activity-chart" data-activity-mode="${escapeHtml(activeMode)}">${buildRows(activeMode)}</div>
-    <div class="activity-summary">
-      <div class="activity-summary-item"><span class="summary-label">Most Active Week</span><span class="summary-value">${escapeHtml(mostActiveText)}</span></div>
-      <div class="activity-summary-item"><span class="summary-label">Total Activity</span><span class="summary-value">${totalActivity}</span></div>
-      <div class="activity-summary-item"><span class="summary-label">Current Streak</span><span class="summary-value">${currentStreakWeeks} week${currentStreakWeeks === 1 ? "" : "s"}</span></div>
-    </div>
-  `;
-
-  const chart = container.querySelector(".insight-activity-chart");
-  const toggleButtons = panel?.querySelectorAll("[data-activity-mode]");
-  if (chart && toggleButtons?.length) {
-    panel?.setAttribute("data-activity-mode", activeMode);
-    toggleButtons.forEach((btn) => {
-      btn.onclick = () => {
-        const mode = btn.getAttribute("data-activity-mode") || "absolute";
-        toggleButtons.forEach((node) => node.classList.toggle("is-active", node === btn));
-        panel?.setAttribute("data-activity-mode", mode);
-        chart.setAttribute("data-activity-mode", mode);
-        chart.innerHTML = buildRows(mode);
-      };
-    });
-
-    chart.onmouseover = (event) => {
-      const column = event.target.closest(".activity-column");
-      if (!column) return;
-      chart.classList.add("is-hovering");
-      chart.querySelectorAll(".activity-column").forEach((node) => node.classList.toggle("is-hovered", node === column));
-    };
-    chart.onmouseleave = () => {
-      chart.classList.remove("is-hovering");
-      chart.querySelectorAll(".activity-column").forEach((node) => node.classList.remove("is-hovered"));
-    };
-  }
-}
-
 function applyRecentActivityViewport(container, visibleItems = 4) {
   if (!container) return;
   const rows = Array.from(container.querySelectorAll(".activity-timeline-item"));
@@ -501,7 +345,7 @@ export function initInsights({ libraryStore }) {
     completionRate: document.getElementById("insight-completion-rate"), avgRatingSi: document.getElementById("insight-avg-rating-si"),
     levelTitle: document.getElementById("insight-level-title"), levelNumber: document.getElementById("insight-level-number"),
     xpCurrent: document.getElementById("insight-xp-current"), xpNext: document.getElementById("insight-xp-next"), xpBar: document.getElementById("insight-xp-bar"),
-    weeklyActivity: document.getElementById("insight-activity-chart"), radarSvg: document.getElementById("insight-persona-radar"),
+    radarSvg: document.getElementById("insight-persona-radar"),
     studioList: document.getElementById("insight-studio-list"), favoriteStudio: document.getElementById("insight-favorite-studio"),
     lastCompletedAnime: document.getElementById("insight-last-completed"), gapsText: document.getElementById("insight-gaps-text"), suggestedGenre: document.getElementById("insight-suggested-genre")
   };
@@ -520,7 +364,7 @@ export function initInsights({ libraryStore }) {
     const ps = insights.playerStats;
     if (refs.levelTitle) refs.levelTitle.textContent = ps.title; if (refs.levelNumber) refs.levelNumber.textContent = `Level ${ps.level}`;
     if (refs.xpCurrent) refs.xpCurrent.textContent = String(ps.xp); if (refs.xpNext) refs.xpNext.textContent = String(ps.nextLevelXp); if (refs.xpBar) refs.xpBar.style.width = `${ps.progress}%`;
-    renderWeeklyActivityChart(refs.weeklyActivity, items); renderPersonaRadar(refs.radarSvg, insights.genreDistribution.all); renderStudioSpotlight(refs.studioList, insights.studioCount, items); renderDiscoveryIntelligence(refs, insights.genreDistribution);
+    renderPersonaRadar(refs.radarSvg, insights.genreDistribution.all); renderStudioSpotlight(refs.studioList, insights.studioCount, items); renderDiscoveryIntelligence(refs, insights.genreDistribution);
     const breakdown = insights.statusBreakdown;
     if (refs.completed) refs.completed.textContent = String(breakdown.completed);
     if (refs.watching) refs.watching.textContent = String(breakdown.watching);

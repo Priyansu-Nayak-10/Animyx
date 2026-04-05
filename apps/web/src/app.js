@@ -107,16 +107,6 @@ const initAuthEvents = async () => {
     window.dispatchEvent(new CustomEvent('Animyx:refresh-upcoming'));
   });
 
-  // ── Activity-mode toggle (Insights) ───────────────────────
-  document.querySelectorAll('.activity-toggle-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.activity-toggle-btn').forEach(b => b.classList.remove('is-active'));
-      btn.classList.add('is-active');
-      const mode = btn.dataset.activityMode;
-      window.dispatchEvent(new CustomEvent('Animyx:activity-mode', { detail: { mode } }));
-    });
-  });
-
   // ── Insights empty-state buttons ──────────────────────────
   document.querySelectorAll('[data-empty-action]').forEach(btn => {
     btn.addEventListener('click', () => {

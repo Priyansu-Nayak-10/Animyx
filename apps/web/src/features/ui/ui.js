@@ -126,7 +126,7 @@ function initChartTooltips({ tooltipId = "chart-tooltip" } = {}) {
   }
 
   function onMouseMove(e) {
-    const target = e.target.closest(".donut-slice, .genre-bar-item, .insight-legend-item, .si-legend-item, .legend-item, .activity-segment");
+    const target = e.target.closest(".donut-slice, .genre-bar-item, .insight-legend-item, .si-legend-item, .legend-item");
     if (!target) {
       tooltip.classList.remove("active");
       return;
@@ -148,27 +148,14 @@ function initChartTooltips({ tooltipId = "chart-tooltip" } = {}) {
     }
     tooltip.classList.add("active");
 
-    if (target.classList.contains("activity-segment")) {
-      const rect = target.getBoundingClientRect();
-      const width = tooltip.offsetWidth;
-      const height = tooltip.offsetHeight;
-      const centerX = rect.left + rect.width / 2;
-      const topY = rect.top - height - 12;
-      const maxX = window.innerWidth - width - 12;
-      const minX = 12;
-      const minY = 12;
-      tooltip.style.left = `${Math.min(Math.max(centerX - width / 2, minX), maxX)}px`;
-      tooltip.style.top = `${Math.max(topY, minY)}px`;
-    } else {
-      const x = e.clientX + 15;
-      const y = e.clientY - 35;
-      const width = tooltip.offsetWidth;
-      const height = tooltip.offsetHeight;
-      const maxX = window.innerWidth - width - 20;
-      const minY = 20;
-      tooltip.style.left = `${Math.min(x, maxX)}px`;
-      tooltip.style.top = `${Math.max(y, minY)}px`;
-    }
+    const x = e.clientX + 15;
+    const y = e.clientY - 35;
+    const width = tooltip.offsetWidth;
+    const height = tooltip.offsetHeight;
+    const maxX = window.innerWidth - width - 20;
+    const minY = 20;
+    tooltip.style.left = `${Math.min(x, maxX)}px`;
+    tooltip.style.top = `${Math.max(y, minY)}px`;
   }
 
   function onMouseLeave() {
