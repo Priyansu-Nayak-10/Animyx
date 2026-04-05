@@ -225,11 +225,23 @@ function initSearchAdvanced({
   let chunkFrameId = 0;
 
   const SEARCH_HISTORY_KEY = 'Animyx_search_history';
+  const SEARCH_HISTORY_LIMIT = 4;
+
+  function clearSearchHistory() {
+    try {
+      localStorage.removeItem(SEARCH_HISTORY_KEY);
+    } catch {}
+  }
 
   function getSearchHistory() {
     try {
       const stored = localStorage.getItem(SEARCH_HISTORY_KEY);
-      return stored ? JSON.parse(stored) : [];
+      const parsed = stored ? JSON.parse(stored) : [];
+      if (!Array.isArray(parsed)) return [];
+      return parsed
+        .map((item) => String(item || "").trim())
+        .filter(Boolean)
+        .slice(0, SEARCH_HISTORY_LIMIT);
     } catch {
       return [];
     }
@@ -242,7 +254,7 @@ function initSearchAdvanced({
       let history = getSearchHistory();
       history = history.filter(item => item.toLowerCase() !== q.toLowerCase());
       history.unshift(q);
-      if (history.length > 5) history = history.slice(0, 5);
+      if (history.length > SEARCH_HISTORY_LIMIT) history = history.slice(0, SEARCH_HISTORY_LIMIT);
       localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(history));
     } catch {}
   }
@@ -253,7 +265,10 @@ function initSearchAdvanced({
     
     refs.suggestions.innerHTML = `
       <div class="search-dropdown-shell">
-        <div class="search-dropdown-heading" style="margin-bottom: 8px;">Recent Searches</div>
+        <div class="search-dropdown-heading" style="margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+          <span>Recent Searches</span>
+          <button type="button" class="suggestion-view-all" data-search-action="clear-history" style="padding: 4px 10px; min-height: auto; font-size: 0.72rem; letter-spacing: 0.08em;">Clear</button>
+        </div>
         ${history.map(item => `
           <button type="button" class="suggestion-item search-history-item" data-search-action="history-search" data-query="${escapeHtml(item)}" style="align-items: center;">
             <span class="material-icons" style="color: var(--text-muted); font-size: 1.1rem; margin-right: 8px;">history</span>
@@ -894,6 +909,13 @@ function initSearchAdvanced({
       const query = actionBtn.getAttribute("data-query");
       if (refs.globalSearchInput) refs.globalSearchInput.value = query;
       void performQuery(query, 1);
+      return;
+    }
+
+    if (action === "clear-history") {
+      event.preventDefault();
+      clearSearchHistory();
+      hideSuggestions();
       return;
     }
 

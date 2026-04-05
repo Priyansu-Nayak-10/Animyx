@@ -67,6 +67,8 @@ class AnimeCard extends HTMLElement {
         // Setup keyboard navigation
         this.setAttribute('tabindex', '0');
         this.addEventListener('keydown', (e) => {
+            // Never override browser/OS shortcut combos.
+            if (e.ctrlKey || e.metaKey || e.altKey) return;
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
                 this.handleClick(e);

@@ -332,14 +332,20 @@ function applyRecentActivityViewport(container, visibleItems = 4) {
 
 function renderPersonaRadar(svg, genreCount) {
   if (!svg) return;
+  const normalizedGenreCount = Object.entries(genreCount || {}).reduce((acc, [key, value]) => {
+    const normalizedKey = String(key || "").trim().toLowerCase();
+    if (!normalizedKey) return acc;
+    acc[normalizedKey] = (acc[normalizedKey] || 0) + (Number(value) || 0);
+    return acc;
+  }, {});
   const dimensions = [
-    { label: "Action", keys: ["Action", "Adventure", "Sports"], color: "#ef4444" },
-    { label: "Intellect", keys: ["Mystery", "Psychological", "Sci-Fi", "Suspense"], color: "#3b82f6" },
-    { label: "Emotion", keys: ["Drama", "Romance", "Slice of Life"], color: "#ec4899" },
-    { label: "Wit", keys: ["Comedy", "Parody"], color: "#f59e0b" },
-    { label: "Wonder", keys: ["Fantasy", "Supernatural", "Magic"], color: "#8b5cf6" }
+    { label: "Action", keys: ["action", "adventure", "sports"], color: "#ef4444" },
+    { label: "Intellect", keys: ["mystery", "psychological", "sci-fi", "suspense"], color: "#3b82f6" },
+    { label: "Emotion", keys: ["drama", "romance", "slice of life"], color: "#ec4899" },
+    { label: "Wit", keys: ["comedy", "parody"], color: "#f59e0b" },
+    { label: "Wonder", keys: ["fantasy", "supernatural", "magic"], color: "#8b5cf6" }
   ];
-  const scores = dimensions.map(d => Math.min(100, (d.keys.reduce((s, k) => s + (genreCount[k] || 0), 0) * 20)));
+  const scores = dimensions.map((d) => Math.min(100, (d.keys.reduce((s, k) => s + (normalizedGenreCount[k] || 0), 0) * 20)));
   const cx = 100, cy = 100, r = 70;
   const angleStep = (Math.PI * 2) / dimensions.length;
   const uid = `radar-${Math.random().toString(36).slice(2,6)}`;
