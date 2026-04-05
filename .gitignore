@@ -22,6 +22,7 @@ build/
 coverage/
 .next/
 .cache/
+.turbo/
 out/
 tmp/
 temp/
