@@ -106,7 +106,6 @@ export function initSeasonTabs(mainNavContainer, subNavContainer, onTabChange) {
     closeYearMenu();
     renderYearMenu();
     renderSeasons();
-    renderSeasons();
     if (activeTab === 'season' || activeTab === 'completed' || activeTab === 'upcoming') {
       const specMap = {
         season: 'season_spec',
@@ -131,7 +130,6 @@ export function initSeasonTabs(mainNavContainer, subNavContainer, onTabChange) {
       btn.addEventListener('click', () => {
         if (selectedSeason === season) return;
         selectedSeason = season;
-        renderSeasons();
         renderSeasons();
         if (activeTab === 'season' || activeTab === 'completed' || activeTab === 'upcoming') {
           const specMap = {

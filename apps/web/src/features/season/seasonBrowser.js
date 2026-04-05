@@ -14,7 +14,7 @@ export function initSeasonBrowser({ api, toast, libraryStore, modal }) {
 
     if (!mainNavContainer || !subNavContainer || !gridContainer) return null;
 
-    let currentReqController = null;
+    let activeRenderRequestId = 0;
     // Local UI dictionary to memorize lists previously visited during the session
     const localMemCache = new Map();
 
@@ -30,21 +30,19 @@ export function initSeasonBrowser({ api, toast, libraryStore, modal }) {
     }
 
     async function fetchAndRender(fetchPromise, cacheKey) {
+        const requestId = ++activeRenderRequestId;
+
         if (localMemCache.has(cacheKey)) {
             renderAnimeGrid(gridContainer, localMemCache.get(cacheKey), false);
             return;
         }
-
-        if (currentReqController) {
-            currentReqController.abort();
-        }
-        currentReqController = new AbortController();
 
         // Show loading skeletons
         renderAnimeGrid(gridContainer, [], true);
 
         try {
             const payload = await fetchPromise();
+            if (requestId !== activeRenderRequestId) return;
 
             const rawArray = Array.isArray(payload) ? payload : (payload?.data || []);
             const normalized = rawArray.map((item) => {
@@ -59,13 +57,12 @@ export function initSeasonBrowser({ api, toast, libraryStore, modal }) {
             localMemCache.set(cacheKey, animeArray);
             renderAnimeGrid(gridContainer, animeArray, false);
         } catch (err) {
+            if (requestId !== activeRenderRequestId) return;
             console.error('[SeasonBrowser] Failed to load data:', err);
             if (err.name !== 'AbortError') {
                 toast?.show('Failed to fetch seasonal anime', 'error');
                 renderAnimeGrid(gridContainer, [], false);
             }
-        } finally {
-            currentReqController = null;
         }
     }
 
@@ -175,8 +172,8 @@ export function initSeasonBrowser({ api, toast, libraryStore, modal }) {
 
     return {
         destroy() {
+            activeRenderRequestId += 1;
             localMemCache.clear();
-            if (currentReqController) currentReqController.abort();
         }
     };
 }
