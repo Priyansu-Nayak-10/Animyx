@@ -6,27 +6,27 @@ import { STATUS } from "../../store.js";
 import { renderDonutChart, renderInsightGenreDonut, escapeHtml } from "./dashboard.js";
 
 const GENRE_COLOR_MAP = Object.freeze({
-  action: "var(--insight-rose)",
-  fantasy: "var(--insight-purple)",
-  adventure: "var(--insight-cyan)",
-  suspense: "var(--insight-violet)",
-  comedy: "var(--insight-amber)",
-  romance: "var(--insight-pink)",
-  "sci-fi": "var(--insight-cyan)",
-  mystery: "var(--insight-violet)",
-  drama: "var(--insight-orchid)",
-  horror: "var(--insight-rose)",
-  thriller: "var(--insight-rose)",
-  supernatural: "var(--insight-purple)"
+  action: "var(--insight-red)",
+  fantasy: "var(--insight-violet)",
+  adventure: "var(--insight-orange)",
+  suspense: "var(--insight-indigo)",
+  comedy: "var(--insight-yellow)",
+  romance: "var(--insight-red)",
+  "sci-fi": "var(--insight-blue)",
+  mystery: "var(--insight-indigo)",
+  drama: "var(--insight-green)",
+  horror: "var(--insight-red)",
+  thriller: "var(--insight-orange)",
+  supernatural: "var(--insight-violet)"
 });
 
 const GENRE_FALLBACK_COLORS = Object.freeze([
-  "var(--insight-purple)",
-  "var(--insight-cyan)",
-  "var(--insight-pink)",
-  "var(--insight-rose)",
-  "var(--insight-lavender)",
-  "var(--insight-amber)",
+  "var(--insight-red)",
+  "var(--insight-orange)",
+  "var(--insight-yellow)",
+  "var(--insight-green)",
+  "var(--insight-blue)",
+  "var(--insight-indigo)",
   "var(--insight-violet)"
 ]);
 
@@ -184,9 +184,9 @@ function renderPersonaRadar(svg, genreCount) {
   const dimensions = [
     { label: "Action", keys: ["action", "adventure", "sports"], color: "#ef4444" },
     { label: "Intellect", keys: ["mystery", "psychological", "sci-fi", "suspense"], color: "#3b82f6" },
-    { label: "Emotion", keys: ["drama", "romance", "slice of life"], color: "#ec4899" },
-    { label: "Wit", keys: ["comedy", "parody"], color: "#f59e0b" },
-    { label: "Wonder", keys: ["fantasy", "supernatural", "magic"], color: "#8b5cf6" }
+    { label: "Emotion", keys: ["drama", "romance", "slice of life"], color: "#22c55e" },
+    { label: "Wit", keys: ["comedy", "parody"], color: "#eab308" },
+    { label: "Wonder", keys: ["fantasy", "supernatural", "magic"], color: "#a855f7" }
   ];
   const scores = dimensions.map((d) => Math.min(100, (d.keys.reduce((s, k) => s + (normalizedGenreCount[k] || 0), 0) * 20)));
   const cx = 100, cy = 100, r = 70;
@@ -383,9 +383,9 @@ export function initInsights({ libraryStore }) {
     if (refs.favoriteStudio) refs.favoriteStudio.textContent = insights.favoriteStudio || "No data";
     if (refs.lastCompletedAnime) refs.lastCompletedAnime.textContent = insights.lastCompletedAnime;
     renderDonutChart(refs.statusChart, [
-      { label: "Completed", value: breakdown.completed, color: "var(--insight-purple)" },
-      { label: "Watching", value: breakdown.watching, color: "var(--insight-cyan)" },
-      { label: "Plan", value: breakdown.plan, color: "var(--insight-lavender)" }
+      { label: "Completed", value: breakdown.completed, color: "var(--insight-blue)" },
+      { label: "Watching", value: breakdown.watching, color: "var(--insight-green)" },
+      { label: "Plan", value: breakdown.plan, color: "var(--insight-yellow)" }
     ], totalLib, `${completionPct}%`, false);
     renderInsightGenreDonut(refs.genreChart, insights.genreDistribution.sorted);
     if (refs.topGenres) {

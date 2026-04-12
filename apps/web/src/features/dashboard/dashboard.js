@@ -19,12 +19,13 @@ export const TRACKER_NOTIF_CACHE_KEY = "Animyx_tracker_notif_cache_v1";
 export const DASHBOARD_CLIP_KEY = "Animyx_fav_clip";
 
 export const DONUT_PALETTE = [
-  { from: 'var(--chart-purple)', to: 'var(--chart-purple)' },
-  { from: 'var(--chart-blue)', to: 'var(--chart-blue)' },
-  { from: 'var(--chart-cyan)', to: 'var(--chart-cyan)' },
-  { from: 'var(--chart-green)', to: 'var(--chart-green)' },
+  { from: 'var(--chart-red)', to: 'var(--chart-red)' },
   { from: 'var(--chart-orange)', to: 'var(--chart-orange)' },
-  { from: 'var(--chart-pink)', to: 'var(--chart-pink)' },
+  { from: 'var(--chart-yellow)', to: 'var(--chart-yellow)' },
+  { from: 'var(--chart-green)', to: 'var(--chart-green)' },
+  { from: 'var(--chart-blue)', to: 'var(--chart-blue)' },
+  { from: 'var(--chart-indigo)', to: 'var(--chart-indigo)' },
+  { from: 'var(--chart-violet)', to: 'var(--chart-violet)' },
 ];
 
 const GENRE_META = {
@@ -453,7 +454,7 @@ export function initRecommendations({ store, libraryStore, selectors, toast = nu
       if (!entries.length) { refs.dashboardGenreSvg.innerHTML = `<g transform="translate(100,100)"><circle r="95" fill="none" stroke="rgba(167, 139, 250, 0.14)" stroke-width="20" stroke-dasharray="10 10"></circle><text x="0" y="5" text-anchor="middle" fill="var(--text-muted)" font-size="0.8rem">No Data</text></g>`; refs.dashboardGenreLegend.innerHTML = '<div class="anime-card-meta" style="margin-bottom:0; text-align: center; width: 100%;">Complete anime to see distribution.</div>'; }
       else {
         renderGenreDonut(refs.dashboardGenreSvg, entries);
-        const total = entries.reduce((s, [, c]) => s + Number(c || 0), 0), palette = ["var(--chart-purple)", "var(--chart-blue)", "var(--chart-cyan)", "var(--chart-green)", "var(--chart-orange)", "var(--chart-pink)"];
+        const total = entries.reduce((s, [, c]) => s + Number(c || 0), 0), palette = ["var(--chart-red)", "var(--chart-orange)", "var(--chart-yellow)", "var(--chart-green)", "var(--chart-blue)", "var(--chart-indigo)", "var(--chart-violet)"];
         refs.dashboardGenreLegend.innerHTML = entries.map(([n, c], i) => `<div class="legend-item"><span class="legend-dot" style="background: ${palette[i % palette.length]}"></span><div class="legend-label"><span class="anime-card-meta" style="margin-bottom:0;color:var(--text-primary); font-weight:600;">${escapeHtml(n)}</span><span class="anime-card-meta" style="margin-bottom:0;font-size:0.6rem;">${Math.round((Number(c || 0)/total)*100)}%</span></div></div>`).join('');
       }
     }
