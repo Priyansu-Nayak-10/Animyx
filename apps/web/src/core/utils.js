@@ -400,7 +400,7 @@ function looksLikeSupabaseAuthKey(key) {
   return false;
 }
 
-export async function clearAnimyxUserData({ keepPreferences = true } = {}) {
+export async function clearAnimyxUserData({ _keepPreferences = true } = {}) {
   // keepPreferences param kept for API compatibility but theme/accent are no longer stored.
   for (const key of USER_SCOPED_LOCALSTORAGE_KEYS) safeRemoveStorageKey(localStorage, key);
   for (const key of USER_SCOPED_SESSIONSTORAGE_KEYS) safeRemoveStorageKey(sessionStorage, key);

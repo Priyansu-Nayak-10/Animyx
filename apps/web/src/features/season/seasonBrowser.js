@@ -1,6 +1,5 @@
 import { initSeasonTabs } from './seasonTabs.js';
-import { renderAnimeGrid, resolveAiringStatus } from './season.js';
-import { bindHoverPreviews } from './season.js';
+import { renderAnimeGrid, resolveAiringStatus, bindHoverPreviews } from './season.js';
 import { normalizeAnime, dedupeAnimeList } from '../../core/utils.js';
 import { STATUS } from '../../store.js';
 

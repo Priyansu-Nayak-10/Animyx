@@ -1,5 +1,4 @@
-import { normalizeAnime, dedupeAnimeList } from '../../core/utils.js';
-import { STATUS } from '../../store.js';
+
 
 export function resolveAiringStatus(anime) {
   const total = Number(anime.total_episodes || anime.episodes || 0);

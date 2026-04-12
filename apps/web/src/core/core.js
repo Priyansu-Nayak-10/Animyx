@@ -3,7 +3,7 @@
  * Central State management and Selectors.
  */
 
-import { getState, setState } from "../store.js";
+
 
 export const DEFAULT_STATE = Object.freeze({
   airing: [], trending: [], seasonal: [], top: [], news: [],
@@ -34,7 +34,7 @@ export function getCombinedDiscoveryState(s) {
   return [...map.values()];
 }
 
-export function getTopOngoingAnikoto(s, limit = 10, libraryItems = []) {
+export function getTopOngoingAnikoto(s, limit = 10, _libraryItems = []) {
   const airing = Array.isArray(s?.airing) ? s.airing : [];
   const trending = Array.isArray(s?.trending) ? s.trending : [];
   const merged = new Map();

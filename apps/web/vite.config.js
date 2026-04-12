@@ -26,6 +26,13 @@ export default defineConfig({
         signup: resolve(__dirname, 'pages/signup.html'),
         resetPassword: resolve(__dirname, 'pages/reset-password.html'),
         forgotPassword: resolve(__dirname, 'pages/forgot-password.html')
+      },
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            return 'vendor';
+          }
+        }
       }
     }
   }

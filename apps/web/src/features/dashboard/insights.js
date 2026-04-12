@@ -2,9 +2,8 @@
  * features/dashboard/insights.js
  */
 
-import { authFetch, apiUrl } from "../../config.js";
 import { STATUS } from "../../store.js";
-import { renderDonutChart, renderInsightGenreDonut, escapeHtml, describeDonutArc } from "./dashboard.js";
+import { renderDonutChart, renderInsightGenreDonut, escapeHtml } from "./dashboard.js";
 
 const GENRE_COLOR_MAP = Object.freeze({
   action: "var(--insight-rose)",
@@ -57,7 +56,7 @@ function parseDurationMinutes(value) {
 }
 
 function toTimestampMs(value) {
-  if (value == null) return 0;
+    if (value === null || value === undefined) return 0;
   if (value instanceof Date) {
     const ts = value.getTime();
     return Number.isFinite(ts) && ts > 0 ? ts : 0;

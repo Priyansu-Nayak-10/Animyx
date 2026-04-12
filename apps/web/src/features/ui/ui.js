@@ -151,7 +151,7 @@ function initChartTooltips({ tooltipId = "chart-tooltip" } = {}) {
     const x = e.clientX + 15;
     const y = e.clientY - 35;
     const width = tooltip.offsetWidth;
-    const height = tooltip.offsetHeight;
+    const _height = tooltip.offsetHeight;
     const maxX = window.innerWidth - width - 20;
     const minY = 20;
     tooltip.style.left = `${Math.min(x, maxX)}px`;

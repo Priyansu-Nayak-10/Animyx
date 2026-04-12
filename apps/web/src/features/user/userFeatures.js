@@ -1,7 +1,6 @@
 import { apiUrl, authFetch } from '../../config.js';
-import { setState } from '../../store.js';
-import { supabase } from '../../core/utils.js';
-import { clearAnimyxAllData } from '../../core/utils.js';
+
+import { supabase, clearAnimyxAllData } from '../../core/utils.js';
 const PROFILE_STORAGE_KEY = "Animyx_profile_v1";
 const SETTINGS_STORAGE_KEY = "Animyx_settings_v1";
 const DEFAULT_AVATAR_URL =
@@ -46,7 +45,7 @@ function computeStreak(libraryStore) {
   if (!days.size) return 0;
   let streak = 0;
   const today = new Date();
-  let cursor = new Date(today);
+  const cursor = new Date(today);
   while (days.has(cursor.toDateString())) {
     streak++;
     cursor.setDate(cursor.getDate() - 1);
@@ -393,14 +392,6 @@ function initSettings({ toast, libraryStore, storage = globalThis.localStorage }
     render();
   });
 
-  function onDarkTheme(e) {
-    const enabled = Boolean(e.target.checked);
-    const theme = enabled ? 'dark' : 'light';
-    writeSettings(storage, { ...readSettings(storage), darkTheme: enabled });
-    setState({ theme });
-    applyDarkTheme(enabled);
-    toast?.show?.(enabled ? "Dark mode enabled" : "Light mode enabled");
-  }
 
   async function onNotifications(e) {
     const enabled = Boolean(e.target.checked);

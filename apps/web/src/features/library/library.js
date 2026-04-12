@@ -45,10 +45,6 @@ function sortAZ(items, ascending = true) {
   return ascending ? sorted : sorted.reverse();
 }
 
-function applyTypeAndSort(items, typeFilter, sortAscending) {
-  return sortAZ(filterByType(items, typeFilter), sortAscending);
-}
-
 function sortRecent(items) {
   return [...items].sort((a, b) => Number(b?.updatedAt || 0) - Number(a?.updatedAt || 0));
 }
@@ -782,7 +778,7 @@ function initCompletedBoard({ libraryStore, toast = null }) {
   function buildCompletedCard(item) {
     const currentRating = Number(item?.userRating || 0);
     const starCount = Math.max(0, Math.min(5, Math.round(currentRating / 2)));
-    const overlayStars = `${"★".repeat(starCount)}${"☆".repeat(5 - starCount)}`;
+    const _overlayStars = `${"★".repeat(starCount)}${"☆".repeat(5 - starCount)}`;
     const malId = Number(item?.malId || 0);
     const selectedClass = selected.has(malId) ? "is-selected" : "";
     const openAttr = selectMode ? "" : `data-action="open-anime-modal"`;

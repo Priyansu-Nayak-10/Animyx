@@ -10,19 +10,17 @@ import './features/auth/sessionBootstrap.js';
 
 // ── All imports must be at the top of an ES module ───────────
 import './components/AnimeCard.js';
-import { initSocket, createApiClient } from './core/appCore.js';
 import { loadNotifications, onSocketNotification, clearAllNotifications } from './features/notifications/notifications.js';
-import { getState, setState, restoreKey, persistKey } from './store.js';
 import { authFetch, apiUrl } from './config.js';
-import { createDataStore, initLibraryCloudSync, syncService } from './core/appCore.js';
-import * as selectors from './core/appCore.js';
-import { createLibraryStore } from './store.js';
-import { initInsights } from './features/dashboard/dashboard.js';
+import { getState, restoreKey, persistKey, createLibraryStore } from './store.js';
+import * as appCoreExports from './core/appCore.js';
+const { initSocket, createApiClient, createDataStore, initLibraryCloudSync, syncService } = appCoreExports;
+const selectors = appCoreExports;
 import { initSearchAdvanced } from './features/search/search.js';
 import { initSeasonBrowser } from './features/season/seasonBrowser.js';
 import { initUI } from './features/ui/ui.js';
 import { initLibraryUI } from './features/library/library.js';
-import { initDashboardModules, initMilestones, initTrackerFeed } from './features/dashboard/dashboard.js';
+import { initInsights, initDashboardModules, initMilestones, initTrackerFeed } from './features/dashboard/dashboard.js';
 import { initProfile, initSettings, initExport, initImport } from './features/user/userFeatures.js';
 import { normalizeAnime, dedupeAnimeList, bindNavigation, openView, initSectionReveal, initImageBlurUp } from './core/utils.js';
 
@@ -145,7 +143,7 @@ const initAuthEvents = async () => {
     await loadNotifications();
 
     // Open real-time socket connection with real user ID
-    const socket = initSocket((notification) => {
+    initSocket((notification) => {
       onSocketNotification(notification);
       forwardToTrackerFeed(notification);
     });

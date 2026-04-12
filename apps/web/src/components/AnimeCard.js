@@ -80,7 +80,7 @@ class AnimeCard extends HTMLElement {
         this.removeEventListener('click', this.handleClick);
     }
 
-    handleClick(e) {
+    handleClick(_e) {
         // Prevent default click handling if they clicked an action button inside (though currently none are in shadow DOM)
         // Dispatch a custom event that the parent view listens to.
         const event = new CustomEvent('anime-click', {
@@ -116,14 +116,14 @@ class AnimeCard extends HTMLElement {
     }
 
     render() {
-        const malId = this.getAttribute('mal-id') || '';
+        const _malId = this.getAttribute('mal-id') || '';
         const title = this.getAttribute('title') || 'Unknown Anime';
         const image = this.getAttribute('image') || '';
         const score = parseFloat(this.getAttribute('score'));
         const scoreDisplay = (!isNaN(score) && score > 0) ? `⭐ ${score.toFixed(1)}` : '--';
         const episodes = parseInt(this.getAttribute('episodes')) || null;
         const released = parseInt(this.getAttribute('released-episodes')) || 0;
-        const year = this.getAttribute('year') || '';
+        const _year = this.getAttribute('year') || '';
         const type = this.getAttribute('type') || '';
         const status = (this.getAttribute('status') || '').toLowerCase();
         const nextAt = parseInt(this.getAttribute('next-airing-at'));

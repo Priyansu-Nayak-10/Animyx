@@ -172,7 +172,7 @@ function initSearchAdvanced({
   store,
   controller,
   libraryStore,
-  selectors,
+  _selectors,
   toast = null,
   navigateToView = null
 }) {
@@ -599,7 +599,7 @@ function initSearchAdvanced({
     setDropdownOpen(false);
   }
 
-  async function fetchLiveSuggestions(query) {
+  async function _fetchLiveSuggestions(query) {
     if (!refs.suggestions) return;
     if (!query) {
       hideSuggestions();
@@ -868,7 +868,7 @@ function initSearchAdvanced({
     renderFooter(rows.length, meta);
   }
 
-  function hasActiveFilters() {
+  function _hasActiveFilters() {
     if (Array.isArray(ui.filters.genres) && ui.filters.genres.length) return true;
     if (String(ui.filters.type || "").trim()) return true;
     if (String(ui.filters.episodes || "").trim()) return true;

@@ -1,3 +1,4 @@
+/* global process */
 /**
  * Example Usage: Paginated Library Component
  * 

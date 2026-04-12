@@ -4,7 +4,7 @@
  * Merges carousel, tracker, recommendations, upcoming, charts, milestones, and clip card logic.
  */
 
-import { authFetch, apiUrl, BACKEND_ORIGIN, getAccessToken } from "../../config.js";
+import { authFetch, apiUrl } from "../../config.js";
 import { STATUS } from "../../store.js";
 import { getTopOngoingAnikoto } from "../../core/appCore.js"; // Will point to core.js after next step
 
@@ -180,7 +180,7 @@ export function renderInsightGenreDonut(svgElement, entries) {
     return `<linearGradient id="${uid}-ig${i}" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${c.from}"/><stop offset="100%" stop-color="${c.to}"/></linearGradient>`;
   }).join('');
   let angle = -90;
-  const slices = entries.map(([genre, count], i) => {
+  const slices = entries.map(([_genre, count], i) => {
     const sweep = (Number(count) / total) * 360;
     const path = describeDonutArc(cx, cy, outerR, innerR, angle, angle + sweep);
     angle += sweep;
@@ -189,10 +189,10 @@ export function renderInsightGenreDonut(svgElement, entries) {
   svgElement.innerHTML = `<defs>${gradientDefs}</defs>${slices}`;
 }
 
-export function renderDonutChart(container, segments, total, centerLabel, showLegend = true) {
+export function renderDonutChart(container, segments, total, centerLabel, _showLegend = true) {
   if (!container) return;
   const cx = 60, cy = 60, outerR = 54, innerR = 38;
-  const uid = `dnt-${Math.random().toString(36).slice(2, 7)}`;
+  const _uid = `dnt-${Math.random().toString(36).slice(2, 7)}`;
   
   const totalVal = Number(total || 0);
   if (totalVal <= 0) {
@@ -317,7 +317,7 @@ export function initTrackerFeed({ libraryStore, milestones = null }) {
 
   function render() {
     localItems = (libraryStore.getByStatus?.("watching") || []).map((a) => ({ type: "TRACKING", title: String(a?.title || "Unknown"), message: `Tracking "${a?.title}" — ${a?.episodes ? `${a.progress || 0}/${a.episodes} eps` : "airing"}`, ts: a?.updatedAt || 0 }));
-    const all = [...backendItems.map(n => { let t = "System Update", m = n.message || "", mt = m.match(/^"(.*)" — (.*)$/); if (mt) { t = mt[1]; m = mt[2]; } return { type: n.type || "GENERIC", title: t, message: m, created_at: n.created_at ? new Date(n.created_at).getTime() : Date.now() }; }), ...localItems];
+    const all = [...backendItems.map(n => { let t = "System Update", m = n.message || ""; const mt = m.match(/^"(.*)" — (.*)$/); if (mt) { t = mt[1]; m = mt[2]; } return { type: n.type || "GENERIC", title: t, message: m, created_at: n.created_at ? new Date(n.created_at).getTime() : Date.now() }; }), ...localItems];
     const seen = new Set(), merged = all.filter(i => { const k = `${i.type}|${i.title}|${i.message}`; if (seen.has(k)) return false; seen.add(k); return true; }).sort((a,b) => (b.created_at || b.ts || 0) - (a.created_at || a.ts || 0));
     renderRows(merged);
     if (countBadge) { countBadge.textContent = merged.length > 99 ? "99+" : String(merged.length); countBadge.hidden = merged.length === 0; }
@@ -529,7 +529,7 @@ export function initUpcomingWidget({ fetchImpl = fetch.bind(globalThis), storage
   function renderRows() {
     if (!currentItems.length) { listEl.innerHTML = '<div class="tracker-empty">No upcoming anime found.</div>'; return; }
     listEl.innerHTML = currentItems.map(item => {
-      const malId = Number(item.mal_id || 0); let title = item.title_english || item.title || "Unknown Title";
+      const malId = Number(item.mal_id || 0); const title = item.title_english || item.title || "Unknown Title";
       return `<div class="news-item upcoming-release-card" data-action="open-anime-modal" data-id="${malId}"><div class="news-thumb upcoming-release-poster">${item.images?.jpg?.image_url ? `<img class="news-thumb-img" src="${escapeHtml(item.images.jpg.image_url)}" alt="${escapeHtml(title)}" loading="lazy" />` : '<div class="news-thumb-fallback">🎬</div>'}</div><div class="upcoming-release-content"><h4 class="anime-card-title upcoming-release-title">${escapeHtml(title)}</h4><div class="anime-card-meta upcoming-release-meta"><span>${escapeHtml(String(item.aired?.string || "TBA").split("to")[0].trim())} • ${escapeHtml(item.studios?.[0]?.name || "Unknown Studio")}</span></div></div><div class="news-badge news-badge-mal upcoming-release-badge"><span class="material-icons upcoming-release-badge-icon">local_fire_department</span></div></div>`;
     }).join("");
   }

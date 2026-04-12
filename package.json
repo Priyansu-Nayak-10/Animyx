@@ -15,8 +15,9 @@
     "dev:web": "npm run dev --workspace=apps/web",
     "build:web": "npm run build --workspace=apps/web",
     "install:all": "npm install",
-    "lint": "npm run lint --workspace=apps/api",
-    "lint:fix": "npm run lint:fix --workspace=apps/api"
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
+    "test": "turbo run test"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.1"

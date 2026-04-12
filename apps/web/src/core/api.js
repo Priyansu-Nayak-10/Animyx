@@ -1,9 +1,10 @@
+/* global io */
 /**
  * core/api.js
  * API client and Socket.IO initialization.
  */
 
-import { withAuthHeaders, authFetch, apiUrl, BACKEND_ORIGIN, getAccessToken } from "../config.js";
+import { withAuthHeaders, BACKEND_ORIGIN, getAccessToken } from "../config.js";
 
 export const API_BASE = "https://api.jikan.moe/v4";
 export const DEFAULT_LIVE_UPCOMING_ENDPOINT = "https://api.jikan.moe/v4/seasons/upcoming?limit=24";
@@ -180,7 +181,7 @@ export function createApiClient(options = {}) {
         forcedFailureRate
       };
     },
-    getAiring(limit = 24) {
+    getAiring(_limit = 24) {
       return request(`${BACKEND_BASE}/anime/airing`);
     },
     getTrending(limit = 24) {

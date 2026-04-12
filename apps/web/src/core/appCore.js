@@ -1,7 +1,8 @@
+/* global io */
 import { createApiClient, API_BASE, DEFAULT_LIVE_UPCOMING_ENDPOINT } from './api.js';
 import { authFetch, apiUrl, BACKEND_ORIGIN, getAccessToken } from '../config.js';
 import { getClientId, supabase } from './utils.js';
-import { getState, setState } from '../store.js';
+import { getState } from '../store.js';
 
 // Dev-only logger — silenced in production builds
 const IS_DEV = typeof import.meta !== 'undefined' && import.meta.env?.DEV;
@@ -855,7 +856,7 @@ export function initLibraryCloudSync({ libraryStore, toast = null, syncIntervalM
   let warnedUnavailable = false;
   let lastStatus = '';
   let hasPendingSync = false;
-  let lastKnownGoodSnapshot = signature(libraryStore.getAll());
+  let _lastKnownGoodSnapshot = signature(libraryStore.getAll());
   let lastKnownGoodItems = libraryStore.getAll();
   const ROLLBACK_THRESHOLD = 3;
 
@@ -924,7 +925,7 @@ export function initLibraryCloudSync({ libraryStore, toast = null, syncIntervalM
     try {
       await pushLibrary(current);
       lastSyncedSig = signature(libraryStore.getAll());
-      lastKnownGoodSnapshot = lastSyncedSig;
+      _lastKnownGoodSnapshot = lastSyncedSig;
       lastKnownGoodItems = libraryStore.getAll();
       void syncKvSet('pendingSync', false);
       hasPendingSync = false;
