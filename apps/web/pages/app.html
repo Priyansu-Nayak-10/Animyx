@@ -104,21 +104,22 @@
           </button>
           <div class="search-wrapper" style="position: relative;">
             <span class="material-icons search-icon">search</span>
-            <input id="global-search-input" class="search-input" placeholder="Search anime titles..." type="text"
+            <input id="global-search-input" class="search-input" placeholder="Search anime titles... (Ctrl+K)" type="text"
               autocomplete="off" role="combobox" aria-expanded="false" aria-controls="search-suggestions"
               aria-autocomplete="list" />
+            <button id="search-clear-btn" class="search-clear-btn material-icons" style="display: none;" type="button" aria-label="Clear search">close</button>
             <div id="search-suggestions" class="search-suggestions-container" style="display: none;" role="listbox">
             </div>
           </div>
           <div class="navbar-controls">
-            <div class="sync-indicator" id="sync-indicator" aria-label="Sync status" title="Sync status">
+            <div class="sync-indicator" id="sync-indicator" aria-label="Sync status" data-tooltip="Sync status">
               <span class="sync-dot" id="sync-dot" aria-hidden="true"></span>
               <span class="sync-text" id="sync-text">Synced</span>
             </div>
-            <button class="icon-btn" id="sync-now-btn" type="button" aria-label="Sync now" title="Sync now">
+            <button class="icon-btn" id="sync-now-btn" type="button" aria-label="Sync now" data-tooltip="Sync now">
               <span class="material-icons" aria-hidden="true">sync</span>
             </button>
-            <button class="icon-btn" id="notif-bell-btn" type="button" aria-label="Notifications" title="Notifications">
+            <button class="icon-btn" id="notif-bell-btn" type="button" aria-label="Notifications" data-tooltip="Notifications">
               <span class="material-icons">notifications</span>
               <span class="notification-dot"></span>
             </button>
@@ -1128,6 +1129,11 @@
 
   <!-- Notification badge (added to bell button via JS) -->
   <div id="chart-tooltip" class="chart-tooltip"></div>
+
+  <!-- Back to Top FAB -->
+  <button id="back-to-top-btn" class="fab-btn" aria-label="Scroll to top" data-tooltip="Scroll to top">
+    <span class="material-icons">keyboard_arrow_up</span>
+  </button>
 
   <!-- Main app module -->
   <script src="/env.js"></script>
