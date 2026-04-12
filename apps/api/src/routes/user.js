@@ -101,7 +101,7 @@ router.post('/me/follow', async (req, res) => {
     const { malId, status } = req.body;
     const nextEpisodeInput = req.body?.nextEpisode ?? req.body?.next_episode;
     let { title, isAiring, totalEpisodes } = req.body;
-    if (totalEpisodes == null) totalEpisodes = req.body?.total_episodes;
+    if (totalEpisodes === null || totalEpisodes === undefined) totalEpisodes = req.body?.total_episodes;
     if (!malId) return apiError(res, 'malId is required', 400);
 
     if (!title) {
