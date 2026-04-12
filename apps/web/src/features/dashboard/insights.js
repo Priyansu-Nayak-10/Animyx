@@ -1,5 +1,6 @@
 /**
  * features/dashboard/insights.js
+ * Upgraded: timeframe filter, progressive empty states, chart tooltips, new KPI cards
  */
 
 import { STATUS } from "../../store.js";
@@ -56,7 +57,7 @@ function parseDurationMinutes(value) {
 }
 
 function toTimestampMs(value) {
-    if (value === null || value === undefined) return 0;
+  if (value === null || value === undefined) return 0;
   if (value instanceof Date) {
     const ts = value.getTime();
     return Number.isFinite(ts) && ts > 0 ? ts : 0;
@@ -189,11 +190,21 @@ function renderPersonaRadar(svg, genreCount) {
     { label: "Wonder", keys: ["fantasy", "supernatural", "magic"], color: "#a855f7" }
   ];
   const scores = dimensions.map((d) => Math.min(100, (d.keys.reduce((s, k) => s + (normalizedGenreCount[k] || 0), 0) * 20)));
+
+  // Progressive empty state: if all scores are zero, show a placeholder
+  const totalScore = scores.reduce((a, b) => a + b, 0);
+  if (totalScore === 0) {
+    svg.innerHTML = `
+      <text x="100" y="90" text-anchor="middle" fill="var(--text-muted)" font-size="10" font-family="inherit">Not enough data yet</text>
+      <text x="100" y="108" text-anchor="middle" fill="var(--text-muted)" font-size="8" font-family="inherit" opacity="0.6">Watch more variety to unlock</text>
+    `;
+    return;
+  }
+
   const cx = 100, cy = 100, r = 70;
   const angleStep = (Math.PI * 2) / dimensions.length;
   const uid = `radar-${Math.random().toString(36).slice(2,6)}`;
 
-  // Determine dominant dimension
   const maxScore = Math.max(...scores);
   const dominantIdx = scores.indexOf(maxScore);
   const dominantColor = dimensions[dominantIdx]?.color || "#8b5cf6";
@@ -212,7 +223,7 @@ function renderPersonaRadar(svg, genreCount) {
     const ly = cy + (r + 16) * Math.sin(i * angleStep - Math.PI / 2);
     const isTop = i === dominantIdx;
     return `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" class="radar-axis-line" />`
-      + `<text x="${lx}" y="${ly}" class="radar-label${isTop ? ' radar-label-dominant' : ''}" text-anchor="middle" alignment-baseline="middle" style="${isTop ? `fill:${d.color};font-weight:700;` : ''}">` 
+      + `<text x="${lx}" y="${ly}" class="radar-label${isTop ? ' radar-label-dominant' : ''}" text-anchor="middle" alignment-baseline="middle" style="${isTop ? `fill:${d.color};font-weight:700;` : ''}">`
       + `${d.label}</text>`;
   }).join("");
 
@@ -220,7 +231,6 @@ function renderPersonaRadar(svg, genreCount) {
     `${cx + (r * Math.max(8, s) / 100) * Math.cos(i * angleStep - Math.PI / 2)},${cy + (r * Math.max(8, s) / 100) * Math.sin(i * angleStep - Math.PI / 2)}`
   ).join(" ");
 
-  // Dot markers per vertex
   const dotHtml = scores.map((s, i) => {
     const vx = cx + (r * Math.max(8, s) / 100) * Math.cos(i * angleStep - Math.PI / 2);
     const vy = cy + (r * Math.max(8, s) / 100) * Math.sin(i * angleStep - Math.PI / 2);
@@ -239,9 +249,7 @@ function renderPersonaRadar(svg, genreCount) {
       </filter>
       <style>
         @keyframes ${uid}-appear { from { opacity:0; transform: scale(0.85); } to { opacity:1; transform: scale(1); } }
-        .${uid}-poly { transform-origin: ${cx}px ${cy}px; animation: ${uid}-appear 0.5s cubic-bezier(0.34
-
-,1.56,0.64,1) forwards; }
+        .${uid}-poly { transform-origin: ${cx}px ${cy}px; animation: ${uid}-appear 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards; }
       </style>
     </defs>
     ${gridHtml}
@@ -263,6 +271,10 @@ function renderPersonaRadar(svg, genreCount) {
 
 function renderStudioSpotlight(container, studioCount, items) {
   if (!container) return;
+  if (!Object.keys(studioCount || {}).length) {
+    container.innerHTML = `<div class="panel-empty-state"><span class="panel-empty-icon material-icons">video_library</span><span>Rate completed anime to spotlight your top studios.</span></div>`;
+    return;
+  }
   const studioRatings = {};
   items.forEach(item => {
     const studio = String(item.studio || "").trim();
@@ -278,7 +290,7 @@ function renderStudioSpotlight(container, studioCount, items) {
     const avg = ratings.length ? (ratings.reduce((s, r) => s + r, 0) / ratings.length).toFixed(1) : "N/A";
     return `<div class="studio-chip"><span class="studio-rank">#${idx + 1}</span><div class="studio-info"><div class="studio-name">${escapeHtml(name)}</div><div class="studio-rating">${count} anime • ${avg} avg rating</div></div></div>`;
   }).join("");
-  container.innerHTML = sortedStudios || '<p class="anime-card-meta">Watch more anime to spotlight studios.</p>';
+  container.innerHTML = sortedStudios;
 }
 
 function calculateInsights(items) {
@@ -307,7 +319,7 @@ function calculateInsights(items) {
   });
 
   const breakdown = { completed: rows.filter((i) => i.status === STATUS.COMPLETED).length, watching: rows.filter((i) => i.status === STATUS.WATCHING).length, plan: rows.filter((i) => i.status === STATUS.PLAN).length };
-  if (!Object.keys(genreCount).length) rows.forEach(i => i.genres.forEach(g => genreCount[g] = (genreCount[g] || 0) + 1));
+  if (!Object.keys(genreCount).length) rows.forEach(i => i.genres.forEach(g => { if (g) genreCount[g] = (genreCount[g] || 0) + 1; }));
   const sortedGenres = Object.entries(genreCount).sort((a, b) => b[1] - a[1]);
   const otherCount = Math.max(0, sortedGenres.reduce((s, [, c]) => s + c, 0) - sortedGenres.slice(0, 3).reduce((s, [, c]) => s + c, 0));
 
@@ -330,12 +342,55 @@ function renderDiscoveryIntelligence(refs, genreDistribution) {
   }
 }
 
+/**
+ * Initialises hover tooltips on SVG donut slices.
+ * Reads the existing data-tooltip attribute that renderGenreDonut already populates.
+ */
+function initChartTooltips(tooltipEl, svgContainers) {
+  if (!tooltipEl) return;
+
+  function showTip(e) {
+    const path = e.target.closest("[data-tooltip]");
+    if (!path) return;
+    tooltipEl.textContent = path.dataset.tooltip;
+    tooltipEl.classList.add("is-visible");
+    moveTip(e);
+  }
+
+  function moveTip(e) {
+    tooltipEl.style.left = `${e.clientX + 14}px`;
+    tooltipEl.style.top = `${e.clientY - 28}px`;
+  }
+
+  function hideTip() {
+    tooltipEl.classList.remove("is-visible");
+  }
+
+  svgContainers.forEach(container => {
+    if (!container) return;
+    container.addEventListener("pointermove", showTip, { passive: true });
+    container.addEventListener("pointerleave", hideTip, { passive: true });
+  });
+
+  // Return cleanup function
+  return () => {
+    svgContainers.forEach(container => {
+      if (!container) return;
+      container.removeEventListener("pointermove", showTip);
+      container.removeEventListener("pointerleave", hideTip);
+    });
+  };
+}
+
 export function initInsights({ libraryStore }) {
   const refs = {
     view: document.getElementById("insights-view"), emptyOverlay: document.getElementById("insights-empty-overlay"),
     watchTime: document.getElementById("insight-watch-time"), averageRating: document.getElementById("insight-average-rating"),
-    episodesWatched: document.getElementById("insight-episodes-watched"), completed: document.getElementById("insight-completed"),
-    watching: document.getElementById("insight-watching"), plan: document.getElementById("insight-plan"),
+    episodesWatched: document.getElementById("insight-episodes-watched"),
+    // Kept for backward compat (now hidden spans in HTML)
+    completed: document.getElementById("insight-completed"),
+    watching: document.getElementById("insight-watching"),
+    plan: document.getElementById("insight-plan"),
     statusChart: document.getElementById("insight-status-chart"), genreChart: document.getElementById("insight-genre-chart"),
     genreAnalysisText: document.getElementById("insight-genre-analysis-text"), topGenres: document.getElementById("insight-top-genres"),
     recentActivity: document.getElementById("insight-recent-activity"), siCountCompleted: document.getElementById("si-count-completed"),
@@ -346,57 +401,142 @@ export function initInsights({ libraryStore }) {
     xpCurrent: document.getElementById("insight-xp-current"), xpNext: document.getElementById("insight-xp-next"), xpBar: document.getElementById("insight-xp-bar"),
     radarSvg: document.getElementById("insight-persona-radar"),
     studioList: document.getElementById("insight-studio-list"), favoriteStudio: document.getElementById("insight-favorite-studio"),
-    lastCompletedAnime: document.getElementById("insight-last-completed"), gapsText: document.getElementById("insight-gaps-text"), suggestedGenre: document.getElementById("insight-suggested-genre")
+    lastCompletedAnime: document.getElementById("insight-last-completed"), gapsText: document.getElementById("insight-gaps-text"), suggestedGenre: document.getElementById("insight-suggested-genre"),
+    // New KPI elements
+    kpiCompletionRate: document.getElementById("insight-kpi-completion-rate"),
+    kpiStreak: document.getElementById("insight-kpi-streak"),
+    kpiStudio: document.getElementById("insight-kpi-studio"),
+    timeframeBar: document.getElementById("insight-timeframe-bar"),
+    chartTooltip: document.getElementById("chart-tooltip")
   };
 
+  // ── Timeframe state ──────────────────────────────────────────────
+  let activeTimeframe = "all";
+  const TIMEFRAME_CUTOFFS = () => {
+    const now = Date.now();
+    return {
+      "30d": now - 30 * 86400000,
+      "year": new Date(new Date().getFullYear(), 0, 1).getTime()
+    };
+  };
+
+  if (refs.timeframeBar) {
+    refs.timeframeBar.addEventListener("click", (e) => {
+      const btn = e.target.closest(".timeframe-btn");
+      if (!btn) return;
+      const tf = btn.dataset.timeframe;
+      if (tf === activeTimeframe) return;
+      activeTimeframe = tf;
+      refs.timeframeBar.querySelectorAll(".timeframe-btn").forEach(b => b.classList.toggle("active", b.dataset.timeframe === tf));
+      render();
+    });
+  }
+
+  // ── Chart tooltips ───────────────────────────────────────────────
+  let destroyTooltips = null;
+  // Delay tooltip init until after first render (SVGs exist then)
+  function ensureTooltips() {
+    if (destroyTooltips) return;
+    destroyTooltips = initChartTooltips(refs.chartTooltip, [refs.genreChart, refs.statusChart]);
+  }
+
+  // ── Main render ──────────────────────────────────────────────────
   function render() {
-    const items = libraryStore.getAll();
-    if (!items?.length) { 
-      refs.view?.classList.add("is-empty"); if (refs.emptyOverlay) refs.emptyOverlay.hidden = false;
-      renderDonutChart(refs.statusChart, [], 0, "", false); renderInsightGenreDonut(refs.genreChart, []); return;
+    const allItems = libraryStore.getAll();
+
+    if (!allItems?.length) {
+      refs.view?.classList.add("is-empty");
+      if (refs.emptyOverlay) refs.emptyOverlay.hidden = false;
+      renderDonutChart(refs.statusChart, [], 0, "", false);
+      renderInsightGenreDonut(refs.genreChart, []);
+      return;
     }
-    refs.view?.classList.remove("is-empty"); if (refs.emptyOverlay) refs.emptyOverlay.hidden = true;
-    const insights = calculateInsights(items);
+    refs.view?.classList.remove("is-empty");
+    if (refs.emptyOverlay) refs.emptyOverlay.hidden = true;
+
+    // Apply timeframe filter (but keep allItems for global empty check)
+    const cutoffs = TIMEFRAME_CUTOFFS();
+    const items = activeTimeframe === "all" ? allItems : allItems.filter(i => {
+      const ts = toTimestampMs(i?.updatedAt || i?.updated_at || i?.completedAt || i?.completed_at);
+      return ts > 0 && ts >= cutoffs[activeTimeframe];
+    });
+
+    const insights = calculateInsights(items.length ? items : allItems);
+
     if (refs.watchTime) refs.watchTime.textContent = insights.estimatedWatchTime;
     if (refs.averageRating) refs.averageRating.textContent = insights.averageUserRating;
     if (refs.episodesWatched) refs.episodesWatched.textContent = String(insights.totalEpisodesWatched);
+
     const ps = insights.playerStats;
-    if (refs.levelTitle) refs.levelTitle.textContent = ps.title; if (refs.levelNumber) refs.levelNumber.textContent = `Level ${ps.level}`;
-    if (refs.xpCurrent) refs.xpCurrent.textContent = String(ps.xp); if (refs.xpNext) refs.xpNext.textContent = String(ps.nextLevelXp); if (refs.xpBar) refs.xpBar.style.width = `${ps.progress}%`;
-    renderPersonaRadar(refs.radarSvg, insights.genreDistribution.all); renderStudioSpotlight(refs.studioList, insights.studioCount, items); renderDiscoveryIntelligence(refs, insights.genreDistribution);
+    if (refs.levelTitle) refs.levelTitle.textContent = ps.title;
+    if (refs.levelNumber) refs.levelNumber.textContent = `Level ${ps.level}`;
+    if (refs.xpCurrent) refs.xpCurrent.textContent = String(ps.xp);
+    if (refs.xpNext) refs.xpNext.textContent = String(ps.nextLevelXp);
+    if (refs.xpBar) refs.xpBar.style.width = `${ps.progress}%`;
+
+    renderPersonaRadar(refs.radarSvg, insights.genreDistribution.all);
+    renderStudioSpotlight(refs.studioList, insights.studioCount, items.length ? items : allItems);
+    renderDiscoveryIntelligence(refs, insights.genreDistribution);
+
     const breakdown = insights.statusBreakdown;
+    // These are now hidden spans; null-safe updates still safe
     if (refs.completed) refs.completed.textContent = String(breakdown.completed);
     if (refs.watching) refs.watching.textContent = String(breakdown.watching);
     if (refs.plan) refs.plan.textContent = String(breakdown.plan);
+
     if (refs.siCountCompleted) refs.siCountCompleted.textContent = String(breakdown.completed);
     if (refs.siCountWatching) refs.siCountWatching.textContent = String(breakdown.watching);
     if (refs.siCountPlan) refs.siCountPlan.textContent = String(breakdown.plan);
+
     const totalLib = (breakdown.completed || 0) + (breakdown.watching || 0) + (breakdown.plan || 0);
     const completionPct = totalLib > 0 ? Math.round(((breakdown.completed || 0) / totalLib) * 100) : 0;
+
+    // Legacy ref still supported
     if (refs.completionRate) refs.completionRate.textContent = `${completionPct}%`;
     if (refs.avgRatingSi) refs.avgRatingSi.textContent = insights.averageUserRating;
+
+    // ── New KPI strip values ─────────────────────────────────────
+    if (refs.kpiCompletionRate) refs.kpiCompletionRate.textContent = `${completionPct}%`;
+    if (refs.kpiStreak) refs.kpiStreak.textContent = `${insights.completionStreak} day${insights.completionStreak === 1 ? "" : "s"}`;
+    if (refs.kpiStudio) refs.kpiStudio.textContent = insights.favoriteStudio || "—";
+
     if (refs.topGenreStat) {
       const topG = insights.genreDistribution.sorted[0];
       refs.topGenreStat.textContent = topG ? topG[0] : "No data";
     }
-    if (refs.longestStreak) refs.longestStreak.textContent = `${insights.completionStreak} day${insights.completionStreak === 1 ? '' : 's'}`;
+    if (refs.longestStreak) refs.longestStreak.textContent = `${insights.completionStreak} day${insights.completionStreak === 1 ? "" : "s"}`;
     if (refs.favoriteStudio) refs.favoriteStudio.textContent = insights.favoriteStudio || "No data";
     if (refs.lastCompletedAnime) refs.lastCompletedAnime.textContent = insights.lastCompletedAnime;
+
     renderDonutChart(refs.statusChart, [
       { label: "Completed", value: breakdown.completed, color: "var(--insight-blue)" },
       { label: "Watching", value: breakdown.watching, color: "var(--insight-green)" },
       { label: "Plan", value: breakdown.plan, color: "var(--insight-yellow)" }
     ], totalLib, `${completionPct}%`, false);
-    renderInsightGenreDonut(refs.genreChart, insights.genreDistribution.sorted);
+
+    // ── Genre Donut with progressive empty state ─────────────────
+    if (!insights.genreDistribution.sorted.length) {
+      if (refs.genreChart) refs.genreChart.innerHTML = `<text x="110" y="110" text-anchor="middle" fill="var(--text-muted)" font-size="9" font-family="inherit">Complete anime to see your genre breakdown</text>`;
+      if (refs.genreAnalysisText) refs.genreAnalysisText.textContent = "Complete some anime to unlock full genre intelligence.";
+    } else {
+      renderInsightGenreDonut(refs.genreChart, insights.genreDistribution.sorted);
+      if (refs.genreAnalysisText) refs.genreAnalysisText.textContent = "";
+    }
+
     if (refs.topGenres) {
       const genreData = insights.genreDistribution.sorted;
-      const max = Math.max(...genreData.map(([, count]) => Number(count || 0)));
-      refs.topGenres.innerHTML = genreData.map(([genre, count], idx) => {
-        const width = Math.max(18, Math.round((Number(count || 0) / Math.max(1, max)) * 100));
-        const color = getGenreColor(genre, idx);
-        return `<div class="genre-bar-item"><div class="genre-label">${escapeHtml(genre)}</div><div class="genre-track"><div class="genre-fill" style="width:${width}%; background-color:${color}; color:${color};"></div></div><div class="genre-count">${count}</div></div>`;
-      }).join("");
+      if (!genreData.length) {
+        refs.topGenres.innerHTML = `<div class="panel-empty-state"><span class="panel-empty-icon material-icons">bar_chart</span><span>Track completed anime to see genre bars.</span></div>`;
+      } else {
+        const max = Math.max(...genreData.map(([, count]) => Number(count || 0)));
+        refs.topGenres.innerHTML = genreData.map(([genre, count], idx) => {
+          const width = Math.max(18, Math.round((Number(count || 0) / Math.max(1, max)) * 100));
+          const color = getGenreColor(genre, idx);
+          return `<div class="genre-bar-item"><div class="genre-label">${escapeHtml(genre)}</div><div class="genre-track"><div class="genre-fill" style="width:${width}%; background-color:${color}; color:${color};"></div></div><div class="genre-count">${count}</div></div>`;
+        }).join("");
+      }
     }
+
     // Recent Activity feed
     if (refs.recentActivity) {
       const MAX_ACTIVITY = 8;
@@ -410,25 +550,30 @@ export function initInsights({ libraryStore }) {
         refs.recentActivity.innerHTML = acts.map(entry => {
           const diff = now - entry.timestamp;
           const m = Math.floor(diff / 60000);
-          const relTime = m < 1 ? 'Just now' : m < 60 ? `${m}m ago` : m < 1440 ? `${Math.floor(m/60)}h ago` : `${Math.floor(m/1440)}d ago`;
-          const statusClass = String(entry.status || '').toLowerCase();
+          const relTime = m < 1 ? "Just now" : m < 60 ? `${m}m ago` : m < 1440 ? `${Math.floor(m/60)}h ago` : `${Math.floor(m/1440)}d ago`;
+          const statusClass = String(entry.status || "").toLowerCase();
           return `<div class="activity-timeline-item"><div class="activity-dot activity-dot-${statusClass}"></div><div class="activity-timeline-body"><span class="activity-timeline-title">${escapeHtml(entry.title)}</span><div class="activity-timeline-meta"><span class="activity-status-tag ${statusClass}">${escapeHtml(entry.status)}</span><span>${relTime}</span></div></div></div>`;
-        }).join('');
+        }).join("");
         applyRecentActivityViewport(refs.recentActivity, 4);
         requestAnimationFrame(() => applyRecentActivityViewport(refs.recentActivity, 4));
       }
     }
+
+    // Activate tooltip listeners after first render
+    requestAnimationFrame(ensureTooltips);
   }  // end render()
 
   const handleResize = () => applyRecentActivityViewport(refs.recentActivity, 4);
   window.addEventListener("resize", handleResize, { passive: true });
   const unsubscribe = libraryStore.subscribe(render);
   render();
+
   return Object.freeze({
     render,
     destroy() {
       window.removeEventListener("resize", handleResize);
       unsubscribe();
+      if (destroyTooltips) destroyTooltips();
     }
   });
 }

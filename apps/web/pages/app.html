@@ -499,6 +499,13 @@
               </div>
             </div>
 
+            <!-- Timeframe filter -->
+            <div class="insight-timeframe-bar" id="insight-timeframe-bar" aria-label="Timeframe filter">
+              <button class="timeframe-btn active" data-timeframe="all" type="button">All Time</button>
+              <button class="timeframe-btn" data-timeframe="year" type="button">This Year</button>
+              <button class="timeframe-btn" data-timeframe="30d" type="button">Last 30 Days</button>
+            </div>
+
             <div class="insights-kpi-strip">
               <div class="kpi-card kpi-watch-time">
                 <span class="kpi-label">Watch Time</span>
@@ -512,17 +519,17 @@
                 <span class="kpi-label">Average Rating</span>
                 <span id="insight-average-rating" class="kpi-value">0.0</span>
               </div>
-              <div class="kpi-card kpi-completed">
-                <span class="kpi-label">Completed</span>
-                <span id="insight-completed" class="kpi-value">0</span>
+              <div class="kpi-card kpi-completion">
+                <span class="kpi-label">Completion Rate</span>
+                <span id="insight-kpi-completion-rate" class="kpi-value">0%</span>
               </div>
-              <div class="kpi-card kpi-watching">
-                <span class="kpi-label">Watching</span>
-                <span id="insight-watching" class="kpi-value">0</span>
+              <div class="kpi-card kpi-streak">
+                <span class="kpi-label">Longest Streak</span>
+                <span id="insight-kpi-streak" class="kpi-value">0 days</span>
               </div>
-              <div class="kpi-card kpi-plan">
-                <span class="kpi-label">Plan</span>
-                <span id="insight-plan" class="kpi-value">0</span>
+              <div class="kpi-card kpi-studio">
+                <span class="kpi-label">Favorite Studio</span>
+                <span id="insight-kpi-studio" class="kpi-value kpi-studio-val">—</span>
               </div>
             </div>
 
@@ -581,17 +588,17 @@
                       <div id="insight-status-chart" class="si-donut-container"></div>
                       <div class="si-donut-legend">
                         <div class="si-legend-item">
-                          <span class="si-legend-dot" style="background: var(--insight-purple);"></span>
+                          <span class="si-legend-dot" style="background: var(--insight-blue);"></span>
                           <span class="si-legend-label">Completed</span>
                           <span class="si-legend-val" id="si-count-completed">0</span>
                         </div>
                         <div class="si-legend-item">
-                          <span class="si-legend-dot" style="background: var(--insight-cyan);"></span>
+                          <span class="si-legend-dot" style="background: var(--insight-green);"></span>
                           <span class="si-legend-label">Watching</span>
                           <span class="si-legend-val" id="si-count-watching">0</span>
                         </div>
                         <div class="si-legend-item">
-                          <span class="si-legend-dot" style="background: var(--insight-lavender);"></span>
+                          <span class="si-legend-dot" style="background: var(--insight-yellow);"></span>
                           <span class="si-legend-label">Planned</span>
                           <span class="si-legend-val" id="si-count-plan">0</span>
                         </div>
@@ -696,6 +703,11 @@
               </div>
             </div>
           </div>
+        
+          <!-- Hidden backward-compat spans so existing JS refs resolve safely -->
+          <span id="insight-completed" hidden></span>
+          <span id="insight-watching" hidden></span>
+          <span id="insight-plan" hidden></span>
         </div>
 
         <!-- Profile View -->
@@ -1128,7 +1140,7 @@
   </div>
 
   <!-- Notification badge (added to bell button via JS) -->
-  <div id="chart-tooltip" class="chart-tooltip"></div>
+  <div id="chart-tooltip" class="chart-tooltip" role="tooltip" aria-hidden="true"></div>
 
   <!-- Back to Top FAB -->
   <button id="back-to-top-btn" class="fab-btn" aria-label="Scroll to top" data-tooltip="Scroll to top">

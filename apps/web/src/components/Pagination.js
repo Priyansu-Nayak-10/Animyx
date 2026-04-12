@@ -214,7 +214,7 @@ export const InfiniteScrollPagination = {
   },
   methods: {
     scrollToTop() {
-      this.$refs.container.scrollTop = 0;
+      this.$refs.container.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
 };

@@ -244,7 +244,7 @@ export default {
      * Scroll to top of content area
      */
     scrollToTop() {
-      this.$el.querySelector('.library-content').scrollTop = 0;
+      this.$el.querySelector('.library-content').scrollTo({ top: 0, behavior: 'smooth' });
     }
   },
 
