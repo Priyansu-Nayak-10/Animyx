@@ -2136,6 +2136,14 @@ body.dark .border-dashed:hover {
     );
     scrollbar-gutter: stable;
     overscroll-behavior: contain;
+    /* Smooth scrolling */
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    /* GPU layer — eliminates main-thread repaint during scroll */
+    will-change: scroll-position;
+    transform: translateZ(0);
+    /* Layout containment */
+    contain: strict;
 }
 
 .recommendations-container .card-title {
@@ -2424,9 +2432,12 @@ body.dark .border-dashed:hover {
     box-shadow:
         0 14px 34px rgba(2, 6, 23, 0.42),
         inset 0 1px 0 rgba(255, 255, 255, 0.12);
-    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    /* transition managed by enhancements.css — no duplicate here */
     position: relative;
     overflow: hidden;
+    /* GPU compositing — prevents scroll from triggering repaint on every card */
+    will-change: transform;
+    contain: layout style;
 }
 
 .reco-card:hover {
@@ -2463,6 +2474,9 @@ body.dark .border-dashed:hover {
     height: 100%;
     object-fit: cover;
     display: block;
+    /* Promotes img to its own compositor layer for smooth hover zoom */
+    will-change: filter;
+    transform: translateZ(0);
 }
 
 .reco-body {
