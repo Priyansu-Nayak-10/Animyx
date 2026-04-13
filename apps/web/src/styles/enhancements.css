@@ -310,60 +310,114 @@
 
 /* ── 8. MILESTONE TILES ENHANCEMENT ─────────────────────── */
 
-/* Milestone tile — polished locked/unlocked states */
+/* Milestone tile — PREMIUM GLASSMORPHIC STATES */
 .app-shell .milestone-tile {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 12px;
-  padding: 0.75rem 0.6rem;
+  background: rgba(20, 20, 30, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 14px;
+  padding: 1rem 0.6rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.4rem;
   text-align: center;
-  transition: transform 0.25s var(--ease-spring), box-shadow 0.25s ease, border-color 0.25s ease, background 0.25s ease;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease, border-color 0.4s ease, background 0.4s ease;
   cursor: default;
+  position: relative;
+  overflow: hidden;
+}
+
+.app-shell .milestone-tile::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 100%;
+  background: radial-gradient(circle at top right, rgba(255,255,255,0.08), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
 }
 
 .app-shell .milestone-tile.locked {
-  filter: grayscale(0.6);
-  opacity: 0.55;
+  filter: grayscale(0.85);
+  opacity: 0.4;
 }
 
+.app-shell .milestone-tile.locked .milestone-icon {
+  opacity: 0.35;
+  filter: blur(1px);
+}
+
+/* Base Unlocked State matching main themes */
 .app-shell .milestone-tile:not(.locked) {
-  background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(168, 85, 247, 0.06));
-  border-color: rgba(124, 58, 237, 0.3);
-  box-shadow: 0 0 16px rgba(124, 58, 237, 0.15);
+  background: linear-gradient(145deg, rgba(35, 30, 50, 0.75), rgba(20, 20, 35, 0.95));
+  border-color: rgba(168, 85, 247, 0.4);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+.app-shell .milestone-tile:not(.locked)::before {
+  opacity: 1;
 }
 
 .app-shell .milestone-tile:not(.locked):hover {
-  transform: translateY(-3px) scale(1.03);
-  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.25);
-  border-color: rgba(168, 85, 247, 0.5);
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.15);
+  border-color: rgba(168, 85, 247, 0.7);
 }
 
 .app-shell .milestone-icon {
-  font-size: 1.6rem;
+  font-size: 1.8rem;
   line-height: 1;
-  transition: transform 0.3s var(--ease-spring);
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.4s ease;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+  margin-bottom: 0.2rem;
 }
 
 .app-shell .milestone-tile:not(.locked):hover .milestone-icon {
-  transform: scale(1.2) rotate(-5deg);
+  transform: scale(1.25) rotate(-8deg);
+  filter: drop-shadow(0 0 12px rgba(168, 85, 247, 0.8));
 }
 
 .app-shell .milestone-name {
-  font-size: 0.72rem;
-  font-weight: 700;
+  font-size: 0.75rem;
+  font-weight: 800;
   color: var(--text-primary);
   line-height: 1.2;
+  letter-spacing: 0.3px;
+}
+
+.app-shell .milestone-tile:not(.locked) .milestone-name {
+  background: linear-gradient(to right, #ffffff, #d8b4fe);
+  -webkit-background-clip: text;
+  background-clip: text; /* Fallback */
+  -webkit-text-fill-color: transparent;
+  color: transparent;
 }
 
 .app-shell .milestone-desc {
-  font-size: 0.6rem;
+  font-size: 0.62rem;
   color: var(--text-muted);
   line-height: 1.3;
+  font-weight: 500;
 }
+
+/* Dynamic Rainbow Tiers using nth-child */
+.app-shell .milestone-tile:nth-child(4n+1):not(.locked) { border-color: rgba(139, 92, 246, 0.5); }
+.app-shell .milestone-tile:nth-child(4n+1):not(.locked):hover { border-color: rgba(139, 92, 246, 0.9); box-shadow: 0 12px 30px rgba(139, 92, 246, 0.2); }
+.app-shell .milestone-tile:nth-child(4n+1):not(.locked):hover .milestone-icon { filter: drop-shadow(0 0 12px rgba(139, 92, 246, 0.8)); }
+
+.app-shell .milestone-tile:nth-child(4n+2):not(.locked) { border-color: rgba(16, 185, 129, 0.5); }
+.app-shell .milestone-tile:nth-child(4n+2):not(.locked):hover { border-color: rgba(16, 185, 129, 0.9); box-shadow: 0 12px 30px rgba(16, 185, 129, 0.2); }
+.app-shell .milestone-tile:nth-child(4n+2):not(.locked):hover .milestone-icon { filter: drop-shadow(0 0 12px rgba(16, 185, 129, 0.8)); }
+
+.app-shell .milestone-tile:nth-child(4n+3):not(.locked) { border-color: rgba(239, 68, 68, 0.5); }
+.app-shell .milestone-tile:nth-child(4n+3):not(.locked):hover { border-color: rgba(239, 68, 68, 0.9); box-shadow: 0 12px 30px rgba(239, 68, 68, 0.2); }
+.app-shell .milestone-tile:nth-child(4n+3):not(.locked):hover .milestone-icon { filter: drop-shadow(0 0 12px rgba(239, 68, 68, 0.8)); }
+
+.app-shell .milestone-tile:nth-child(4n+4):not(.locked) { border-color: rgba(245, 158, 11, 0.5); }
+.app-shell .milestone-tile:nth-child(4n+4):not(.locked):hover { border-color: rgba(245, 158, 11, 0.9); box-shadow: 0 12px 30px rgba(245, 158, 11, 0.2); }
+.app-shell .milestone-tile:nth-child(4n+4):not(.locked):hover .milestone-icon { filter: drop-shadow(0 0 12px rgba(245, 158, 11, 0.8)); }
 
 /* ── 9. RECOMMENDATION CARDS ENHANCEMENT ────────────────── */
 
