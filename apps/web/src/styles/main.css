@@ -2143,7 +2143,7 @@ body.dark .border-dashed:hover {
     will-change: scroll-position;
     transform: translateZ(0);
     /* Layout containment */
-    contain: strict;
+    contain: content;
 }
 
 .recommendations-container .card-title {
@@ -2437,7 +2437,6 @@ body.dark .border-dashed:hover {
     overflow: hidden;
     /* GPU compositing — prevents scroll from triggering repaint on every card */
     will-change: transform;
-    contain: layout style;
 }
 
 .reco-card:hover {
