@@ -7,31 +7,28 @@
 /* ── 0. MILESTONE GRID LAYOUT (missing from main.css) ───── */
 
 .app-shell .milestone-grid {
-  display: flex;
-  overflow-x: auto;
-  gap: 0.8rem;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem;
   margin-top: 0.5rem;
-  padding-bottom: 0.8rem; /* space for scrollbar */
+  max-height: 220px; /* Approximate height for ~2 rows */
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 0.4rem; /* space for scrollbar */
   scroll-behavior: smooth;
-  scroll-snap-type: x mandatory;
 }
 
 .app-shell .milestone-grid::-webkit-scrollbar {
-  height: 6px;
+  width: 6px;
 }
 .app-shell .milestone-grid::-webkit-scrollbar-thumb {
   background-color: var(--surface-border-strong);
   border-radius: 4px;
 }
 
-.app-shell .milestone-tile {
-  flex: 0 0 calc(33.333% - 0.6rem);
-  scroll-snap-align: start;
-}
-
 @media (max-width: 480px) {
-  .app-shell .milestone-tile {
-    flex: 0 0 calc(50% - 0.4rem);
+  .app-shell .milestone-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
