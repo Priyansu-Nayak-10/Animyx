@@ -612,22 +612,29 @@ export function initMilestones({ libraryStore }) {
   if (!grid) return { render() {}, destroy() {} };
   
   const tiles = Array.from(grid.querySelectorAll(".milestone-tile"));
-  if (tiles.length !== 6) return { render() {}, destroy() {} };
+  if (tiles.length < 12) return { render() {}, destroy() {} };
 
   function render() {
     const stats = libraryStore.getStats();
-    // 1. Lost & Found (Save first anime)
+    const items = libraryStore.getAll();
+    const ratedCount = items.filter(i => i && i.userRating > 0).length;
+    const epsWatched = items.reduce((sum, item) => sum + (Number(item?.watchedEpisodes || item?.progress) || 0), 0);
+    
+    // Tier 1
     if (stats.total >= 1) tiles[0].classList.remove("locked");
-    // 2. Sequel Hunter
     if (stats.watching >= 1) tiles[1].classList.remove("locked");
-    // 3. Dub Scout
     if (stats.total >= 5) tiles[2].classList.remove("locked");
-    // 4. Series Finished
     if (stats.completed >= 1) tiles[3].classList.remove("locked");
-    // 5. The Archivist
     if (stats.total >= 10) tiles[4].classList.remove("locked");
-    // 6. Active Tracker
     if (stats.watching >= 3) tiles[5].classList.remove("locked");
+    
+    // Tier 2
+    if (ratedCount >= 1) tiles[6].classList.remove("locked");
+    if (epsWatched >= 10) tiles[7].classList.remove("locked");
+    if (epsWatched >= 500) tiles[8].classList.remove("locked");
+    if (stats.completed >= 25) tiles[9].classList.remove("locked");
+    if (ratedCount >= 25) tiles[10].classList.remove("locked");
+    if (stats.total >= 100) tiles[11].classList.remove("locked");
   }
 
   const unsub = libraryStore.subscribe(render);
