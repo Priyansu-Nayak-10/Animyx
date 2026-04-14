@@ -226,6 +226,19 @@ export function initSectionReveal({
 }
 
 // ---------------------------------------------------------------------------
+// HTML escaping utility
+// ---------------------------------------------------------------------------
+
+export function escapeHtml(value) {
+  return String(value || '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
+// ---------------------------------------------------------------------------
 // Data normalization (previously core/dataNormalize.js)
 // ---------------------------------------------------------------------------
 
@@ -368,8 +381,8 @@ const USER_SCOPED_SESSIONSTORAGE_KEYS = [
 ];
 
 const LOCALSTORAGE_PREFIXES = [
-  // API cache module
-  'Animyx_v3_cache_'
+  // API cache module (must match CACHE_PREFIX constant in core/api.js)
+  'animex_v3_cache_'
 ];
 
 const INDEXEDDB_DATABASES = [

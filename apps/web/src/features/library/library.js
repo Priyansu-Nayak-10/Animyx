@@ -1,5 +1,5 @@
 import { STATUS } from "../../store.js";
-import { resolveEpisodes, resolveEpisodesNumeric } from "../../core/utils.js";
+import { resolveEpisodes, resolveEpisodesNumeric, escapeHtml } from "../../core/utils.js";
 
 const TYPE_FILTERS = Object.freeze({
   ALL: "all",
@@ -18,18 +18,11 @@ const WATCHLIST_RENDER_CHUNK_SIZE = 40;
 const COMPLETED_LARGE_LIST_THRESHOLD = 100;
 const COMPLETED_RENDER_CHUNK_SIZE = 50;
 
-function escapeHtml(value) {
-  return String(value || "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
-}
+// escapeHtml is imported from ../../core/utils.js
 
 function normalizeTitle(item) {
   // Prefer English title using the same priority logic as the rest of the app:
-  // title_english → titles[English] → title (romaji) → title_japanese
+  // title_english â†’ titles[English] â†’ title (romaji) â†’ title_japanese
   const resolved = getDisplayTitle(item);
   return resolved && resolved !== "Unknown Title" ? resolved : String(item?.title || "Unknown");
 }
@@ -75,7 +68,7 @@ function ensureUndoBar() {
     <div class="Animyx-undo-inner">
       <span class="Animyx-undo-text" id="Animyx-undo-text"></span>
       <button class="Animyx-undo-btn" type="button" id="Animyx-undo-btn">Undo</button>
-      <button class="Animyx-undo-close" type="button" id="Animyx-undo-close" aria-label="Dismiss">×</button>
+      <button class="Animyx-undo-close" type="button" id="Animyx-undo-close" aria-label="Dismiss">Ã—</button>
     </div>
   `;
   document.body.appendChild(bar);
@@ -167,7 +160,7 @@ function initWatchlistBoard({ libraryStore, toast = null }) {
         <button class="wl-filter ${uiState.typeFilter === TYPE_FILTERS.SERIES ? "active" : ""}" data-watchlist-action="set-type" data-type="${TYPE_FILTERS.SERIES}">Series</button>
       </div>
       <div class="watchlist-controls-group">
-        <button class="wl-control-btn ${sortMode === "az" ? "active" : ""}" data-watchlist-action="set-sort" data-sort="az">A-Z ${isAsc ? "↑" : "↓"}</button>
+        <button class="wl-control-btn ${sortMode === "az" ? "active" : ""}" data-watchlist-action="set-sort" data-sort="az">A-Z ${isAsc ? "â†‘" : "â†“"}</button>
         <button class="wl-control-btn ${sortMode === "recent" ? "active" : ""}" data-watchlist-action="set-sort" data-sort="recent">Recent</button>
         <button class="wl-control-btn" data-watchlist-action="random-pick">Pick Something For Me</button>
       </div>
@@ -231,7 +224,7 @@ function initWatchlistBoard({ libraryStore, toast = null }) {
     const totalDisplay = resolveEpisodes(anime?.episodes, anime?.status);
     const pctClass = `pwc-pct-${percent >= 80 ? 'high' : percent >= 50 ? 'mid' : 'low'}`;
 
-    // ── In-place update: same anime, card already rendered ──────────────────
+    // â”€â”€ In-place update: same anime, card already rendered â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     if (_pwcRenderedMalId === malId && premiumWatchingContainer.querySelector('.pwc-current')) {
       const elCurrent = premiumWatchingContainer.querySelector('.pwc-current');
       const elRingFill = premiumWatchingContainer.querySelector('.pwc-ring-fill');
@@ -253,7 +246,7 @@ function initWatchlistBoard({ libraryStore, toast = null }) {
       return;
     }
 
-    // ── Full build: first render or anime switched ──────────────────────────
+    // â”€â”€ Full build: first render or anime switched â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     _pwcRenderedMalId = malId;
     const title = escapeHtml(normalizeTitle(anime));
     const poster = escapeHtml(String(anime?.image || ""));
@@ -335,7 +328,7 @@ function initWatchlistBoard({ libraryStore, toast = null }) {
     const selectedClass = selected.has(malId) ? "is-selected" : "";
     const openAttr = selectMode ? "" : `data-action="open-anime-modal"`;
     const selectOverlay = selectMode
-      ? `<button class="wl-select-badge" type="button" data-watchlist-action="toggle-item-select" data-id="${malId}" aria-label="Toggle selection">${selected.has(malId) ? "✓" : ""}</button>`
+      ? `<button class="wl-select-badge" type="button" data-watchlist-action="toggle-item-select" data-id="${malId}" aria-label="Toggle selection">${selected.has(malId) ? "âœ“" : ""}</button>`
       : "";
 
     return `<article class="wl-card-vertical watching-card-premium watchlist-item ${selectedClass} status-${escapeHtml(displayStatus)}" draggable="true" ${openAttr} data-id="${malId}"><div class="wl-card-media">${selectOverlay}<img src="${escapeHtml(item?.image || "")}" alt="${escapeHtml(normalizeTitle(item))}" class="wl-card-poster" loading="lazy"><div class="wl-overlay"></div><div class="wl-status-badge ${escapeHtml(displayStatus)} ${statusAnimateClass}">${escapeHtml(displayStatus)}</div><div class="wl-progress-overlay"><div class="wl-progress-bar"><div class="wl-progress-fill progress-glow" style="width:${percent}%"></div></div><span class="wl-progress-text-overlay">${progress} / ${episodeDisplay}</span></div></div><div class="wl-card-content"><h3 class="wl-card-title">${escapeHtml(normalizeTitle(item))}</h3><p class="wl-card-meta">${genreText} | ${yearText}</p><div class="wl-quickbar" aria-label="Quick actions" data-quickbar="1"><div class="wl-quick-right"><button class="status-pill status-plan ${isPlan ? "active" : ""}" type="button" data-watchlist-action="set-status" data-id="${malId}" data-status="${STATUS.PLAN}">Plan</button><button class="status-pill status-watching ${isWatching ? "active" : ""}" type="button" data-watchlist-action="set-status" data-id="${malId}" data-status="${STATUS.WATCHING}">Watch</button><button class="status-pill status-dropped ${isDropped ? "active" : ""}" type="button" data-watchlist-action="set-status" data-id="${malId}" data-status="${STATUS_DROPPED}">Drop</button><button class="status-pill status-completed ${isCompleted ? "active" : ""}" type="button" data-watchlist-action="set-status" data-id="${malId}" data-status="${STATUS.COMPLETED}">Done</button></div></div></div></article>`;
@@ -364,7 +357,7 @@ function initWatchlistBoard({ libraryStore, toast = null }) {
       const total = eps > 0 ? eps : 0;
       const pct = total > 0 ? Math.min(100, Math.round((progress / total) * 100)) : 0;
       const subtitle = kind === "continue"
-        ? (total > 0 ? `${progress}/${total} • ${pct}%` : `Ep ${progress}`)
+        ? (total > 0 ? `${progress}/${total} â€¢ ${pct}%` : `Ep ${progress}`)
         : `${escapeHtml(String(item?.status || ""))}`;
       const statusClass = String(item?.status || "").toLowerCase();
 
@@ -621,7 +614,7 @@ function initWatchlistBoard({ libraryStore, toast = null }) {
       const after = getLibraryItemSnapshot(libraryStore, malId);
       if (before && after) {
         showUndo({
-          message: `Progress updated • ${normalizeTitle(after)}`,
+          message: `Progress updated â€¢ ${normalizeTitle(after)}`,
           onUndo: () => {
             // Restore status first, then progress.
             libraryStore.setStatus(malId, before.status);
@@ -638,7 +631,7 @@ function initWatchlistBoard({ libraryStore, toast = null }) {
       const after = getLibraryItemSnapshot(libraryStore, malId);
       if (before && after) {
         showUndo({
-          message: `Progress updated • ${normalizeTitle(after)}`,
+          message: `Progress updated â€¢ ${normalizeTitle(after)}`,
           onUndo: () => {
             libraryStore.setStatus(malId, before.status);
             const current = getLibraryItemSnapshot(libraryStore, malId);
@@ -658,7 +651,7 @@ function initWatchlistBoard({ libraryStore, toast = null }) {
       const after = getLibraryItemSnapshot(libraryStore, malId);
       if (before && after) {
         showUndo({
-          message: `Moved to ${next} • ${normalizeTitle(after)}`,
+          message: `Moved to ${next} â€¢ ${normalizeTitle(after)}`,
           onUndo: () => {
             libraryStore.setStatus(malId, before.status);
             const current = getLibraryItemSnapshot(libraryStore, malId);
@@ -674,7 +667,7 @@ function initWatchlistBoard({ libraryStore, toast = null }) {
       toast?.show?.("Marked as completed");
       if (before) {
         showUndo({
-          message: `Marked completed • ${normalizeTitle(before)}`,
+          message: `Marked completed â€¢ ${normalizeTitle(before)}`,
           onUndo: () => {
             libraryStore.setStatus(malId, before.status);
             const current = getLibraryItemSnapshot(libraryStore, malId);
@@ -772,18 +765,18 @@ function initCompletedBoard({ libraryStore, toast = null }) {
   function buildToolbar() {
     const isAsc = Boolean(uiState.sortAsc);
     const sortMode = uiState.sortMode === "recent" ? "recent" : "az";
-    return `<div class="completed-command-bar watchlist-command-bar" data-completed-toolbar="1"><div class="watchlist-controls-group"><button class="wl-filter ${uiState.typeFilter === TYPE_FILTERS.ALL ? "active" : ""}" data-completed-action="set-type" data-type="${TYPE_FILTERS.ALL}">All</button><button class="wl-filter ${uiState.typeFilter === TYPE_FILTERS.MOVIES ? "active" : ""}" data-completed-action="set-type" data-type="${TYPE_FILTERS.MOVIES}">Movies</button><button class="wl-filter ${uiState.typeFilter === TYPE_FILTERS.SERIES ? "active" : ""}" data-completed-action="set-type" data-type="${TYPE_FILTERS.SERIES}">Series</button></div><div class="watchlist-controls-group"><button class="wl-control-btn ${sortMode === "az" ? "active" : ""}" data-completed-action="set-sort" data-sort="az">A-Z ${isAsc ? "↑" : "↓"}</button><button class="wl-control-btn ${sortMode === "recent" ? "active" : ""}" data-completed-action="set-sort" data-sort="recent">Recent</button><button class="wl-control-btn ${selectMode ? "active" : ""}" data-completed-action="toggle-select">${selectMode ? `Selected: ${selected.size}` : "Select"}</button>${selectMode ? `<button class="wl-control-btn" data-completed-action="clear-selection">Clear</button>` : ""}</div></div>`;
+    return `<div class="completed-command-bar watchlist-command-bar" data-completed-toolbar="1"><div class="watchlist-controls-group"><button class="wl-filter ${uiState.typeFilter === TYPE_FILTERS.ALL ? "active" : ""}" data-completed-action="set-type" data-type="${TYPE_FILTERS.ALL}">All</button><button class="wl-filter ${uiState.typeFilter === TYPE_FILTERS.MOVIES ? "active" : ""}" data-completed-action="set-type" data-type="${TYPE_FILTERS.MOVIES}">Movies</button><button class="wl-filter ${uiState.typeFilter === TYPE_FILTERS.SERIES ? "active" : ""}" data-completed-action="set-type" data-type="${TYPE_FILTERS.SERIES}">Series</button></div><div class="watchlist-controls-group"><button class="wl-control-btn ${sortMode === "az" ? "active" : ""}" data-completed-action="set-sort" data-sort="az">A-Z ${isAsc ? "â†‘" : "â†“"}</button><button class="wl-control-btn ${sortMode === "recent" ? "active" : ""}" data-completed-action="set-sort" data-sort="recent">Recent</button><button class="wl-control-btn ${selectMode ? "active" : ""}" data-completed-action="toggle-select">${selectMode ? `Selected: ${selected.size}` : "Select"}</button>${selectMode ? `<button class="wl-control-btn" data-completed-action="clear-selection">Clear</button>` : ""}</div></div>`;
   }
 
   function buildCompletedCard(item) {
     const currentRating = Number(item?.userRating || 0);
     const starCount = Math.max(0, Math.min(5, Math.round(currentRating / 2)));
-    const _overlayStars = `${"★".repeat(starCount)}${"☆".repeat(5 - starCount)}`;
+    const _overlayStars = `${"â˜…".repeat(starCount)}${"â˜†".repeat(5 - starCount)}`;
     const malId = Number(item?.malId || 0);
     const selectedClass = selected.has(malId) ? "is-selected" : "";
     const openAttr = selectMode ? "" : `data-action="open-anime-modal"`;
     const selectOverlay = selectMode
-      ? `<button class="wl-select-badge" type="button" data-completed-action="toggle-item" data-id="${malId}" aria-label="Toggle selection">${selected.has(malId) ? "✓" : ""}</button>`
+      ? `<button class="wl-select-badge" type="button" data-completed-action="toggle-item" data-id="${malId}" aria-label="Toggle selection">${selected.has(malId) ? "âœ“" : ""}</button>`
       : "";
 
     return `
@@ -960,7 +953,7 @@ function initCompletedBoard({ libraryStore, toast = null }) {
       toast?.show?.("Moved to watching for rewatch");
       if (before) {
         showUndo({
-          message: `Moved to watching • ${normalizeTitle(before)}`,
+          message: `Moved to watching â€¢ ${normalizeTitle(before)}`,
           onUndo: () => {
             libraryStore.setStatus(malId, before.status);
             const current = getLibraryItemSnapshot(libraryStore, malId);
@@ -978,7 +971,7 @@ function initCompletedBoard({ libraryStore, toast = null }) {
       toast?.show?.("Moved to watchlist");
       if (before) {
         showUndo({
-          message: `Moved to watchlist • ${normalizeTitle(before)}`,
+          message: `Moved to watchlist â€¢ ${normalizeTitle(before)}`,
           onUndo: () => {
             libraryStore.setStatus(malId, before.status);
             const current = getLibraryItemSnapshot(libraryStore, malId);
@@ -1243,5 +1236,6 @@ function initLibraryUI(ctx) {
 }
 
 export { TYPE_FILTERS, initLibraryUI };
+
 
 

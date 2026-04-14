@@ -88,9 +88,12 @@ function calculateCompletionStreak(timestamps) {
   if (!uniqueDays.length) return 0;
   let streak = 1;
   let cursor = new Date(uniqueDays[0]).getTime();
+  const ONE_DAY_MS = 24 * 60 * 60 * 1000;
   for (let i = 1; i < uniqueDays.length; i += 1) {
     const current = new Date(uniqueDays[i]).getTime();
-    if ((cursor - current) === (24 * 60 * 60 * 1000)) {
+    const diff = cursor - current;
+    // Use a ±1h tolerance window to handle DST transitions gracefully
+    if (diff >= ONE_DAY_MS - 3_600_000 && diff <= ONE_DAY_MS + 3_600_000) {
       streak += 1;
       cursor = current;
     } else break;

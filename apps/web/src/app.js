@@ -20,7 +20,7 @@ import { initSearchAdvanced } from './features/search/search.js';
 import { initSeasonBrowser } from './features/season/seasonBrowser.js';
 import { initUI } from './features/ui/ui.js';
 import { initLibraryUI } from './features/library/library.js';
-import { initInsights, initDashboardModules, initMilestones, initTrackerFeed } from './features/dashboard/dashboard.js';
+import { initInsights, initDashboardModules, initTrackerFeed } from './features/dashboard/dashboard.js';
 import { initProfile, initSettings, initExport, initImport } from './features/user/userFeatures.js';
 import { normalizeAnime, dedupeAnimeList, bindNavigation, openView, initSectionReveal, initImageBlurUp } from './core/utils.js';
 
@@ -110,14 +110,14 @@ const initAuthEvents = async () => {
     btn.addEventListener('click', () => {
       const action = btn.dataset.emptyAction;
       if (action === 'browse') window.dispatchEvent(new CustomEvent('Animyx:navigate', { detail: { view: 'season-view' } }));
-      else if (action === 'add') window.dispatchEvent(new CustomEvent('Animyx:navigate', { detail: { view: 'search-section' } }));
+      else if (action === 'add') window.dispatchEvent(new CustomEvent('Animyx:navigate', { detail: { view: 'search-view' } }));
     });
   });
 
   // ── Continue-watching carousel nav ────────────────────────
   const continuePrev = document.getElementById('continue-watching-prev');
   const continueNext = document.getElementById('continue-watching-next');
-  const continueTrack = document.querySelector('#continue-watching-list, .watchlist-scroll');
+  const continueTrack = document.querySelector('#continue-watching-strip');
 
   function scrollContinue(dir) {
     if (!continueTrack) return;
@@ -611,12 +611,8 @@ async function bootstrap() {
     initImageBlurUp() // Premium image blur-up effect on lazy load
   ];
 
-  // ── My Journey Milestones ─────────────────────────────────────────────────
-  const milestones = initMilestones({ libraryStore });
-  modules.push(milestones);
-
-  // ── My Tracker Feed ───────────────────────────────────────────────────────
-  const trackerFeed = initTrackerFeed({ libraryStore, milestones });
+  // ── My Tracker Feed (milestones are managed internally by initDashboardModules) ─
+  const trackerFeed = initTrackerFeed({ libraryStore, milestones: dashboardModules.milestones });
   modules.push(trackerFeed);
 
   // Expose addEvent for socket notifications (from main.js / socket module)
