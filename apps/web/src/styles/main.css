@@ -11583,10 +11583,12 @@ body.sidebar-open .sidebar-backdrop {
 
 .achievements-container {
     padding-bottom: 1.15rem !important;
+    height: max-content !important;
 }
 
 .recommendations-container {
     padding-bottom: 1.15rem !important;
+    height: max-content !important;
 }
 
 
