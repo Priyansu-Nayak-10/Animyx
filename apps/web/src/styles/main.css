@@ -11573,5 +11573,21 @@ body.sidebar-open .sidebar-backdrop {
   font-weight: 700;
 }
 
+/* -------------------------------------------------------
+   Dashboard Spacing Adjustments (Overrides)
+------------------------------------------------------- */
+
+.milestone-tile {
+    padding-bottom: 0.65rem !important;
+}
+
+.achievements-container {
+    padding-bottom: 1.15rem !important;
+}
+
+.recommendations-container {
+    padding-bottom: 1.15rem !important;
+}
+
 
 
