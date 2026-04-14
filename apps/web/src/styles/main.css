@@ -11630,11 +11630,42 @@ body.sidebar-open .sidebar-backdrop {
 /* Studio Spotlight Card */
 .studio-spotlight-card {
     position: relative;
-    padding: 1.5rem;
+    padding: 1.8rem;
     min-height: 230px;
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    background: linear-gradient(135deg, rgba(88, 28, 135, 0.2) 0%, rgba(15, 23, 42, 0.6) 100%);
+    border: 1px solid rgba(168, 85, 247, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.studio-spotlight-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(168, 85, 247, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    border-color: rgba(168, 85, 247, 0.4);
+}
+
+.studio-spotlight-card::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%; right: -50%; bottom: -50%;
+    background: radial-gradient(circle at center, rgba(168, 85, 247, 0.1) 0%, transparent 60%);
+    z-index: 0;
+    pointer-events: none;
+    animation: spotlightPulse 8s ease-in-out infinite alternate;
+}
+
+@keyframes spotlightPulse {
+    0% { transform: scale(0.8); opacity: 0.5; }
+    100% { transform: scale(1.2); opacity: 1; }
+}
+
+.studio-spotlight-header, .studio-brand-name, .studio-stats, .studio-signature, .studio-top-work {
+    position: relative;
+    z-index: 1;
 }
 
 .studio-spotlight-header {
@@ -11647,24 +11678,27 @@ body.sidebar-open .sidebar-backdrop {
 .studio-spotlight-badge {
     padding: 0.25rem 0.6rem;
     background: rgba(168, 85, 247, 0.15);
-    color: var(--brand-accent);
-    border: 1px solid rgba(168, 85, 247, 0.3);
+    color: #e879f9;
+    border: 1px solid rgba(232, 121, 249, 0.3);
     border-radius: 6px;
     font-size: 0.65rem;
-    font-weight: 700;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.08em;
+    box-shadow: 0 0 10px rgba(168, 85, 247, 0.2);
 }
 
 .studio-brand-name {
-    font-size: 1.75rem;
+    font-size: 2.2rem;
+    font-family: 'Outfit', 'Inter', sans-serif;
     font-weight: 900;
-    background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+    background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, #94a3b8 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    margin-bottom: 0.5rem;
-    letter-spacing: -0.5px;
+    margin-bottom: 0.4rem;
+    letter-spacing: -0.02em;
+    text-shadow: 0 4px 12px rgba(0,0,0,0.3);
 }
 
 .studio-stats {
@@ -11744,21 +11778,44 @@ body.sidebar-open .sidebar-backdrop {
 /* Time Traveler Card (Nostalgia) */
 .time-traveler-card {
     position: relative;
-    padding: 1.5rem;
+    padding: 1.8rem;
     min-height: 230px;
     display: flex;
     flex-direction: column;
-    background: linear-gradient(135deg, rgba(39, 39, 42, 0.4) 0%, rgba(24, 24, 27, 0.6) 100%);
-    border: 1px solid rgba(161, 161, 170, 0.1);
+    background: linear-gradient(135deg, rgba(39, 39, 42, 0.6) 0%, rgba(24, 24, 27, 0.9) 100%);
+    border: 1px solid rgba(212, 170, 112, 0.15); /* Vintage Gold Tint */
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.03);
     overflow: hidden;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.time-traveler-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(212, 170, 112, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    border-color: rgba(212, 170, 112, 0.35);
+}
+
+.time-traveler-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(212, 170, 112, 0.4), transparent);
 }
 
 .time-traveler-card::before {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: radial-gradient(circle at 10% 10%, rgba(161, 161, 170, 0.05) 0%, transparent 50%);
     pointer-events: none;
+    background-image: radial-gradient(rgba(212, 170, 112, 0.03) 1px, transparent 1px);
+    background-size: 4px 4px;
+    z-index: 0;
+}
+
+.time-traveler-header, .time-traveler-content, .time-traveler-footer, .time-traveler-empty {
+    position: relative;
+    z-index: 1;
 }
 
 .time-traveler-header {
@@ -11770,16 +11827,18 @@ body.sidebar-open .sidebar-backdrop {
 }
 
 .time-traveler-icon {
-    font-size: 1.1rem;
-    color: #d4d4d8;
-    opacity: 0.8;
+    font-size: 1.2rem;
+    color: #fbbf24;
+    opacity: 0.9;
+    filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.4));
 }
 
 .time-traveler-badge {
     font-size: 0.65rem;
-    font-weight: 700;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.12em;
+    color: #e4e4e7;
 }
 
 .time-traveler-content {
@@ -11789,20 +11848,29 @@ body.sidebar-open .sidebar-backdrop {
 }
 
 .time-traveler-quote {
-    font-family: 'Outfit', 'Inter', sans-serif;
-    font-size: 1.15rem;
-    line-height: 1.5;
-    color: #e4e4e7;
-    margin-bottom: 1rem;
+    font-family: 'Georgia', 'Playfair Display', serif;
+    font-size: 1.25rem;
+    line-height: 1.6;
+    color: #f4f4f5;
+    margin-bottom: 1.2rem;
     font-weight: 400;
     font-style: italic;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+}
+
+.time-traveler-quote strong {
+    color: #fbbf24;
+    font-weight: 600;
 }
 
 .time-traveler-anime {
-    font-size: 0.95rem;
-    font-weight: 700;
-    color: #fafafa;
+    font-size: 1.1rem;
+    font-family: 'Outfit', 'Inter', sans-serif;
+    font-weight: 800;
+    color: #fcd34d;
     margin-bottom: 0.25rem;
+    letter-spacing: 0.02em;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
 }
 
 .time-traveler-date {
