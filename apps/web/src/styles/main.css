@@ -10582,7 +10582,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  max-height: 400px;
+  max-height: 420px;
 }
 
 .upcoming-release-card {
