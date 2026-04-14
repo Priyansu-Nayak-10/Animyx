@@ -11626,3 +11626,117 @@ body.sidebar-open .sidebar-backdrop {
     border-color: rgba(148, 163, 184, 0.4);
     background: rgba(15, 23, 42, 0.5);
 }
+
+/* Studio Spotlight Card */
+.studio-spotlight-card {
+    position: relative;
+    padding: 1.5rem;
+    min-height: 230px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.studio-spotlight-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.25rem;
+}
+
+.studio-spotlight-badge {
+    padding: 0.25rem 0.6rem;
+    background: rgba(168, 85, 247, 0.15);
+    color: var(--brand-accent);
+    border: 1px solid rgba(168, 85, 247, 0.3);
+    border-radius: 6px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.studio-brand-name {
+    font-size: 1.75rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.5px;
+}
+
+.studio-stats {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    margin-bottom: 1rem;
+}
+
+.studio-stats strong {
+    color: var(--text-primary);
+}
+
+.studio-signature {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+}
+
+.studio-style-chip {
+    padding: 0.2rem 0.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    font-size: 0.7rem;
+    color: #cbd5e1;
+}
+
+.studio-top-work {
+    margin-top: auto;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+
+.studio-top-work-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--brand-accent);
+    margin-bottom: 0.25rem;
+}
+
+.studio-top-work-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.studio-explore-btn {
+    position: absolute;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--brand-accent);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(168, 85, 247, 0.4);
+    transition: all 0.3s ease;
+}
+
+.studio-explore-btn:hover {
+    transform: scale(1.1) rotate(45deg);
+    box-shadow: 0 6px 16px rgba(168, 85, 247, 0.6);
+}

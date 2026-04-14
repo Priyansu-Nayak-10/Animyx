@@ -716,6 +716,101 @@ export function initTriviaCard({ libraryStore }) {
   return { destroy() { unsub(); } };
 }
 
+// ── Studio Spotlight Module ────────────────────────────────────────────────
+export function initStudioSpotlight({ libraryStore }) {
+  const card = document.getElementById("studio-spotlight-card");
+  if (!card) return { render() { }, destroy() { } };
+
+  function render() {
+    const items = libraryStore.getAll();
+    if (!items.length) {
+      card.innerHTML = `
+        <div class="studio-spotlight-header">
+          <span class="studio-spotlight-badge">Discovery</span>
+        </div>
+        <div class="studio-brand-name">No Data yet</div>
+        <p class="studio-stats">Start tracking anime to reveal your studio spotlight.</p>
+        <div class="studio-signature">
+          <span class="studio-style-chip">Studios</span>
+          <span class="studio-style-chip">Analytics</span>
+        </div>
+      `;
+      return;
+    }
+
+    // 1. Count Studios
+    const counts = new Map(); // name -> { count, genres: Set, topRated: { score, title } }
+    items.forEach(item => {
+      const name = item.studio;
+      if (!name || name === "Unknown") return;
+      
+      if (!counts.has(name)) {
+        counts.set(name, { count: 0, genres: new Set(), topRated: { score: -1, title: "" } });
+      }
+      
+      const data = counts.get(name);
+      data.count++;
+      (item.genres || []).forEach(g => data.genres.add(g));
+      if (item.score > data.topRated.score) {
+        data.topRated = { score: item.score, title: item.title };
+      }
+    });
+
+    if (!counts.size) {
+       card.innerHTML = `<div class="anime-card-meta">Not enough studio data found yet.</div>`;
+       return;
+    }
+
+    // 2. Find Top Studio
+    const topStudio = [...counts.entries()].sort((a,b) => b[1].count - a[1].count)[0];
+    const [name, stats] = topStudio;
+    
+    // 3. Get Signature Style (top 3 genres for this studio)
+    const genreArray = [...stats.genres].slice(0, 3);
+    
+    card.innerHTML = `
+      <div class="studio-spotlight-header">
+        <span class="studio-spotlight-badge">Studio Spotlight</span>
+      </div>
+      <div class="studio-brand-name">${escapeHtml(name)}</div>
+      <p class="studio-stats">You've watched <strong>${stats.count}</strong> of their series${stats.count > 3 ? ". They are a library staple!" : "."}</p>
+      
+      <div class="studio-signature">
+        ${genreArray.map(g => `<span class="studio-style-chip">${escapeHtml(g)}</span>`).join('')}
+      </div>
+      
+      <div class="studio-top-work">
+        <div class="studio-top-work-label">Your Top Rated</div>
+        <div class="studio-top-work-title">${escapeHtml(stats.topRated.title || "TBD")}</div>
+      </div>
+      
+      <button type="button" class="studio-explore-btn" title="Explore ${escapeHtml(name)} Library" data-studio-action="explore" data-name="${escapeHtml(name)}">
+        <span class="material-icons">search</span>
+      </button>
+    `;
+  }
+
+  function onClick(e) {
+    const btn = e.target.closest("[data-studio-action='explore']");
+    if (!btn) return;
+    const sName = btn.dataset.name;
+    window.dispatchEvent(new CustomEvent('Animyx:navigate', { detail: { view: 'search-view', query: sName } }));
+    // Also trigger the actual search
+    setTimeout(() => {
+        const input = document.getElementById("global-search-input");
+        if (input) {
+            input.value = sName;
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+    }, 100);
+  }
+
+  card.addEventListener("click", onClick);
+  const unsub = libraryStore.subscribe(render);
+  render();
+  return { render, destroy() { unsub(); card.removeEventListener("click", onClick); } };
+}
+
 // ── Main Dashboard Facade ───────────────────────────────────────────────────
 
 export function initDashboardModules(ctx) {
@@ -725,19 +820,20 @@ export function initDashboardModules(ctx) {
   const clipCard = initClipCard(ctx);
   const milestones = initMilestones(ctx);
   const triviaCard = initTriviaCard(ctx);
+  const studioSpotlight = initStudioSpotlight(ctx);
 
   return Object.freeze({
-    heroCarousel, recommendations, upcomingWidget, clipCard, milestones, triviaCard,
+    heroCarousel, recommendations, upcomingWidget, clipCard, milestones, triviaCard, studioSpotlight,
     render() {
       const state = ctx?.store?.getState?.() || {};
       const libraryItems = ctx?.libraryStore?.getAll?.() || [];
       heroCarousel?.render?.(getTopOngoingAnikoto(state, 10, libraryItems));
       recommendations?.render?.(); upcomingWidget?.render?.(); clipCard?.render?.();
-      milestones?.render?.(); triviaCard?.render?.();
+      milestones?.render?.(); triviaCard?.render?.(); studioSpotlight?.render?.();
     },
     destroy() {
       clipCard?.destroy?.(); upcomingWidget?.destroy?.(); recommendations?.destroy?.(); heroCarousel?.destroy?.();
-      milestones?.destroy?.(); triviaCard?.destroy?.();
+      milestones?.destroy?.(); triviaCard?.destroy?.(); studioSpotlight?.destroy?.();
     }
   });
 }
