@@ -3084,6 +3084,7 @@ body.dark #dashboard-view .news-list.custom-scrollbar::-webkit-scrollbar-thumb {
     flex-direction: column;
     justify-content: center;
     flex: 1;
+    min-height: 160px;
 }
 
 .quick-stats-card {
