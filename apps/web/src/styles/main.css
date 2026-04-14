@@ -11592,5 +11592,21 @@ body.sidebar-open .sidebar-backdrop {
     height: max-content !important;
 }
 
+/* Dashboard Vertical Packing (Masonry-Lite) */
+.stats-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    height: max-content;
+    width: 100%;
+}
+
+@media (max-width: 767px) {
+    .stats-column {
+        gap: 1.5rem;
+    }
+}
+
+
 
 

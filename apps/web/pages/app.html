@@ -9,9 +9,9 @@
   <meta property="og:description" content="Track anime, explore seasonal releases, and unlock personal insights with Animyx." />
   <title>Dashboard &bull; Animyx</title>
   <link rel="icon" href="/images/favicon.png" />
-  <link rel="stylesheet" href="../src/styles/main.css?v=4">
-  <link rel="stylesheet" href="../src/styles/enhancements.css?v=4">
-  <link rel="stylesheet" href="/css/quickactions.css?v=4">
+  <link rel="stylesheet" href="../src/styles/main.css?v=5">
+  <link rel="stylesheet" href="../src/styles/enhancements.css?v=5">
+  <link rel="stylesheet" href="/css/quickactions.css?v=5">
 
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#140f26">
@@ -154,161 +154,158 @@
               </div>
 
               <div class="stats-grid">
-                <div class="card clip-placeholder-card group" style="border: 2px dashed var(--surface-border-strong);">
-                  <span class="placeholder-text"
-                    style="color: var(--text-muted); font-weight: 600; font-size: 0.75rem;">
-                    Insert Your Favorite Clip
-                  </span>
-                </div>
-                <!-- My Journey &mdash; Milestones -->
-                <div class="card achievements-container" id="milestones-card">
-                  <div class="achievements-header">
-                    <h3 class="card-title" style="margin-bottom: 0.25rem;">My Journey</h3>
-                    <p class="anime-card-meta">Milestones unlock as you track and collect anime</p>
-                  </div>
-                  <div class="milestone-grid" id="milestone-grid">
-                    <!-- Rendered by initMilestones() -->
-                    <div class="milestone-tile locked">
-                      <span class="milestone-icon">&#128269;</span>
-                      <span class="milestone-name">Lost &amp; Found</span>
-                      <span class="milestone-desc">Save your first anime</span>
-                    </div>
-                    <div class="milestone-tile locked">
-                      <span class="milestone-icon">&#128250;</span>
-                      <span class="milestone-name">Sequel Hunter</span>
-                      <span class="milestone-desc">Receive a sequel alert</span>
-                    </div>
-                    <div class="milestone-tile locked">
-                      <span class="milestone-icon">&#128266;</span>
-                      <span class="milestone-name">Dub Scout</span>
-                      <span class="milestone-desc">Get a dub notification</span>
-                    </div>
-                    <div class="milestone-tile locked">
-                      <span class="milestone-icon">&#9989;</span>
-                      <span class="milestone-name">Series Finished</span>
-                      <span class="milestone-desc">Complete your first series</span>
-                    </div>
-                    <div class="milestone-tile locked">
-                      <span class="milestone-icon">&#128450;&#65039;</span>
-                      <span class="milestone-name">The Archivist</span>
-                      <span class="milestone-desc">Save 10+ anime</span>
-                    </div>
-                                        <div class="milestone-tile locked">
-                      <span class="milestone-icon">&#128065;&#65039;</span>
-                      <span class="milestone-name">Active Tracker</span>
-                      <span class="milestone-desc">Follow 3+ airing anime</span>
-                    </div>
-                    <!-- Advanced Milestones -->
-                    <div class="milestone-tile locked">
-                      <span class="milestone-icon">&#127775;</span>
-                      <span class="milestone-name">First Review</span>
-                      <span class="milestone-desc">Rate your first anime</span>
-                    </div>
-                    <div class="milestone-tile locked">
-                      <span class="milestone-icon">&#128250;</span>
-                      <span class="milestone-name">Episode Rookie</span>
-                      <span class="milestone-desc">Watch 10+ episodes</span>
-                    </div>
-                    <div class="milestone-tile locked">
-                      <span class="milestone-icon">&#127871;</span>
-                      <span class="milestone-name">Binge Master</span>
-                      <span class="milestone-desc">Watch 500+ episodes</span>
-                    </div>
-                    <div class="milestone-tile locked">
-                      <span class="milestone-icon">&#128081;</span>
-                      <span class="milestone-name">Completionist</span>
-                      <span class="milestone-desc">Finish 25+ series</span>
-                    </div>
-                    <div class="milestone-tile locked">
-                      <span class="milestone-icon">&#128221;</span>
-                      <span class="milestone-name">The Critic</span>
-                      <span class="milestone-desc">Rate 25+ anime</span>
-                    </div>
-                    <div class="milestone-tile locked">
-                      <span class="milestone-icon">&#128032;</span>
-                      <span class="milestone-name">Legendary Viewer</span>
-                      <span class="milestone-desc">Save 100+ anime</span>
-                    </div>
-                  </div>
-                </div>
-                <!-- Genre distribution (unchanged) -->
-
-                <div class="card stats-container">
-                  <div class="card-header card-header-divider">
-                    <div>
-                      <h3 class="card-title" style="margin-bottom: 0.15rem;">Genre Snapshot</h3>
-                      <p class="anime-card-meta meta-tight">A quick preview of your completed anime taste.</p>
-                    </div>
-                  </div>
-                  <div class="legend">
-                    <div class="legend-item">
-                      <span class="legend-dot bg-accent-blue"></span>
-                      <span class="anime-card-meta meta-tight">Action</span>
-                    </div>
-                    <div class="legend-item">
-                      <span class="legend-dot bg-sky-300"></span>
-                      <span class="anime-card-meta meta-tight">Adventure</span>
-                    </div>
-                    <div class="legend-item">
-                      <span class="legend-dot bg-accent-green"></span>
-                      <span class="anime-card-meta meta-tight">Fantasy</span>
-                    </div>
+                <div class="stats-column stats-column-left">
+                  <div class="card clip-placeholder-card group" style="border: 2px dashed var(--surface-border-strong);">
+                    <span class="placeholder-text"
+                      style="color: var(--text-muted); font-weight: 600; font-size: 0.75rem;">
+                      Insert Your Favorite Clip
+                    </span>
                   </div>
 
-                  <div class="relative mx-auto genre-chart-wrapper">
-                    <svg viewBox="0 0 200 200" class="genre-pie" id="completed-genre-pie"
-                      aria-label="Completed genre distribution chart"></svg>
-                  </div>
-                  <p class="anime-card-meta meta-note-centered">See your full genre intelligence, studio trends, and
-                    activity history in Insights.</p>
-                </div>
+                  <div class="card stats-container">
+                    <div class="card-header card-header-divider">
+                      <div>
+                        <h3 class="card-title" style="margin-bottom: 0.15rem;">Genre Snapshot</h3>
+                        <p class="anime-card-meta meta-tight">A quick preview of your completed anime taste.</p>
+                      </div>
+                    </div>
+                    <div class="legend">
+                      <div class="legend-item">
+                        <span class="legend-dot bg-accent-blue"></span>
+                        <span class="anime-card-meta meta-tight">Action</span>
+                      </div>
+                      <div class="legend-item">
+                        <span class="legend-dot bg-sky-300"></span>
+                        <span class="anime-card-meta meta-tight">Adventure</span>
+                      </div>
+                      <div class="legend-item">
+                        <span class="legend-dot bg-accent-green"></span>
+                        <span class="anime-card-meta meta-tight">Fantasy</span>
+                      </div>
+                    </div>
 
-                <!-- My Tracker Feed -->
-                <div class="card upcoming-releases-container tracker-feed-card" id="tracker-feed-card">
-                  <div class="card-header">
-                    <div>
-                      <h3 class="card-title" style="margin-bottom:0.15rem;">My Tracker Feed</h3>
-                      <p class="anime-card-meta" style="margin-bottom:0;">Your followed anime &mdash; sequels, dubs,
-                        airing
-                        updates</p>
+                    <div class="relative mx-auto genre-chart-wrapper">
+                      <svg viewBox="0 0 200 200" class="genre-pie" id="completed-genre-pie"
+                        aria-label="Completed genre distribution chart"></svg>
                     </div>
-                    <div style="display:flex;align-items:center;gap:0.5rem;">
-                      <span class="live-badge" id="tracker-live-badge" hidden>Live</span>
-                      <span id="tracker-count-badge" class="tracker-count-badge" hidden></span>
-                    </div>
+                    <p class="anime-card-meta meta-note-centered">See your full genre intelligence, studio trends, and
+                      activity history in Insights.</p>
                   </div>
-                  <div id="tracker-feed-list" class="tracker-feed-list custom-scrollbar">
-                    <div class="tracker-empty">
-                      <span style="font-size:2rem;">&#127919;</span>
-                      <p>Follow anime from the Search page to start tracking sequels, dubs, and airing updates here.</p>
+
+                  <div class="card news-container upcoming-container">
+                    <div class="card-header card-header-divider">
+                      <div>
+                        <h3 class="card-title upcoming-section-title">
+                          <span class="material-icons upcoming-section-icon">local_fire_department</span>
+                          Top Upcoming Releases
+                        </h3>
+                        <p class="anime-card-meta meta-tight">Most anticipated anime next season</p>
+                      </div>
+                      <div style="display:flex;align-items:center;gap:0.5rem;">
+                        <span id="upcoming-last-updated" class="anime-card-meta meta-tight"
+                          style="font-size:0.7rem;opacity:0.6;"></span>
+                        <button id="upcoming-refresh-btn" type="button" title="Refresh upcoming anime"
+                          style="background:none;border:none;cursor:pointer;padding:4px;border-radius:6px;display:flex;align-items:center;color:var(--text-muted);transition:color 0.2s,transform 0.3s;"
+                          aria-label="Refresh">
+                          <span class="material-icons" style="font-size:1.1rem;">refresh</span>
+                        </button>
+                      </div>
+                    </div>
+                    <div id="dashboard-upcoming-list" class="news-list upcoming-release-list custom-scrollbar">
+                      <div class="anime-card-meta">Loading upcoming blockbusters...</div>
                     </div>
                   </div>
                 </div>
 
+                <div class="stats-column stats-column-right">
+                  <div class="card achievements-container" id="milestones-card">
+                    <div class="achievements-header">
+                      <h3 class="card-title" style="margin-bottom: 0.25rem;">My Journey</h3>
+                      <p class="anime-card-meta">Milestones unlock as you track and collect anime</p>
+                    </div>
+                    <div class="milestone-grid" id="milestone-grid">
+                      <div class="milestone-tile locked">
+                        <span class="milestone-icon">&#128269;</span>
+                        <span class="milestone-name">Lost &amp; Found</span>
+                        <span class="milestone-desc">Save your first anime</span>
+                      </div>
+                      <div class="milestone-tile locked">
+                        <span class="milestone-icon">&#128250;</span>
+                        <span class="milestone-name">Sequel Hunter</span>
+                        <span class="milestone-desc">Receive a sequel alert</span>
+                      </div>
+                      <div class="milestone-tile locked">
+                        <span class="milestone-icon">&#128266;</span>
+                        <span class="milestone-name">Dub Scout</span>
+                        <span class="milestone-desc">Get a dub notification</span>
+                      </div>
+                      <div class="milestone-tile locked">
+                        <span class="milestone-icon">&#9989;</span>
+                        <span class="milestone-name">Series Finished</span>
+                        <span class="milestone-desc">Complete your first series</span>
+                      </div>
+                      <div class="milestone-tile locked">
+                        <span class="milestone-icon">&#128450;&#65039;</span>
+                        <span class="milestone-name">The Archivist</span>
+                        <span class="milestone-desc">Save 10+ anime</span>
+                      </div>
+                      <div class="milestone-tile locked">
+                        <span class="milestone-icon">&#128065;&#65039;</span>
+                        <span class="milestone-name">Active Tracker</span>
+                        <span class="milestone-desc">Follow 3+ airing anime</span>
+                      </div>
+                      <div class="milestone-tile locked">
+                        <span class="milestone-icon">&#127775;</span>
+                        <span class="milestone-name">First Review</span>
+                        <span class="milestone-desc">Rate your first anime</span>
+                      </div>
+                      <div class="milestone-tile locked">
+                        <span class="milestone-icon">&#128250;</span>
+                        <span class="milestone-name">Episode Rookie</span>
+                        <span class="milestone-desc">Watch 10+ episodes</span>
+                      </div>
+                      <div class="milestone-tile locked">
+                        <span class="material-icons milestone-icon">lunch_dining</span>
+                        <span class="milestone-name">Binge Master</span>
+                        <span class="milestone-desc">Watch 500+ episodes</span>
+                      </div>
+                      <div class="milestone-tile locked">
+                        <span class="milestone-icon">&#128081;</span>
+                        <span class="milestone-name">Completionist</span>
+                        <span class="milestone-desc">Finish 25+ series</span>
+                      </div>
+                      <div class="milestone-tile locked">
+                        <span class="milestone-icon">&#128221;</span>
+                        <span class="milestone-name">The Critic</span>
+                        <span class="milestone-desc">Rate 25+ anime</span>
+                      </div>
+                      <div class="milestone-tile locked">
+                        <span class="milestone-icon">&#128032;</span>
+                        <span class="milestone-name">Legendary Viewer</span>
+                        <span class="milestone-desc">Save 100+ anime</span>
+                      </div>
+                    </div>
+                  </div>
 
-                <div class="card news-container upcoming-container">
-                  <div class="card-header card-header-divider">
-                    <div>
-                      <h3 class="card-title upcoming-section-title">
-                        <span class="material-icons upcoming-section-icon">local_fire_department</span>
-                        Top Upcoming Releases
-                      </h3>
-                      <p class="anime-card-meta meta-tight">Most anticipated anime next season</p>
+                  <div class="card upcoming-releases-container tracker-feed-card" id="tracker-feed-card">
+                    <div class="card-header">
+                      <div>
+                        <h3 class="card-title" style="margin-bottom:0.15rem;">My Tracker Feed</h3>
+                        <p class="anime-card-meta" style="margin-bottom:0;">Your followed anime &mdash; sequels, dubs, airing updates</p>
+                      </div>
+                      <div style="display:flex;align-items:center;gap:0.5rem;">
+                        <span class="live-badge" id="tracker-live-badge" hidden>Live</span>
+                        <span id="tracker-count-badge" class="tracker-count-badge" hidden></span>
+                      </div>
                     </div>
-                    <div style="display:flex;align-items:center;gap:0.5rem;">
-                      <span id="upcoming-last-updated" class="anime-card-meta meta-tight"
-                        style="font-size:0.7rem;opacity:0.6;"></span>
-                      <button id="upcoming-refresh-btn" type="button" title="Refresh upcoming anime"
-                        style="background:none;border:none;cursor:pointer;padding:4px;border-radius:6px;display:flex;align-items:center;color:var(--text-muted);transition:color 0.2s,transform 0.3s;"
-                        aria-label="Refresh">
-                        <span class="material-icons" style="font-size:1.1rem;">refresh</span>
-                      </button>
+                    <div id="tracker-feed-list" class="tracker-feed-list custom-scrollbar">
+                      <div class="tracker-empty">
+                        <span style="font-size:2rem;">&#127919;</span>
+                        <p>Follow anime from the Search page to start tracking sequels, dubs, and airing updates here.</p>
+                      </div>
                     </div>
                   </div>
-                  <div id="dashboard-upcoming-list" class="news-list upcoming-release-list custom-scrollbar">
-                    <div class="anime-card-meta">Loading upcoming blockbusters...</div>
-                  </div>
-                </div> <!-- End news-container -->
+                </div>
               </div> <!-- End stats-grid -->
             </div> <!-- End main-column -->
 
@@ -365,12 +362,10 @@
                 </div>
                 <div class="personality-divider"></div>
                 <div class="genres-container">
-                  <p class="anime-card-meta stat-header mb-3">Top
-                    Genres</p>
+                  <p class="anime-card-meta stat-header mb-3">Top Genres</p>
                   <div id="quick-top-genres" class="genres-list"></div>
                 </div>
-                <p class="anime-card-meta" style="margin: 1rem 0 0;">For weekly activity trends, streaks, studio
-                  spotlight, and deeper breakdowns, open Insights.</p>
+                <p class="anime-card-meta" style="margin: 1rem 0 0;">For weekly activity trends, streaks, studio spotlight, and deeper breakdowns, open Insights.</p>
               </div>
             </div>
 
@@ -383,8 +378,7 @@
             <div class="main-column" style="grid-column: span 12;">
               <div class="advanced-search-header">
                 <h2 class="section-title mb-4" style="display:flex;align-items:center;gap:0.5rem;"><span
-                    style="background:linear-gradient(135deg,var(--brand-primary),var(--brand-accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">Discover
-                    Anime</span><span style="color:var(--text-muted);font-weight:400;">&bull;</span><span
+                    style="background:linear-gradient(135deg,var(--brand-primary),var(--brand-accent));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;">Discover Anime</span><span style="color:var(--text-muted);font-weight:400;">&bull;</span><span
                     style="font-size:0.9rem;font-weight:500;color:var(--text-secondary);">Smart Filters</span></h2>
                 <div class="discover-filter-panel" aria-label="Discover filters">
                   <div class="discover-filter-row discover-filter-row-top">
@@ -570,13 +564,10 @@
                 <div class="insights-empty-card" role="status" aria-live="polite">
                   <div class="insights-empty-eyebrow">Insights</div>
                   <div class="insights-empty-title">No data yet</div>
-                  <div class="insights-empty-subtitle">Track anime to unlock genre intelligence, status breakdown, and
-                    analytics.</div>
+                  <div class="insights-empty-subtitle">Track anime to unlock genre intelligence, status breakdown, and analytics.</div>
                   <div class="insights-empty-actions">
-                    <button class="insights-empty-btn insights-empty-btn-primary" type="button"
-                      data-empty-action="browse">Browse anime</button>
-                    <button class="insights-empty-btn" type="button" data-empty-action="add">Add your first
-                      anime</button>
+                    <button class="insights-empty-btn insights-empty-btn-primary" type="button" data-empty-action="browse">Browse anime</button>
+                    <button class="insights-empty-btn" type="button" data-empty-action="add">Add your first anime</button>
                   </div>
                 </div>
               </div>
@@ -694,13 +685,11 @@
                 </div>
                 <div class="discovery-item">
                   <div class="discovery-label">Genre Gaps</div>
-                  <div id="insight-gaps-text" class="discovery-value">Watch more anime to unlock genre gap analysis.
-                  </div>
+                  <div id="insight-gaps-text" class="discovery-value">Watch more anime to unlock genre gap analysis.</div>
                 </div>
                 <div class="discovery-item">
                   <div class="discovery-label">Suggested Next Step</div>
-                  <div id="insight-suggested-genre" class="discovery-value">Watch more to get personalized suggestions!
-                  </div>
+                  <div id="insight-suggested-genre" class="discovery-value">Watch more to get personalized suggestions!</div>
                 </div>
               </div>
             </div>
@@ -818,8 +807,7 @@
                   <div>
                     <p class="anime-card-meta" style="margin-bottom: 0.35rem;">Identity Center</p>
                     <h2 class="section-title" style="margin-bottom: 0.35rem;">Profile</h2>
-                    <p class="anime-card-meta" style="margin-bottom: 0;">Manage your public identity, avatar, banner,
-                      and social profile links.</p>
+                    <p class="anime-card-meta" style="margin-bottom: 0;">Manage your public identity, avatar, banner, and social profile links.</p>
                   </div>
                 </div>
 
@@ -828,8 +816,7 @@
                   <span class="material-icons profile-card-header-icon">manage_accounts</span>
                   <div>
                     <div class="profile-card-header-title">Edit Profile</div>
-                    <div class="profile-card-header-sub">Update your public
-                      identity</div>
+                    <div class="profile-card-header-sub">Update your public identity</div>
                   </div>
                 </div>
 
@@ -885,8 +872,7 @@
               <div>
                 <p class="anime-card-meta" style="margin-bottom: 0.35rem;">Preferences Center</p>
                 <h2 class="section-title" style="margin-bottom: 0.35rem;">Settings</h2>
-                <p class="anime-card-meta" style="margin-bottom: 0;">Control app appearance, notifications, playback
-                  behavior, and default library actions.</p>
+                <p class="anime-card-meta" style="margin-bottom: 0;">Control app appearance, notifications, playback behavior, and default library actions.</p>
               </div>
             </div>
 
@@ -969,8 +955,7 @@
               <div class="setting-row">
                 <div class="setting-info">
                   <span class="setting-title" style="color:#ef4444;">Clear Entire Library</span>
-                  <span class="setting-desc">Permanently delete all watching, completed, and plan-to-watch data. This
-                    cannot be undone.</span>
+                  <span class="setting-desc">Permanently delete all watching, completed, and plan-to-watch data. This cannot be undone.</span>
                 </div>
                 <button id="clear-library-btn" class="danger-btn">
                   <span class="material-icons" style="font-size:1rem;">delete_forever</span> Clear
@@ -990,8 +975,7 @@
               <div class="setting-row">
                 <div class="setting-info">
                   <span class="setting-title" style="color:#ef4444;">Delete Account</span>
-                  <span class="setting-desc">Permanently deletes your Animyx account and all synced data. This cannot be
-                    undone.</span>
+                  <span class="setting-desc">Permanently deletes your Animyx account and all synced data. This cannot be undone.</span>
                 </div>
                 <button id="delete-account-btn" class="danger-btn">
                   <span class="material-icons" style="font-size:1rem;">person_remove</span> Delete
@@ -1009,8 +993,7 @@
               <div>
                 <p class="anime-card-meta" style="margin-bottom: 0.35rem;">Data Center</p>
                 <h2 class="section-title" style="margin-bottom: 0.35rem;">Import & Export</h2>
-                <p class="anime-card-meta" style="margin-bottom: 0;">Back up your library, download account data, and
-                  import MyAnimeList XML safely.</p>
+                <p class="anime-card-meta" style="margin-bottom: 0;">Back up your library, download account data, and import MyAnimeList XML safely.</p>
               </div>
             </div>
 
@@ -1036,9 +1019,7 @@
                 style="font-size: 3.5rem; color: var(--primary); margin-bottom: 1rem; display:block;">download_for_offline</span>
               <h3 style="font-size: 1.4rem; font-weight: 700; margin-bottom: 0.5rem;">Download Library Archive</h3>
               <p
-                style="color: var(--text-muted); max-width: 480px; margin: 0 auto 2rem; line-height: 1.6; font-size:0.9rem;">
-                Export a
-                secure copy of your entire watchlist, completed series, ratings, and profile settings.</p>
+                style="color: var(--text-muted); max-width: 480px; margin: 0 auto 2rem; line-height: 1.6; font-size:0.9rem;">Export a secure copy of your entire watchlist, completed series, ratings, and profile settings.</p>
 
               <div class="export-format-row">
                 <button id="export-format-json" class="export-format-btn active" data-format="json">
@@ -1064,8 +1045,7 @@
                 style="font-size: 3.5rem; color: var(--accent); margin-bottom: 1rem; display:block;">upload_file</span>
               <h3 style="font-size: 1.4rem; font-weight: 700; margin-bottom: 0.5rem;">Import MyAnimeList Data</h3>
               <p
-                style="color: var(--text-muted); max-width: 480px; margin: 0 auto 1.5rem; line-height: 1.6; font-size:0.9rem;">
-                Migrating to Animyx? Upload your exported MyAnimeList XML file to instantly merge your progress.</p>
+                style="color: var(--text-muted); max-width: 480px; margin: 0 auto 1.5rem; line-height: 1.6; font-size:0.9rem;">Migrating to Animyx? Upload your exported MyAnimeList XML file to instantly merge your progress.</p>
 
               <!-- Drag and Drop Zone -->
               <div id="mal-drop-zone" class="mal-upload-zone">
@@ -1091,8 +1071,7 @@
                     style="height:100%; width:0%; background: #8b5cf6; transition: width 0.3s ease;"></div>
                 </div>
                 <p id="mal-status-message"
-                  style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0;">Ready to
-                  upload.</p>
+                  style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0;">Ready to upload.</p>
               </div>
 
               <div style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: center;">
@@ -1151,7 +1130,6 @@
   <!-- consolidated into ../src/styles/main.css -->
 
   <!-- Socket.IO client (CDN) -->
-  <!-- Use jsDelivr to match CSP allowlist (script-src includes cdn.jsdelivr.net). -->
   <script src="https://cdn.jsdelivr.net/npm/socket.io-client@4.7.2/dist/socket.io.min.js"></script>
 
   <!-- Toast notification root -->
@@ -1161,8 +1139,7 @@
   <div id="notif-panel">
     <div class="notif-panel-header">
       <span class="notif-panel-title">Notifications</span>
-      <button id="notif-mark-all-btn" class="notif-panel-action">Mark all
-        read</button>
+      <button id="notif-mark-all-btn" class="notif-panel-action">Mark all read</button>
     </div>
     <div id="notif-list"></div>
     <div class="notif-panel-footer">
@@ -1170,7 +1147,6 @@
     </div>
   </div>
 
-  <!-- Notification badge (added to bell button via JS) -->
   <div id="chart-tooltip" class="chart-tooltip" role="tooltip" aria-hidden="true"></div>
 
   <!-- Back to Top FAB -->
