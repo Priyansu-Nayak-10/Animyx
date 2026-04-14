@@ -11610,7 +11610,7 @@ body.sidebar-open .sidebar-backdrop {
 /* Blank Placeholder Cards */
 .blank-placeholder-card {
     padding: 1.5rem;
-    min-height: 180px;
+    min-height: 260px;
     display: flex;
     flex-direction: column;
     justify-content: center;
