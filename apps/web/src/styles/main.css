@@ -11631,7 +11631,7 @@ body.sidebar-open .sidebar-backdrop {
 .studio-spotlight-card {
     position: relative;
     padding: 1.8rem;
-    min-height: 230px;
+    min-height: 200px;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -11779,7 +11779,7 @@ body.sidebar-open .sidebar-backdrop {
 .time-traveler-card {
     position: relative;
     padding: 1.8rem;
-    min-height: 230px;
+    min-height: 200px;
     display: flex;
     flex-direction: column;
     background: linear-gradient(135deg, rgba(39, 39, 42, 0.6) 0%, rgba(24, 24, 27, 0.9) 100%);
