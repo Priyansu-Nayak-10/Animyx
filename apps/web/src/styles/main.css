@@ -11689,7 +11689,7 @@ body.sidebar-open .sidebar-backdrop {
 }
 
 .studio-brand-name {
-    font-size: 2.2rem;
+    font-size: 1.65rem;
     font-family: 'Outfit', 'Inter', sans-serif;
     font-weight: 900;
     background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, #94a3b8 100%);
@@ -11699,6 +11699,8 @@ body.sidebar-open .sidebar-backdrop {
     margin-bottom: 0.4rem;
     letter-spacing: -0.02em;
     text-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    line-height: 1.15;
+    word-break: break-word;
 }
 
 .studio-stats {
