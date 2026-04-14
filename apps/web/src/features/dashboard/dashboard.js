@@ -716,120 +716,6 @@ export function initTriviaCard({ libraryStore }) {
   return { destroy() { unsub(); } };
 }
 
-// ── Airing Radar Module ──────────────────────────────────────────────────────
-
-/**
- * initAiringRadar — shows personalised countdowns for the user's "Watching" list.
- * Matches the global liveUpcoming dataset against the library and ticks every minute.
- */
-export function initAiringRadar({ store, libraryStore, timers = globalThis }) {
-  const card = document.getElementById('airing-radar-card');
-  const listEl = document.getElementById('airing-radar-list');
-  if (!card || !listEl) return { destroy() {} };
-
-  let tickerId = 0;
-
-  // ── helpers ──────────────────────────────────────────────────────────────
-
-  function buildCountdown(releaseTs) {
-    const diff = Number(releaseTs || 0) - Date.now();
-    if (diff <= 0) return { text: 'Airing Now', state: 'released' };
-    const totalSecs = Math.floor(diff / 1000);
-    const days  = Math.floor(totalSecs / 86400);
-    const hours = Math.floor((totalSecs % 86400) / 3600);
-    const mins  = Math.floor((totalSecs % 3600) / 60);
-    if (days > 0)  return { text: `${days}d ${hours}h`, state: 'normal' };
-    if (hours > 0) return { text: `${hours}h ${mins}m`, state: hours < 6 ? 'soon' : 'normal' };
-    return { text: `${mins}m`, state: 'imminent' };
-  }
-
-  function getMatchedItems() {
-    const liveUpcoming = (store.getState()?.liveUpcoming || []);
-    const watchingIds = new Set(
-      (libraryStore.getByStatus?.('watching') || []).map(a => Number(a?.malId || 0)).filter(Boolean)
-    );
-    if (!watchingIds.size) return [];
-
-    return liveUpcoming
-      .filter(item => watchingIds.has(Number(item?.malId || 0)) && Number(item?.releaseTimestamp || 0) > 0)
-      .sort((a, b) => Number(a.releaseTimestamp) - Number(b.releaseTimestamp))
-      .slice(0, 6);
-  }
-
-  function renderEmpty() {
-    listEl.innerHTML = `
-      <div class="radar-empty">
-        <span class="material-icons">sensors_off</span>
-        <p>Add airing anime to your <strong>Watching</strong> list to see personalised episode countdowns here.</p>
-      </div>`;
-  }
-
-  function renderItems(items) {
-    listEl.innerHTML = items.map(item => {
-      const title   = escapeHtml(String(item?.title || 'Unknown'));
-      const image   = escapeHtml(String(item?.image || ''));
-      const epNum   = item?.nextEpisodeNumber ? `Ep ${item.nextEpisodeNumber}` : 'Next Ep';
-      const cd      = buildCountdown(item?.releaseTimestamp);
-      const imgHtml = image
-        ? `<img class="radar-poster" src="${image}" alt="${title}" loading="lazy" />`
-        : `<div class="radar-poster radar-poster-fallback"><span class="material-icons">movie</span></div>`;
-      return `
-        <div class="radar-item" data-mal-id="${Number(item?.malId || 0)}">
-          ${imgHtml}
-          <div class="radar-item-body">
-            <div class="radar-item-title" title="${title}">${title}</div>
-            <div class="radar-item-ep">${escapeHtml(epNum)}</div>
-          </div>
-          <div class="radar-countdown state-${cd.state}">${escapeHtml(cd.text)}</div>
-        </div>`;
-    }).join('');
-  }
-
-  function render() {
-    const items = getMatchedItems();
-    if (!items.length) { renderEmpty(); return; }
-    renderItems(items);
-  }
-
-  // tick: refresh countdowns without full re-render if items haven't changed
-  function tick() {
-    const items = getMatchedItems();
-    if (!items.length) { renderEmpty(); return; }
-    // update only countdown text to avoid thrashing DOM posters
-    const existing = listEl.querySelectorAll('.radar-item');
-    if (existing.length !== items.length) { renderItems(items); return; }
-    items.forEach((item, i) => {
-      const cdEl = existing[i]?.querySelector('.radar-countdown');
-      if (!cdEl) return;
-      const cd = buildCountdown(item?.releaseTimestamp);
-      cdEl.textContent = cd.text;
-      cdEl.className = `radar-countdown state-${cd.state}`;
-    });
-  }
-
-  // start ticking every 60 s
-  function startTicker() {
-    if (tickerId) timers.clearInterval(tickerId);
-    tickerId = timers.setInterval(tick, 60_000);
-  }
-
-  const unsubs = [
-    store.subscribe(render),
-    libraryStore.subscribe(render)
-  ];
-
-  render();
-  startTicker();
-
-  return Object.freeze({
-    render,
-    destroy() {
-      if (tickerId) timers.clearInterval(tickerId);
-      unsubs.forEach(fn => fn?.());
-    }
-  });
-}
-
 // ── Main Dashboard Facade ───────────────────────────────────────────────────
 
 export function initDashboardModules(ctx) {
@@ -839,20 +725,19 @@ export function initDashboardModules(ctx) {
   const clipCard = initClipCard(ctx);
   const milestones = initMilestones(ctx);
   const triviaCard = initTriviaCard(ctx);
-  const airingRadar = initAiringRadar(ctx);
 
   return Object.freeze({
-    heroCarousel, recommendations, upcomingWidget, clipCard, milestones, triviaCard, airingRadar,
+    heroCarousel, recommendations, upcomingWidget, clipCard, milestones, triviaCard,
     render() {
       const state = ctx?.store?.getState?.() || {};
       const libraryItems = ctx?.libraryStore?.getAll?.() || [];
       heroCarousel?.render?.(getTopOngoingAnikoto(state, 10, libraryItems));
       recommendations?.render?.(); upcomingWidget?.render?.(); clipCard?.render?.();
-      milestones?.render?.(); triviaCard?.render?.(); airingRadar?.render?.();
+      milestones?.render?.(); triviaCard?.render?.();
     },
     destroy() {
       clipCard?.destroy?.(); upcomingWidget?.destroy?.(); recommendations?.destroy?.(); heroCarousel?.destroy?.();
-      milestones?.destroy?.(); triviaCard?.destroy?.(); airingRadar?.destroy?.();
+      milestones?.destroy?.(); triviaCard?.destroy?.();
     }
   });
 }

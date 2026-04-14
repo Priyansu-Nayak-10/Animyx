@@ -20,7 +20,7 @@ import { initSearchAdvanced } from './features/search/search.js';
 import { initSeasonBrowser } from './features/season/seasonBrowser.js';
 import { initUI } from './features/ui/ui.js';
 import { initLibraryUI } from './features/library/library.js';
-import { initInsights, initDashboardModules, initMilestones, initTrackerFeed, initAiringRadar } from './features/dashboard/dashboard.js';
+import { initInsights, initDashboardModules, initMilestones, initTrackerFeed } from './features/dashboard/dashboard.js';
 import { initProfile, initSettings, initExport, initImport } from './features/user/userFeatures.js';
 import { normalizeAnime, dedupeAnimeList, bindNavigation, openView, initSectionReveal, initImageBlurUp } from './core/utils.js';
 
@@ -615,16 +615,12 @@ async function bootstrap() {
   const milestones = initMilestones({ libraryStore });
   modules.push(milestones);
 
-  // ── My Tracker Feed ───────────────────────────────────────────────────────────────────────────────────
+  // ── My Tracker Feed ───────────────────────────────────────────────────────
   const trackerFeed = initTrackerFeed({ libraryStore, milestones });
   modules.push(trackerFeed);
 
   // Expose addEvent for socket notifications (from main.js / socket module)
   globalThis._AnimyxTrackerFeed = trackerFeed;
-
-  // ── Airing Radar ──────────────────────────────────────────────────────────────────────────────────
-  const airingRadar = initAiringRadar({ store, libraryStore });
-  modules.push(airingRadar);
 
   modules.push(
     initSearchAdvanced({
@@ -660,9 +656,6 @@ async function bootstrap() {
 
   await controller.loadDashboardData();
   controller.startAiringRefresh();
-  // Load liveUpcoming so Airing Radar can match against it
-  void controller.loadLiveUpcoming();
-  controller.startLiveUpcomingRefresh(60_000);
 
   if (params.get("debug") === "1") {
     modules.push(initDebugDiagnosticsPanel({ api, store, libraryStore }));

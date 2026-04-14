@@ -9,9 +9,9 @@
   <meta property="og:description" content="Track anime, explore seasonal releases, and unlock personal insights with Animyx." />
   <title>Dashboard &bull; Animyx</title>
   <link rel="icon" href="/images/favicon.png" />
-  <link rel="stylesheet" href="../src/styles/main.css?v=6">
-  <link rel="stylesheet" href="../src/styles/enhancements.css?v=6">
-  <link rel="stylesheet" href="/css/quickactions.css?v=6">
+  <link rel="stylesheet" href="../src/styles/main.css?v=5">
+  <link rel="stylesheet" href="../src/styles/enhancements.css?v=5">
+  <link rel="stylesheet" href="/css/quickactions.css?v=5">
 
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#140f26">
@@ -156,8 +156,6 @@
               <div class="stats-grid">
                 <div class="stats-column stats-column-left">
                   <div class="card clip-placeholder-card group" style="border: 2px dashed var(--surface-border-strong);">
-                    <!-- static input ensures file picker works before JS hydrates -->
-                    <input type="file" id="clip-upload" accept="video/*,image/*" hidden />
                     <span class="placeholder-text"
                       style="color: var(--text-muted); font-weight: 600; font-size: 0.75rem;">
                       Insert Your Favorite Clip
@@ -307,27 +305,6 @@
                       </div>
                     </div>
                   </div>
-
-                  <!-- ── Airing Radar ─────────────────────────────── -->
-                  <div class="card airing-radar-card" id="airing-radar-card">
-                    <div class="card-header" style="margin-bottom: 0.75rem;">
-                      <div>
-                        <h3 class="card-title" style="margin-bottom: 0.15rem; display: flex; align-items: center; gap: 0.5rem;">
-                          <span class="material-icons" style="font-size: 1.15rem; color: #5bb3ff;">sensors</span>
-                          Airing Radar
-                        </h3>
-                        <p class="anime-card-meta" style="margin-bottom: 0;">Next episodes for your Watching list &mdash; live countdowns</p>
-                      </div>
-                      <span class="radar-live-badge">📡 LIVE</span>
-                    </div>
-                    <div id="airing-radar-list" class="airing-radar-list custom-scrollbar">
-                      <div class="radar-empty">
-                        <span class="material-icons">sensors_off</span>
-                        <p>Add airing anime to your <strong>Watching</strong> list to see personalised episode countdowns here.</p>
-                      </div>
-                    </div>
-                  </div>
-
                 </div>
               </div> <!-- End stats-grid -->
             </div> <!-- End main-column -->
