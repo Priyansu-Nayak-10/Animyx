@@ -9688,16 +9688,11 @@ body {
 .side-column {
   grid-column: 1 / -1;
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
 }
 
 .stats-grid {
-  display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 24px;
-  flex: 1;
 }
 
 .search-grid-v2 {
@@ -11602,14 +11597,8 @@ body.sidebar-open .sidebar-backdrop {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
-    height: 100%;
+    height: max-content;
     width: 100%;
-}
-
-/* Force the last card in each column to stretch to the bottom */
-.stats-column > .card:last-child,
-.side-column > .card:last-child {
-    flex-grow: 1;
 }
 
 @media (max-width: 767px) {
