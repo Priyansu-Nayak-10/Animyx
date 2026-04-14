@@ -811,6 +811,132 @@ export function initStudioSpotlight({ libraryStore }) {
   return { render, destroy() { unsub(); card.removeEventListener("click", onClick); } };
 }
 
+// ── Time Traveler Module ──────────────────────────────────────────────────
+export function initTimeTraveler({ libraryStore }) {
+  const card = document.getElementById("time-traveler-card");
+  if (!card) return { render() { }, destroy() { } };
+
+  function render() {
+    const items = libraryStore.getAll();
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentDay = now.getDate();
+
+    const matches = [];
+
+    items.forEach(item => {
+      // Check completedAt
+      if (item.completedAt) {
+        const d = new Date(item.completedAt);
+        if (d.getMonth() === currentMonth && d.getDate() === currentDay) {
+          const yearsAgo = now.getFullYear() - d.getFullYear();
+          if (yearsAgo > 0) {
+            matches.push({
+              item,
+              type: 'completed',
+              yearsAgo,
+              date: d
+            });
+          }
+        }
+      }
+
+      // Check watchlistAddedAt if not already matched
+      if (item.watchlistAddedAt) {
+        const d = new Date(item.watchlistAddedAt);
+        if (d.getMonth() === currentMonth && d.getDate() === currentDay) {
+          const yearsAgo = now.getFullYear() - d.getFullYear();
+          if (yearsAgo > 0) {
+            matches.push({
+              item,
+              type: 'added',
+              yearsAgo,
+              date: d
+            });
+          }
+        }
+      }
+    });
+
+    if (!matches.length) {
+      // Fallback: Check any item from this month in history (Relaxed search)
+      items.forEach(item => {
+         const ts = item.completedAt || item.watchlistAddedAt || item.updatedAt;
+         if (ts) {
+            const d = new Date(ts);
+            if (d.getMonth() === currentMonth) {
+                const yearsAgo = now.getFullYear() - d.getFullYear();
+                if (yearsAgo > 0) {
+                    matches.push({ item, type: 'month', yearsAgo, date: d });
+                }
+            }
+         }
+      });
+    }
+
+    if (!matches.length) {
+      card.innerHTML = `
+        <div class="time-traveler-empty">
+          <span class="material-icons">history_toggle_off</span>
+          <p class="anime-card-meta">Archiving your journey... Your history will appear here once you've tracked anime for over a year.</p>
+        </div>
+      `;
+      return;
+    }
+
+    // Pick the best match (priority: exact date completion > exact date added > month match)
+    const best = matches.sort((a,b) => {
+        const typeOrder = { completed: 0, added: 1, month: 2 };
+        if (typeOrder[a.type] !== typeOrder[b.type]) return typeOrder[a.type] - typeOrder[b.type];
+        return b.yearsAgo - a.yearsAgo; // older is more nostalgic
+    })[0];
+
+    const { item, type, yearsAgo, date } = best;
+    const title = item.title_english || item.title || "Unknown";
+    const ratingHtml = item.userRating ? `<div class="time-traveler-rating"><span class="material-icons" style="font-size:1rem;">star</span><span>Rated ${item.userRating}/10</span></div>` : '';
+    
+    let quote = "";
+    if (type === 'completed') {
+        quote = `Exactly <strong>${yearsAgo} ${yearsAgo === 1 ? 'year' : 'years'} ago today</strong>, you finished your journey with this series.`;
+    } else if (type === 'added') {
+        quote = `On this day <strong>${yearsAgo} ${yearsAgo === 1 ? 'year' : 'years'} ago</strong>, you first discovered and planned to watch this.`;
+    } else {
+        quote = `Remember this? Earlier this month <strong>${yearsAgo} ${yearsAgo === 1 ? 'year' : 'years'} ago</strong>, you were tracking this masterpiece.`;
+    }
+
+    card.innerHTML = `
+      <div class="time-traveler-header">
+        <span class="material-icons time-traveler-icon">auto_awesome</span>
+        <span class="time-traveler-badge">Time Traveler</span>
+      </div>
+      <div class="time-traveler-content">
+        <p class="time-traveler-quote">${quote}</p>
+        <div class="time-traveler-anime">${escapeHtml(title)}</div>
+        <div class="time-traveler-date">
+          <span class="material-icons" style="font-size:0.8rem;">calendar_today</span>
+          <span>${date.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+        </div>
+        ${ratingHtml}
+      </div>
+      <div class="time-traveler-footer">
+        <button type="button" class="time-traveler-btn" data-action="open-details" data-id="${item.malId}">Relive Memory</button>
+      </div>
+    `;
+  }
+
+  function onClick(e) {
+    const btn = e.target.closest("[data-action='open-details']");
+    if (!btn) return;
+    const malId = Number(btn.dataset.id);
+    window.dispatchEvent(new CustomEvent('Animyx:open-anime-modal', { detail: { id: malId } }));
+  }
+
+  card.addEventListener("click", onClick);
+  const unsub = libraryStore.subscribe(render);
+  render();
+  return { render, destroy() { unsub(); card.removeEventListener("click", onClick); } };
+}
+
 // ── Main Dashboard Facade ───────────────────────────────────────────────────
 
 export function initDashboardModules(ctx) {
@@ -821,19 +947,22 @@ export function initDashboardModules(ctx) {
   const milestones = initMilestones(ctx);
   const triviaCard = initTriviaCard(ctx);
   const studioSpotlight = initStudioSpotlight(ctx);
+  const timeTraveler = initTimeTraveler(ctx);
 
   return Object.freeze({
-    heroCarousel, recommendations, upcomingWidget, clipCard, milestones, triviaCard, studioSpotlight,
+    heroCarousel, recommendations, upcomingWidget, clipCard, milestones, triviaCard, studioSpotlight, timeTraveler,
     render() {
       const state = ctx?.store?.getState?.() || {};
       const libraryItems = ctx?.libraryStore?.getAll?.() || [];
       heroCarousel?.render?.(getTopOngoingAnikoto(state, 10, libraryItems));
       recommendations?.render?.(); upcomingWidget?.render?.(); clipCard?.render?.();
       milestones?.render?.(); triviaCard?.render?.(); studioSpotlight?.render?.();
+      timeTraveler?.render?.();
     },
     destroy() {
       clipCard?.destroy?.(); upcomingWidget?.destroy?.(); recommendations?.destroy?.(); heroCarousel?.destroy?.();
       milestones?.destroy?.(); triviaCard?.destroy?.(); studioSpotlight?.destroy?.();
+      timeTraveler?.destroy?.();
     }
   });
 }
