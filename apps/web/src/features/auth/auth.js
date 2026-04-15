@@ -766,7 +766,17 @@ function initSessionBootstrapIfPresent() {
             supabase.auth.onAuthStateChange((event, nextSession) => {
                 if (nextSession) {
                     persistSession(nextSession);
+                    // Re-wire realtime channels for the new session user
+                    // (covers user-switch without a full page reload)
+                    try {
+                        if (window.__AnimyxSyncService && nextSession.user?.id) {
+                            window.__AnimyxSyncService.currentUser = { id: nextSession.user.id };
+                            window.__AnimyxSyncService.subscribe();
+                        }
+                    } catch (_) {}
                 } else {
+                    // Sign-out: tear down realtime subscriptions for the previous user
+                    try { window.__AnimyxSyncService?.unsubscribe(); } catch (_) {}
                     void clearAnimyxUserData({ keepPreferences: true });
                     if (!window.location.pathname.endsWith('/pages/signin.html')) {
                         sessionStorage.setItem('Animyx:redirectLock', String(Date.now()));

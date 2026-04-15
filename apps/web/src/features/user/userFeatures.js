@@ -241,16 +241,25 @@ function initProfile({ toast, libraryStore, storage = globalThis.localStorage } 
     toast?.show?.("Profile saved successfully! ✓");
   }
 
+  // Max size for avatar/banner as base64 data URI (~512 KB raw → ~682 KB base64).
+  // Larger files bloat localStorage and the profile API payload; recommend Supabase Storage for production.
+  const MAX_AVATAR_BYTES = 512 * 1024;
+
   function onAvatarChange(event) {
     const file = event.target?.files?.[0];
     if (!file) return;
+    if (file.size > MAX_AVATAR_BYTES) {
+      toast?.show?.(`Avatar is too large (${(file.size / 1024).toFixed(0)} KB). Please use an image under 512 KB.`, 'error', 3500);
+      if (event.target) event.target.value = '';
+      return;
+    }
     const reader = new FileReader();
     reader.onload = () => {
-      const src = String(reader.result || "");
+      const src = String(reader.result || '');
       if (!src) return;
       writeProfile(storage, { ...readProfile(storage), avatar: src });
       applyAvatarToPage(src);
-      toast?.show?.("Avatar updated! ✓");
+      toast?.show?.('Avatar updated! ✓');
     };
     reader.readAsDataURL(file);
   }
@@ -258,13 +267,18 @@ function initProfile({ toast, libraryStore, storage = globalThis.localStorage } 
   function onBannerChange(event) {
     const file = event.target?.files?.[0];
     if (!file) return;
+    if (file.size > MAX_AVATAR_BYTES) {
+      toast?.show?.(`Banner is too large (${(file.size / 1024).toFixed(0)} KB). Please use an image under 512 KB.`, 'error', 3500);
+      if (event.target) event.target.value = '';
+      return;
+    }
     const reader = new FileReader();
     reader.onload = () => {
-      const src = String(reader.result || "");
+      const src = String(reader.result || '');
       if (!src) return;
       writeProfile(storage, { ...readProfile(storage), banner: src });
       applyBannerToPage(src);
-      toast?.show?.("Banner updated! ✓");
+      toast?.show?.('Banner updated! ✓');
     };
     reader.readAsDataURL(file);
   }

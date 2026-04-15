@@ -24,19 +24,13 @@ import { initInsights, initDashboardModules, initTrackerFeed } from './features/
 import { initProfile, initSettings, initExport, initImport } from './features/user/userFeatures.js';
 import { normalizeAnime, dedupeAnimeList, bindNavigation, openView, initSectionReveal, initImageBlurUp } from './core/utils.js';
 
-// --- Production Console Cleaner & PWA Setup ---
+// --- Production Console Cleaner ---
 if (!window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')) {
   console.log = function() {};
   console.info = function() {};
 }
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').then(reg => {
-      // Force update the service worker immediately on load
-      reg.update();
-    }).catch(err => console.error('PWA SW Failed:', err));
-  });
-}
+// SW registration is handled by auth.js (initializeAuth) and userFeatures.js (push subscription).
+// A duplicate registration here caused unnecessary update() calls on every load.
 
 // ── Fixed theme boot (dark only) ─────────────────────────────
 document.documentElement.setAttribute('data-theme', 'dark');
@@ -645,6 +639,8 @@ async function bootstrap() {
   if (user?.id) {
     try {
       await syncService.init({ libraryStore });
+      // Expose globally so auth.js can unsubscribe/re-subscribe on user-switch
+      window.__AnimyxSyncService = syncService;
     } catch (err) {
       console.warn('[Animyx] SyncService initialization failed:', err);
     }
@@ -666,8 +662,24 @@ async function bootstrap() {
 export function startApp() {
   const init = async () => {
     await (window.__Animyx_AUTH_READY || Promise.resolve());
-    await bootstrap();
+    try {
+      await bootstrap();
+    } catch (err) {
+      console.error('[Animyx] Fatal bootstrap error:', err);
+      // Don't leave the auth overlay stuck — hide it so the user can take action
+      const overlay = document.getElementById('auth-loading-overlay');
+      if (overlay) {
+        overlay.classList.add('hidden');
+        setTimeout(() => overlay.remove(), 400);
+      }
+    }
   };
+
+  // Tear down realtime channels when a 401 is detected
+  // (authFetch dispatches this; auth.js handles sign-out/redirect separately)
+  window.addEventListener('Animyx:auth-invalid', () => {
+    try { syncService.unsubscribe(); } catch (_) {}
+  }, { passive: true, once: true });
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init, { once: true });

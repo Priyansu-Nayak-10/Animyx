@@ -360,6 +360,9 @@ class SyncService {
     const userId = this.currentUser?.id;
     if (!userId) return;
 
+    // Tear down any existing channels first to prevent duplicates on user-switch
+    this.unsubscribe();
+
     devLog('[SyncService] 📡 Subscribing to real-time updates...');
 
     // 1. Library Sync Channel
