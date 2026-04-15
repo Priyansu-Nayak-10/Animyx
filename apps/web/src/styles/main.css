@@ -4,7 +4,7 @@
    ============================================================ */
 
 /* --- BEGIN public/css/style.css --- */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@700;800;900&display=swap');
 @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
 
 :root {
@@ -633,8 +633,8 @@ body.dark .stat-value {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* body.dark .search-wrapper: same as base rule — removed to reduce cascade noise */
 body.dark .search-wrapper {
-    background: var(--glass-bg);
     border-color: var(--border-glass);
 }
 
@@ -666,11 +666,8 @@ body.dark .search-wrapper {
     outline: none;
 }
 
-.search-input:focus-visible {
-    outline: 2px solid rgba(124, 58, 237, 0.7);
-    outline-offset: 2px;
-    border-radius: 4px;
-}
+/* Search input has no own focus ring — the .search-wrapper:focus-within
+   glow is the keyboard/mouse indicator (see enhancements.css § 43). */
 
 .search-input::placeholder {
     color: var(--text-muted);

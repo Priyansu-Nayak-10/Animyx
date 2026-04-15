@@ -59,17 +59,15 @@
   color: #f5f5f7;
 }
 
+/* Scoped focus ring — overridden by §47 at the bottom of this file
+   for a softer purple ring. Kept here for non-.app-shell contexts. */
 *:focus-visible {
   outline: 2px solid rgba(124, 58, 237, 0.7);
   outline-offset: 2px;
   border-radius: 4px;
 }
 
-.app-shell .search-wrapper .search-input:focus-visible {
-  outline: 2px solid rgba(124, 58, 237, 0.7);
-  outline-offset: 2px;
-  border-radius: 4px;
-}
+/* Search input focus ring is suppressed in §43 below — no rule needed here. */
 
 /* ── 3. PREMIUM SIDEBAR ENHANCEMENTS ─────────────────────── */
 
@@ -1266,4 +1264,118 @@
   #season-anime-grid > * {
     animation: none !important;
   }
+}
+
+/* ============================================================
+   UI POLISH — ADDITIVE FIXES (non-breaking)
+   ============================================================ */
+
+/* ── 43. SEARCH BAR — DOUBLE BORDER FIX ─────────────────────
+   Root cause: .search-input:focus-visible in main.css draws a
+   2px outline AT THE SAME TIME as .search-wrapper:focus-within
+   shows a border glow — creating two simultaneous rings.
+   Fix: kill the inner outline; the wrapper glow is the indicator.
+   ─────────────────────────────────────────────────────────── */
+.app-shell .search-wrapper .search-input:focus,
+.app-shell .search-wrapper .search-input:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Tighten wrapper transition: "all" animates layout props too,
+   which causes jank. Only transition the visual properties. */
+.app-shell .search-wrapper {
+  transition:
+    border-color 0.25s var(--ease-in-out),
+    box-shadow   0.25s var(--ease-in-out),
+    background   0.25s var(--ease-in-out),
+    transform    0.25s var(--ease-in-out);
+}
+
+/* Search suggestions — add glass depth */
+.app-shell .search-suggestions-container {
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+/* ── 44. SMOOTH SCROLLING + OVERSCROLL CONTAINMENT ──────────
+   scroll-behavior: smooth on :root only affects the root scroll
+   container, NOT .main-viewport which is the actual scroller
+   in app-shell layout. Overscroll-behavior prevents rubber-band
+   scroll bleed from inner panels to the page body.
+   ─────────────────────────────────────────────────────────── */
+.app-shell .main-viewport,
+.app-shell .main-area {
+  scroll-behavior: smooth;
+  overscroll-behavior-y: contain;
+}
+
+.app-shell .sidebar .sidebar-content {
+  scroll-behavior: smooth;
+  overscroll-behavior-y: contain;
+}
+
+/* All inner scroll panels */
+.app-shell .tracker-feed-list,
+.app-shell .recommendations-list,
+.app-shell .news-list,
+.app-shell .upcoming-list,
+.app-shell .search-suggestions-container {
+  scroll-behavior: smooth;
+  overscroll-behavior-y: contain;
+}
+
+/* ── 45. BUTTON PRESS-DOWN FEEL ─────────────────────────────
+   Adds a subtle scale+translateY on :active across generic
+   buttons. Elements that already define their own :active
+   (icon-btn, fab-btn, reco-add-btn, status-pill, hero-btn)
+   are excluded via :not() so nothing breaks.
+   ─────────────────────────────────────────────────────────── */
+.app-shell button:not(:disabled):not(.icon-btn):not(.fab-btn):not(.reco-add-btn):not(.status-pill):not(.hero-btn):not(.sidebar-toggle-btn):not(.sidebar-close-btn):active {
+  transform: scale(0.97) translateY(1px);
+  transition-duration: 60ms;
+}
+
+/* ── 46. INLINE LINK ANIMATED UNDERLINE ─────────────────────
+   Animated underline on all plain anchor tags (not nav/button
+   styled links).
+   ─────────────────────────────────────────────────────────── */
+.app-shell a:not(.nav-item):not(.hero-btn):not(.icon-btn):not([class*="btn"]) {
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  transition: color 0.2s ease, text-decoration-color 0.2s ease;
+  text-decoration-color: transparent;
+}
+
+.app-shell a:not(.nav-item):not(.hero-btn):not(.icon-btn):not([class*="btn"]):hover {
+  color: var(--brand-glow);
+  text-decoration-color: var(--brand-accent);
+}
+
+/* ── 47. FOCUS-VISIBLE REFINEMENT ───────────────────────────
+   Replaces the blunt global outline with a softer purple ring.
+   Search input is explicitly excluded (handled by § 43).
+   Nav items get a background highlight instead of a ring.
+   ─────────────────────────────────────────────────────────── */
+.app-shell *:focus-visible:not(.search-input):not(.nav-item) {
+  outline: 2px solid rgba(168, 85, 247, 0.7);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+.app-shell .nav-item:focus-visible {
+  outline: none;
+  background-color: rgba(124, 58, 237, 0.1);
+}
+
+/* ── 48. CARD HOVER SCROLL STABILITY ────────────────────────
+   Cards with translateY(-4px) hover can trigger layout shifts
+   on short viewports. Isolate them so they don't affect flow.
+   ─────────────────────────────────────────────────────────── */
+.app-shell .card,
+.app-shell .reco-card,
+.app-shell .wl-strip-card,
+.app-shell .kpi-card {
+  isolation: isolate;
+  will-change: transform;
 }
