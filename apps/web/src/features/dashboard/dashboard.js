@@ -591,14 +591,24 @@ export function initClipCard({ storage = globalThis.localStorage } = {}) {
 
     const tag = livePreUrl ? livePreTag : (String(saved).startsWith("data:video/") ? "video" : "img");
     card.classList.add("has-media");
+    
+    // Using simple concatenation to prevent issues. Changed preload="metadata" to preload="auto" and ensured autoplay works
     card.innerHTML = `
       ${commonInput}
       ${tag === "video"
-        ? `<video class="clip-media" src="${safeSrc}" autoplay muted loop playsinline preload="metadata"></video>`
+        ? `<video class="clip-media" src="${safeSrc}" autoplay muted loop playsinline preload="auto"></video>`
         : `<img class="clip-media" src="${safeSrc}" alt="Clip" loading="lazy" />`
       }
       <button type="button" class="remove-clip">Remove</button>
     `;
+
+    // Force play for stricter browsers
+    if (tag === "video") {
+       const vid = card.querySelector("video");
+       if (vid) {
+          vid.play().catch(err => console.warn("[Animyx] Video autoplay prevented by browser:", err));
+       }
+    }
   }
 
   function onClick(e) {
@@ -614,27 +624,33 @@ export function initClipCard({ storage = globalThis.localStorage } = {}) {
 
   function onChange(e) {
     const f = e.target.files?.[0]; if (!f) return;
+    
     if (livePreUrl) { try { URL.revokeObjectURL(livePreUrl); } catch (_) { } }
+    
+    // 1. Optimistic UI: Update immediately with Blob URL
     livePreUrl = URL.createObjectURL(f);
     livePreTag = f.type.startsWith("video/") ? "video" : "img";
-
-    if (livePreTag === "img") {
-      const fr = new FileReader();
-      fr.onload = () => {
-        if (fr.result) {
-          try {
-            storage?.setItem?.(DASHBOARD_CLIP_KEY, String(fr.result));
-          } catch (err) {
-            console.warn("[Animyx] LocalStorage quota exceeded for clip. Image will not persist.", err);
-          }
-        }
-      };
-      fr.readAsDataURL(f);
-    } else {
-      storage?.removeItem?.(DASHBOARD_CLIP_KEY);
-    }
     render();
     e.target.value = "";
+
+    // 2. Deferred Storage: Do the heavy Base64 conversion later to avoid lagging the UI
+    setTimeout(() => {
+      if (livePreTag === "img") {
+        const fr = new FileReader();
+        fr.onload = () => {
+          if (fr.result) {
+            try {
+              storage?.setItem?.(DASHBOARD_CLIP_KEY, String(fr.result));
+            } catch (err) {
+              console.warn("[Animyx] LocalStorage quota exceeded for clip. Image will not persist.", err);
+            }
+          }
+        };
+        fr.readAsDataURL(f);
+      } else {
+        storage?.removeItem?.(DASHBOARD_CLIP_KEY);
+      }
+    }, 50); // Small delay lets the browser render the Blob visual first
   }
 
   card.addEventListener("click", onClick);
