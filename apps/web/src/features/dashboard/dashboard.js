@@ -576,33 +576,79 @@ export function initClipCard({ storage = globalThis.localStorage } = {}) {
 
   function render() {
     const saved = livePreUrl || String(storage?.getItem?.(DASHBOARD_CLIP_KEY) || "").trim();
-    const sig = saved ? `f:${saved.length}:${saved.slice(0, 32)}` : "e";
+    const sig = saved ? `f:${saved.length}:${saved.slice(0, 32)}` : "empty";
     if (clipSignature === sig) return; clipSignature = sig;
-    if (!saved) { card.innerHTML = `<input type="file" id="clip-upload" accept="video/*,image/*" hidden /><span class="placeholder-text">Insert Your Favorite Clip</span>`; card.classList.remove("has-media"); return; }
-    const safeSrc = normalizeMediaSrc(saved);
-    if (!safeSrc) {
-      storage?.removeItem?.(DASHBOARD_CLIP_KEY);
-      card.innerHTML = `<input type="file" id="clip-upload" accept="video/*,image/*" hidden /><span class="placeholder-text">Insert Your Favorite Clip</span>`;
+
+    const safeSrc = saved ? normalizeMediaSrc(saved) : "";
+    const commonInput = `<input type="file" id="clip-upload" accept="video/*,image/*" hidden />`;
+
+    if (!saved || !safeSrc) {
+      if (saved && !safeSrc) storage?.removeItem?.(DASHBOARD_CLIP_KEY);
       card.classList.remove("has-media");
+      card.innerHTML = `${commonInput}<span class="placeholder-text">Insert Your Favorite Clip</span>`;
       return;
     }
+
     const tag = livePreUrl ? livePreTag : (String(saved).startsWith("data:video/") ? "video" : "img");
-    card.innerHTML = `${tag === "video" ? `<video class="clip-media" src="${safeSrc}" autoplay muted loop playsinline preload="metadata"></video>` : `<img class="clip-media" src="${safeSrc}" alt="Clip" loading="lazy" />`}<button type="button" class="remove-clip">Remove</button>`;
     card.classList.add("has-media");
+    card.innerHTML = `
+      ${commonInput}
+      ${tag === "video"
+        ? `<video class="clip-media" src="${safeSrc}" autoplay muted loop playsinline preload="metadata"></video>`
+        : `<img class="clip-media" src="${safeSrc}" alt="Clip" loading="lazy" />`
+      }
+      <button type="button" class="remove-clip">Remove</button>
+    `;
   }
 
-  function onClick(e) { if (e.target.closest(".remove-clip")) { livePreUrl = ""; storage?.removeItem?.(DASHBOARD_CLIP_KEY); render(); } else { card.querySelector("#clip-upload")?.click(); } }
+  function onClick(e) {
+    if (e.target.closest(".remove-clip")) {
+      e.stopPropagation();
+      livePreUrl = "";
+      storage?.removeItem?.(DASHBOARD_CLIP_KEY);
+      render();
+    } else {
+      card.querySelector("#clip-upload")?.click();
+    }
+  }
+
   function onChange(e) {
     const f = e.target.files?.[0]; if (!f) return;
-    if (livePreUrl) URL.revokeObjectURL(livePreUrl);
-    livePreUrl = URL.createObjectURL(f); livePreTag = f.type.startsWith("video/") ? "video" : "img";
-    if (livePreTag === "img") { const fr = new FileReader(); fr.onload = () => { if (fr.result) storage?.setItem?.(DASHBOARD_CLIP_KEY, String(fr.result)); }; fr.readAsDataURL(f); }
-    else storage?.removeItem?.(DASHBOARD_CLIP_KEY);
-    render(); e.target.value = "";
+    if (livePreUrl) { try { URL.revokeObjectURL(livePreUrl); } catch (_) { } }
+    livePreUrl = URL.createObjectURL(f);
+    livePreTag = f.type.startsWith("video/") ? "video" : "img";
+
+    if (livePreTag === "img") {
+      const fr = new FileReader();
+      fr.onload = () => {
+        if (fr.result) {
+          try {
+            storage?.setItem?.(DASHBOARD_CLIP_KEY, String(fr.result));
+          } catch (err) {
+            console.warn("[Animyx] LocalStorage quota exceeded for clip. Image will not persist.", err);
+          }
+        }
+      };
+      fr.readAsDataURL(f);
+    } else {
+      storage?.removeItem?.(DASHBOARD_CLIP_KEY);
+    }
+    render();
+    e.target.value = "";
   }
 
-  card.addEventListener("click", onClick); card.addEventListener("change", onChange); render();
-  return { render, destroy() { if (livePreUrl) URL.revokeObjectURL(livePreUrl); card.removeEventListener("click", onClick); card.removeEventListener("change", onChange); } };
+  card.addEventListener("click", onClick);
+  card.addEventListener("change", onChange);
+  render();
+
+  return {
+    render,
+    destroy() {
+      if (livePreUrl) { try { URL.revokeObjectURL(livePreUrl); } catch (_) { } }
+      card.removeEventListener("click", onClick);
+      card.removeEventListener("change", onChange);
+    }
+  };
 }
 
 // ── Milestones Module ────────────────────────────────────────────────────────

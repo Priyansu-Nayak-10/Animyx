@@ -2637,6 +2637,24 @@ body.dark .border-dashed:hover {
     cursor: pointer;
     overflow: hidden;
     border-radius: 16px;
+    border: 2px dashed var(--surface-border-strong, rgba(255,255,255,0.15));
+    background: rgba(255, 255, 255, 0.02);
+    transition: border-color 0.24s ease, background-color 0.24s ease, transform 0.24s ease;
+}
+
+.clip-placeholder-card:hover {
+    border-color: var(--brand-primary, #6366f1);
+    background: rgba(99, 102, 241, 0.06);
+    transform: translateY(-2px);
+}
+
+.clip-placeholder-card .placeholder-text {
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 0.75rem;
+    pointer-events: none;
+    text-align: center;
+    padding: 1rem;
 }
 
 .clip-placeholder-card.has-media {
