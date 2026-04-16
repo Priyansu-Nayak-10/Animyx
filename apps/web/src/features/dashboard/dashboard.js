@@ -580,35 +580,63 @@ export function initClipCard({ storage = globalThis.localStorage } = {}) {
     if (clipSignature === sig) return; clipSignature = sig;
 
     const safeSrc = saved ? normalizeMediaSrc(saved) : "";
-    const commonInput = `<input type="file" id="clip-upload" accept="video/*,image/*" hidden />`;
+    
+    // Safety check: is the input already there?
+    let inputEl = card.querySelector("#clip-upload");
+    if (!inputEl) {
+      inputEl = document.createElement("input");
+      inputEl.type = "file";
+      inputEl.id = "clip-upload";
+      inputEl.accept = "video/*,image/*";
+      inputEl.hidden = true;
+    }
 
     if (!saved || !safeSrc) {
       if (saved && !safeSrc) storage?.removeItem?.(DASHBOARD_CLIP_KEY);
       card.classList.remove("has-media");
-      card.innerHTML = `${commonInput}<span class="placeholder-text">Insert Your Favorite Clip</span>`;
+      card.innerHTML = "";
+      card.appendChild(inputEl);
+      const span = document.createElement("span");
+      span.className = "placeholder-text";
+      span.textContent = "Insert Your Favorite Clip";
+      card.appendChild(span);
       return;
     }
 
     const tag = livePreUrl ? livePreTag : (String(saved).startsWith("data:video/") ? "video" : "img");
     card.classList.add("has-media");
-    
-    // Using simple concatenation to prevent issues. Changed preload="metadata" to preload="auto" and ensured autoplay works
-    card.innerHTML = `
-      ${commonInput}
-      ${tag === "video"
-        ? `<video class="clip-media" src="${safeSrc}" autoplay muted loop playsinline preload="auto"></video>`
-        : `<img class="clip-media" src="${safeSrc}" alt="Clip" loading="lazy" />`
-      }
-      <button type="button" class="remove-clip">Remove</button>
-    `;
+    card.innerHTML = "";
+    card.appendChild(inputEl);
 
-    // Force play for stricter browsers
     if (tag === "video") {
-       const vid = card.querySelector("video");
-       if (vid) {
-          vid.play().catch(err => console.warn("[Animyx] Video autoplay prevented by browser:", err));
-       }
+      const vid = document.createElement("video");
+      vid.className = "clip-media";
+      vid.src = safeSrc;
+      vid.autoplay = true;
+      vid.muted = true;
+      vid.loop = true;
+      vid.playsInline = true; 
+      vid.preload = "auto";
+      card.appendChild(vid);
+      
+      // Defeat browser autoplay policies if possible
+      vid.addEventListener('loadeddata', () => {
+         vid.play().catch(e => console.warn("[Animyx] Autoplay blocked:", e));
+      });
+    } else {
+      const img = document.createElement("img");
+      img.className = "clip-media";
+      img.src = safeSrc;
+      img.alt = "Clip";
+      img.loading = "lazy";
+      card.appendChild(img);
     }
+
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "remove-clip";
+    btn.textContent = "Remove";
+    card.appendChild(btn);
   }
 
   function onClick(e) {
@@ -618,7 +646,8 @@ export function initClipCard({ storage = globalThis.localStorage } = {}) {
       storage?.removeItem?.(DASHBOARD_CLIP_KEY);
       render();
     } else {
-      card.querySelector("#clip-upload")?.click();
+      const input = card.querySelector("#clip-upload");
+      if (input) input.click();
     }
   }
 
@@ -627,30 +656,38 @@ export function initClipCard({ storage = globalThis.localStorage } = {}) {
     
     if (livePreUrl) { try { URL.revokeObjectURL(livePreUrl); } catch (_) { } }
     
-    // 1. Optimistic UI: Update immediately with Blob URL
-    livePreUrl = URL.createObjectURL(f);
     livePreTag = f.type.startsWith("video/") ? "video" : "img";
+    
+    // Fast path: Don't read videos into memory to save lag/crashing
+    if (livePreTag === "video") {
+      storage?.removeItem?.(DASHBOARD_CLIP_KEY);
+      livePreUrl = URL.createObjectURL(f);
+      render();
+      e.target.value = "";
+      return;
+    }
+
+    // Image path
+    livePreUrl = URL.createObjectURL(f);
     render();
     e.target.value = "";
 
-    // 2. Deferred Storage: Do the heavy Base64 conversion later to avoid lagging the UI
-    setTimeout(() => {
-      if (livePreTag === "img") {
+    // Defer the heavy Base64 conversion
+    requestAnimationFrame(() => {
+      setTimeout(() => {
         const fr = new FileReader();
         fr.onload = () => {
           if (fr.result) {
             try {
               storage?.setItem?.(DASHBOARD_CLIP_KEY, String(fr.result));
             } catch (err) {
-              console.warn("[Animyx] LocalStorage quota exceeded for clip. Image will not persist.", err);
+              console.warn("[Animyx] LocalStorage quota exceeded.", err);
             }
           }
         };
         fr.readAsDataURL(f);
-      } else {
-        storage?.removeItem?.(DASHBOARD_CLIP_KEY);
-      }
-    }, 50); // Small delay lets the browser render the Blob visual first
+      }, 100);
+    });
   }
 
   card.addEventListener("click", onClick);
