@@ -50,7 +50,11 @@
     --genre-horror: #991B1B;
     --genre-slicelife: #22C55E;
     --genre-sports: #10B981;
-    scroll-behavior: smooth;
+    
+    /* Premium Animation Variables */
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
+    --duration-premium: 450ms;
 }
 
 * {
@@ -11982,4 +11986,21 @@ body.sidebar-open .sidebar-backdrop {
 
 @keyframes rotateGlow {
   100% { transform: rotate(360deg); }
+}
+
+/* Lenis Recommended Styles */
+html.lenis, html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
 }
