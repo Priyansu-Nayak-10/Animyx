@@ -5,7 +5,11 @@ let lenis;
 export function initSmoothScroll() {
   if (lenis) return lenis;
 
+  const viewport = document.querySelector('.main-viewport');
+  if (!viewport) return;
   lenis = new Lenis({
+    wrapper: viewport,
+    
     duration: 1.2,
     easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Custom out-expo easing
     direction: 'vertical',
