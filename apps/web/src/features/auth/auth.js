@@ -60,6 +60,80 @@ const initParticles = () => {
 
 export const initAnimations = () => {
     initParticles();
+    
+    // --- Smart Greeting ---
+    const welcomeEl = document.querySelector('.auth-welcome');
+    if (welcomeEl) {
+        const hour = new Date().getHours();
+        let greeting = 'WELCOME BACK!';
+        if (hour < 12) greeting = 'GOOD MORNING!';
+        else if (hour < 18) greeting = 'GOOD AFTERNOON!';
+        else greeting = 'GOOD EVENING!';
+        
+        // If it's a join page
+        if (welcomeEl.textContent.includes('JOIN')) {
+            greeting = greeting.replace('WELCOME BACK', 'JOIN US');
+            if (hour < 12) greeting = 'MORNIN\', JOIN!';
+            else if (hour < 18) greeting = 'AFTERNOON, JOIN!';
+            else greeting = 'EVENING, JOIN!';
+        }
+        welcomeEl.textContent = greeting;
+    }
+
+    // --- Interactive Mascot ---
+    const mascotImg = document.querySelector('.mascot-circle img');
+    const mascotCircle = document.querySelector('.mascot-circle');
+    
+    if (mascotCircle && mascotImg) {
+        document.addEventListener('mousemove', (e) => {
+            const { clientX, clientY } = e;
+            const { left, top, width, height } = mascotCircle.getBoundingClientRect();
+            const centerX = left + width / 2;
+            const centerY = top + height / 2;
+            
+            const deltaX = (clientX - centerX) / (window.innerWidth / 2);
+            const deltaY = (clientY - centerY) / (window.innerHeight / 2);
+            
+            mascotImg.style.transform = `translate(${deltaX * 15}px, ${deltaY * 15}px) rotate(${deltaX * 5}deg)`;
+            mascotCircle.style.transform = `perspective(1000px) rotateY(${deltaX * 8}deg) rotateX(${-deltaY * 8}deg)`;
+        });
+    }
+
+    // --- Password Strength ---
+    const passwordInput = document.getElementById('password');
+    const strengthMeter = document.getElementById('password-strength');
+    if (passwordInput && strengthMeter) {
+        const bar = strengthMeter.querySelector('.strength-bar');
+        passwordInput.addEventListener('input', () => {
+            const val = passwordInput.value;
+            if (val.length > 0) {
+                strengthMeter.classList.add('visible');
+                let score = 0;
+                if (val.length >= 8) score++;
+                if (/[A-Z]/.test(val)) score++;
+                if (/[0-9]/.test(val)) score++;
+                if (/[^A-Za-z0-9]/.test(val)) score++;
+                
+                const widths = ['25%', '50%', '75%', '100%'];
+                const colors = ['#ef4444', '#f59e0b', '#8b5cf6', '#22c55e'];
+                const shadows = [
+                    '0 0 10px rgba(239, 68, 68, 0.5)', 
+                    '0 0 10px rgba(245, 158, 11, 0.5)', 
+                    '0 0 15px rgba(139, 92, 246, 0.5)', 
+                    '0 0 20px rgba(34, 197, 94, 0.6)'
+                ];
+                
+                const index = Math.max(0, score - 1);
+                bar.style.width = widths[index];
+                bar.style.background = colors[index];
+                bar.style.boxShadow = shadows[index];
+            } else {
+                strengthMeter.classList.remove('visible');
+                bar.style.width = '0';
+            }
+        });
+    }
+
     // Input Focus Animations & Floating Labels
     const inputs = document.querySelectorAll('.auth-input');
 
@@ -94,24 +168,35 @@ export const initAnimations = () => {
             e.preventDefault();
             const input = document.getElementById(btn.dataset.target);
             if (!input) return;
+            
+            // Mascot reaction to peek
+            if (mascotImg) {
+                mascotImg.style.filter = input.type === 'password' ? 'none' : 'blur(2px)';
+                mascotImg.style.transition = 'filter 0.3s ease';
+            }
+
             if (input.type === 'password') {
                 input.type = 'text';
                 btn.classList.add('showing');
                 btn.setAttribute('aria-pressed', 'true');
-                btn.innerHTML = '<i class="fas fa-eye-slash"></i>';
+                btn.innerHTML = '<i class="fas fa-eye"></i>';
             } else {
                 input.type = 'password';
                 btn.classList.remove('showing');
                 btn.setAttribute('aria-pressed', 'false');
-                btn.innerHTML = '<i class="fas fa-eye"></i>';
+                btn.innerHTML = '<i class="fas fa-eye-slash"></i>';
             }
         });
     });
 
     // Page Load Entry Animation
-    const authCard = document.querySelector('.auth-card');
-    if (authCard) {
-        setTimeout(() => authCard.classList.add('animate-enter'), 100);
+    const authForm = document.querySelector('.auth-form-section');
+    const mascotSection = document.querySelector('.auth-mascot-section');
+    if (authForm) {
+        setTimeout(() => authForm.classList.add('animate-enter'), 100);
+    }
+    if (mascotSection) {
+        setTimeout(() => mascotSection.classList.add('animate-enter'), 300);
     }
 };
 
