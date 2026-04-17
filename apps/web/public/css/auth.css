@@ -40,27 +40,22 @@ body.auth-page::before {
     content: "";
     position: fixed;
     inset: 0;
-    background: radial-gradient(circle at 0% 0%, rgba(139, 92, 246, 0.1) 0%, transparent 40%),
-                radial-gradient(circle at 100% 100%, rgba(192, 132, 252, 0.1) 0%, transparent 40%),
-                radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 1) 0%, var(--auth-bg) 100%);
+    /* Semi-transparent tint to ensure text readability over the image */
+    background: radial-gradient(circle at 0% 0%, rgba(139, 92, 246, 0.2) 0%, transparent 40%),
+                radial-gradient(circle at 100% 100%, rgba(192, 132, 252, 0.2) 0%, transparent 40%),
+                radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.6) 0%, rgba(7, 9, 15, 0.8) 100%);
     z-index: -2;
 }
 
-/* Moving Mesh Gradient Overlay */
+/* Anime Background with Blur Overlay */
 body.auth-page::after {
     content: "";
     position: fixed;
-    inset: 0;
-    background: linear-gradient(125deg, #07090f 0%, #0d1628 50%, #07090f 100%);
-    background-size: 400% 400%;
-    animation: meshFlow 20s ease infinite;
+    /* Negative inset avoids blurred edges looking sharp/white */
+    inset: -30px;
+    background: url('/images/anime.jpg') center/cover no-repeat;
+    filter: blur(15px) brightness(0.6);
     z-index: -3;
-}
-
-@keyframes meshFlow {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
 }
 
 .auth-particle-bg {
