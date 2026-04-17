@@ -182,7 +182,6 @@ function initSearchAdvanced({
     results: document.getElementById("search-results"),
     resultCount: document.getElementById("search-result-count"),
     pagination: document.getElementById("search-pagination"),
-    submit: document.getElementById("search-submit-btn"),
     reset: document.getElementById("search-reset-btn"),
     genreToggle: document.getElementById("discover-genre-toggle"),
     genreMenu: document.getElementById("discover-genre-menu"),
@@ -1112,10 +1111,6 @@ function initSearchAdvanced({
     refs.episodeGroup.querySelectorAll("button[data-episode]").forEach((node) => {
       node.classList.toggle("is-active", String(node.getAttribute("data-episode") || "") === next);
     });
-    void performQuery(refs.globalSearchInput?.value || "", 1);
-  });
-
-  refs.submit?.addEventListener("click", () => {
     void performQuery(refs.globalSearchInput?.value || "", 1);
   });
 
