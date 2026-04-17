@@ -1,4 +1,5 @@
 import { startApp } from './app.js';
+import { scrollToTop } from './features/ui/smoothScroll.js';
 
 startApp();
 
@@ -46,10 +47,7 @@ function initEnhancements() {
     }, { passive: true });
 
     backToTopBtn.addEventListener('click', () => {
-      scrollContainer.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      });
+      scrollToTop();
     });
   }
 }
