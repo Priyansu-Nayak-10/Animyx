@@ -11954,3 +11954,32 @@ body.sidebar-open .sidebar-backdrop {
     margin-bottom: 0.75rem;
     opacity: 0.3;
 }
+
+
+/* Premium Milestones Extended Tier */
+.milestone-tile[data-tier='extended']:not(.locked) {
+  background: linear-gradient(135deg, rgba(232, 121, 249, 0.1) 0%, rgba(139, 92, 246, 0.1) 50%, rgba(56, 189, 248, 0.1) 100%);
+  border: 1px solid rgba(232, 121, 249, 0.3);
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.15), inset 0 0 10px rgba(56, 189, 248, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.milestone-tile[data-tier='extended']:not(.locked)::before {
+  content: '';
+  position: absolute;
+  top: -50%; left: -50%; width: 200%; height: 200%;
+  background: conic-gradient(transparent, rgba(232, 121, 249, 0.3), transparent 30%);
+  animation: rotateGlow 4s linear infinite;
+  z-index: 0;
+  opacity: 0.15;
+}
+
+.milestone-tile[data-tier='extended']:not(.locked) > * {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes rotateGlow {
+  100% { transform: rotate(360deg); }
+}

@@ -1080,6 +1080,7 @@ function initSearchAdvanced({
     else next.delete(id);
     ui.filters.genres = Array.from(next);
     renderGenreSummary();
+    void performQuery(refs.globalSearchInput?.value || "", 1);
   });
 
   refs.typeMenu?.addEventListener("click", (e) => {
@@ -1089,6 +1090,7 @@ function initSearchAdvanced({
     syncTypeSummary();
     renderTypeMenu();
     closeDiscoverDropdowns();
+    void performQuery(refs.globalSearchInput?.value || "", 1);
   });
 
   refs.sortMenu?.addEventListener("click", (e) => {
@@ -1098,6 +1100,7 @@ function initSearchAdvanced({
     syncSortSummary();
     renderSortMenu();
     closeDiscoverDropdowns();
+    void performQuery(refs.globalSearchInput?.value || "", 1);
   });
 
   refs.episodeGroup?.addEventListener("click", (e) => {
@@ -1109,6 +1112,7 @@ function initSearchAdvanced({
     refs.episodeGroup.querySelectorAll("button[data-episode]").forEach((node) => {
       node.classList.toggle("is-active", String(node.getAttribute("data-episode") || "") === next);
     });
+    void performQuery(refs.globalSearchInput?.value || "", 1);
   });
 
   refs.submit?.addEventListener("click", () => {

@@ -728,12 +728,33 @@ export function initMilestones({ libraryStore }) {
     if (stats.watching >= 3) tiles[5].classList.remove("locked");
     
     // Tier 2
-    if (ratedCount >= 1) tiles[6].classList.remove("locked");
-    if (epsWatched >= 10) tiles[7].classList.remove("locked");
-    if (epsWatched >= 500) tiles[8].classList.remove("locked");
-    if (stats.completed >= 25) tiles[9].classList.remove("locked");
-    if (ratedCount >= 25) tiles[10].classList.remove("locked");
-    if (stats.total >= 100) tiles[11].classList.remove("locked");
+    if (ratedCount >= 1) tiles[6]?.classList.remove("locked");
+    if (epsWatched >= 10) tiles[7]?.classList.remove("locked");
+    if (epsWatched >= 500) tiles[8]?.classList.remove("locked");
+    if (stats.completed >= 25) tiles[9]?.classList.remove("locked");
+    if (ratedCount >= 25) tiles[10]?.classList.remove("locked");
+    if (stats.total >= 100) tiles[11]?.classList.remove("locked");
+
+    // Tier 3 (Extended Aesthetics)
+    const genresSet = new Set();
+    const studioMap = new Map();
+    items.forEach(i => {
+      (i.genres || []).forEach(g => genresSet.add(g));
+      if (i.studio && i.studio !== "Unknown") {
+        studioMap.set(i.studio, (studioMap.get(i.studio) || 0) + 1);
+      }
+    });
+    
+    if (genresSet.size >= 10) tiles[12]?.classList.remove("locked");
+    if ([...studioMap.values()].some(v => v >= 5)) tiles[13]?.classList.remove("locked");
+    
+    const hasOldItem = items.some(i => {
+      const dt = i.completedAt || i.watchlistAddedAt || i.updatedAt;
+      if (!dt) return false;
+      return (new Date() - new Date(dt)) > (30 * 24 * 60 * 60 * 1000);
+    });
+    if (hasOldItem) tiles[14]?.classList.remove("locked");
+    if (stats.completed >= 100) tiles[15]?.classList.remove("locked");
   }
 
   const unsub = libraryStore.subscribe(render);
