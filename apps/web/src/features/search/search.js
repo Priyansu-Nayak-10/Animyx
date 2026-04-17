@@ -266,7 +266,7 @@ function initSearchAdvanced({
       <div class="search-dropdown-shell">
         <div class="search-dropdown-heading" style="margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
           <span>Recent Searches</span>
-          <button type="button" class="suggestion-view-all" data-search-action="clear-history" style="padding: 4px 10px; min-height: auto; font-size: 0.72rem; letter-spacing: 0.08em;">Clear</button>
+          <button type="button" data-search-action="clear-history" style="padding: 2px 8px; min-height: auto; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.07em; border: 1px solid rgba(239,68,68,0.45); background: rgba(239,68,68,0.12); color: #f87171; border-radius: 6px; cursor: pointer; transition: background 0.2s, box-shadow 0.2s; line-height: 1.6;" onmouseover="this.style.background='rgba(239,68,68,0.25)';this.style.boxShadow='0 0 8px rgba(239,68,68,0.3)'" onmouseout="this.style.background='rgba(239,68,68,0.12)';this.style.boxShadow='none'">Clear</button>
         </div>
         ${history.map(item => `
           <button type="button" class="suggestion-item search-history-item" data-search-action="history-search" data-query="${escapeHtml(item)}" style="align-items: center;">
