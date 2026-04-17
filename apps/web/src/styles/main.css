@@ -3193,7 +3193,7 @@ body.dark #dashboard-view .news-list.custom-scrollbar::-webkit-scrollbar-thumb {
     font-size: 0.875rem;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    margin-top: 2rem;
+    margin-top: 1.5rem;
 }
 
 .logout-btn:hover {
@@ -9490,6 +9490,7 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100%;
+  justify-content: flex-start;
 }
 
 .sidebar-brand-row {
