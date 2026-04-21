@@ -7896,15 +7896,34 @@ body.dark .tracker-item-title {
     min-width: 0;
 }
 
-.Animyx-reveal {
+/* Section reveal — classes set by initSectionReveal() in utils.js */
+.animyx-reveal {
     opacity: 0;
-    transform: translateY(12px);
-    transition: opacity 420ms ease, transform 420ms ease;
+    transform: translateY(16px);
+    transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform;
 }
 
-.Animyx-reveal-visible {
+.animyx-reveal-visible {
     opacity: 1;
     transform: translateY(0);
+}
+
+/* Scroll progress bar — injected by smoothScroll.js */
+#scroll-progress-bar {
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: 0%;
+    height: 2px;
+    background: linear-gradient(90deg, var(--brand-primary, #7c3aed), var(--brand-accent, #a78bfa), #c084fc);
+    z-index: 9999;
+    pointer-events: none;
+    border-radius: 0 2px 2px 0;
+    box-shadow: 0 0 8px rgba(167, 139, 250, 0.5);
+    transition: width 0.05s linear;
+    flex-shrink: 0;
 }
 
 @media (max-width: 960px) {
