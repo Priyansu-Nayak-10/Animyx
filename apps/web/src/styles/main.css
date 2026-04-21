@@ -133,19 +133,22 @@ body.dark {
 
 /* 3D Tilt Utilities */
 .tilt-card {
-    transition: transform 0.2s var(--ease-out-expo);
+    transition: transform 0.6s var(--ease-out-expo);
     transform-style: preserve-3d;
     perspective: 1000px;
+    will-change: transform;
 }
 
-.tilt-card > * {
-    transform: translateZ(20px);
+.tilt-card .tilt-depth {
+    transform: translateZ(30px);
+    pointer-events: none;
 }
 
 /* Glassmorphism Refinements */
 .glass-panel {
     background: rgba(24, 26, 42, 0.6);
     backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
     border: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
@@ -162,9 +165,17 @@ body.dark {
     cursor: pointer;
     filter: drop-shadow(0 10px 20px rgba(0,0,0,0.4));
     transition: transform 0.4s var(--ease-out-expo);
+    outline: none;
 }
 
-.mascot-container:hover {
+.mascot-float-wrapper {
+    width: 100%;
+    height: 100%;
+    will-change: transform;
+}
+
+.mascot-container:hover,
+.mascot-container:focus-within {
     transform: translateY(-8px) scale(1.05);
 }
 
@@ -173,6 +184,7 @@ body.dark {
     height: 100%;
     object-fit: contain;
     will-change: transform;
+    transition: transform 0.3s var(--ease-out-expo);
 }
 
 .mascot-bubble {
@@ -191,11 +203,19 @@ body.dark {
     transition: all 0.3s var(--ease-out-expo);
     pointer-events: none;
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    z-index: 10;
 }
 
-.mascot-container:hover .mascot-bubble {
+.mascot-container:hover .mascot-bubble,
+.mascot-container:focus-within .mascot-bubble {
     opacity: 1;
     transform: translate(50%, -10px) scale(1);
+    pointer-events: auto;
+}
+
+/* Specific cards */
+.hero-slide {
+    transition: opacity 0.5s ease, transform 0.5s var(--ease-out-expo);
 }
 
 
@@ -288,6 +308,7 @@ body.dark {
 body.dark .sidebar {
     background-color: rgba(11, 13, 20, 0.8);
     backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     border-color: var(--border-glass);
 }
 
@@ -335,6 +356,7 @@ body.dark .sidebar {
     border-bottom: 1px solid var(--border-glass);
     background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
     z-index: 20;
     position: sticky;
     top: 0;
@@ -1167,6 +1189,7 @@ body.dark #dashboard-view .progress-btn {
     color: #eaf6ff;
     background: rgba(91, 179, 255, 0.35);
     backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     border: 1px solid rgba(91, 179, 255, 0.52);
 }
 
@@ -1301,6 +1324,7 @@ body.dark #dashboard-view .progress-btn {
     place-items: center;
     background: rgba(4, 8, 20, 0.86);
     backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     z-index: 12000;
     opacity: 0;
     pointer-events: none;

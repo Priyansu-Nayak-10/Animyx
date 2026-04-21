@@ -20,9 +20,11 @@ function initBackgroundParallax() {
     const grid = document.getElementById('bg-grid-overlay');
     if (!grid) return;
 
+    let moveX = 0, moveY = 0;
+    
     window.addEventListener('mousemove', (e) => {
-        const moveX = (e.clientX - window.innerWidth / 2) / 50;
-        const moveY = (e.clientY - window.innerHeight / 2) / 50;
+        moveX = (e.clientX - window.innerWidth / 2) / 50;
+        moveY = (e.clientY - window.innerHeight / 2) / 50;
         
         requestAnimationFrame(() => {
             grid.style.transform = `translate3d(${moveX}px, ${moveY}px, 0)`;
@@ -40,7 +42,6 @@ function init3DTilt() {
         if (!card || card.dataset.tiltInitialized) return;
 
         card.dataset.tiltInitialized = "true";
-        card.style.transition = "transform 0.1s var(--ease-out-expo)";
         
         card.addEventListener('mousemove', (me) => {
             const rect = card.getBoundingClientRect();
@@ -50,18 +51,22 @@ function init3DTilt() {
             const centerX = rect.width / 2;
             const centerY = rect.height / 2;
             
-            const rotateX = (centerY - y) / 10; // Adjust sensitivity
-            const rotateY = (x - centerX) / 10;
+            // Adjust sensitivity (lower = more tilt)
+            const rotateX = (centerY - y) / 12;
+            const rotateY = (x - centerX) / 12;
             
             requestAnimationFrame(() => {
+                // Remove transition during move for buttery smoothness
+                card.style.transition = "none";
                 card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
             });
         });
 
         card.addEventListener('mouseleave', () => {
             requestAnimationFrame(() => {
+                // Restore transition for smooth reset
+                card.style.transition = "transform 0.6s var(--ease-out-expo)";
                 card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
-                card.style.transition = "transform 0.5s var(--ease-out-expo)";
             });
         });
     });
@@ -72,8 +77,11 @@ function init3DTilt() {
  */
 function initMascotBehavior() {
     const mascot = document.getElementById('mascot-container');
+    const floatWrapper = document.getElementById('mascot-float-wrapper');
     const bubble = document.getElementById('mascot-bubble');
-    if (!mascot || !bubble) return;
+    const img = document.getElementById('mascot-img');
+    
+    if (!mascot || !floatWrapper || !bubble || !img) return;
 
     const greetings = [
         "What's on your list today?",
@@ -85,44 +93,61 @@ function initMascotBehavior() {
         "Updating your library? Good move."
     ];
 
-    // Buoyancy animation loop
+    // Layer 1: Buoyancy animation (Applied to wrapper)
     let startTime = null;
     const animateMascot = (timestamp) => {
         if (!startTime) startTime = timestamp;
         const elapsed = timestamp - startTime;
         
         // Sine wave for floating
-        const y = Math.sin(elapsed / 1000) * 5;
+        const y = Math.sin(elapsed / 1200) * 8; // Slightly slower, larger float
+        const rot = Math.sin(elapsed / 2000) * 2; // Subtle swaying
         
-        mascot.style.transform = `translateY(${y}px)`;
+        floatWrapper.style.transform = `translateY(${y}px) rotate(${rot}deg)`;
         requestAnimationFrame(animateMascot);
     };
     requestAnimationFrame(animateMascot);
 
-    // Random greeting on click
-    mascot.addEventListener('click', () => {
+    // Layer 2: Interaction Logic (Applied to container/img)
+    const handleAction = () => {
         const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
         bubble.textContent = randomGreeting;
         
-        // Visual feedback
-        mascot.style.transform = "scale(1.2) rotate(10deg)";
+        // Push animation to image layer to avoid conflict with float loop
+        img.style.transform = "scale(1.2) rotate(10deg)";
+        img.style.transition = "transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
+        
         setTimeout(() => {
-            mascot.style.transform = "scale(1)";
-        }, 200);
+           img.style.transform = "scale(1) rotate(0deg)";
+        }, 300);
+    };
+
+    mascot.addEventListener('click', handleAction);
+    
+    // Keyboard accessibility
+    mascot.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleAction();
+        }
     });
 
-    // Cursor tracking (subtle head tilt)
+    // Cursor tracking (Applied directly to img transform, but managed carefully)
     window.addEventListener('mousemove', (e) => {
+        // Only track if not currently in click-feedback
+        if (img.style.transition.includes('0.2s')) return;
+
         const rect = mascot.getBoundingClientRect();
         const centerX = rect.left + rect.width / 2;
         const centerY = rect.top + rect.height / 2;
         
-        const angleX = (e.clientY - centerY) / 50;
-        const angleY = (e.clientX - centerX) / 50;
+        // Limit tilt angle
+        const angleX = Math.max(-15, Math.min(15, (e.clientY - centerY) / 40));
+        const angleY = Math.max(-15, Math.min(15, (e.clientX - centerX) / 40));
         
-        const img = mascot.querySelector('img');
-        if (img) {
+        requestAnimationFrame(() => {
+            img.style.transition = "transform 0.1s ease-out";
             img.style.transform = `rotateX(${-angleX}deg) rotateY(${angleY}deg)`;
-        }
+        });
     }, { passive: true });
 }

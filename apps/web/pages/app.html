@@ -26,9 +26,11 @@
   <div class="bg-glow-static"></div>
 
   <!-- Interactive Mascot -->
-  <div class="mascot-container" id="mascot-container">
+  <div class="mascot-container" id="mascot-container" tabindex="0" role="button" aria-label="Interact with Animyx Mascot">
     <div class="mascot-bubble" id="mascot-bubble">Hey there! Ready to track?</div>
-    <img src="/images/animyx_mascot.png" alt="Animyx Mascot" class="mascot-img" id="mascot-img">
+    <div class="mascot-float-wrapper" id="mascot-float-wrapper">
+      <img src="/images/animyx_mascot.png" alt="Animyx Mascot" class="mascot-img" id="mascot-img">
+    </div>
   </div>
 
   <!-- Loading overlay for auth guard — prevents FOUC -->
