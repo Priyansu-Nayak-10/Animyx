@@ -31,75 +31,29 @@ export const clearInlineError = (inputElement) => {
     inputElement.classList.remove('error');
 };
 
-// --- Animations & State ---
-const initParticles = () => {
-    const container = document.getElementById('auth-particles');
-    if (!container) return;
-
-    const count = 50;
-    for (let i = 0; i < count; i++) {
-        const particle = document.createElement('div');
-        particle.className = 'auth-particle';
-        
-        // Randomize
-        const size = Math.random() * 2 + 1;
-        const left = Math.random() * 100;
-        const duration = Math.random() * 10 + 10;
-        const delay = Math.random() * 15;
-        
-        particle.style.width = `${size}px`;
-        particle.style.height = `${size}px`;
-        particle.style.left = `${left}%`;
-        particle.style.bottom = `-5px`;
-        particle.style.animationDuration = `${duration}s`;
-        particle.style.animationDelay = `-${delay}s`;
-        
-        container.appendChild(particle);
-    }
-};
+// initParticles removed — #auth-particles element no longer exists on signin/signup pages.
+// The cyber-grid background is handled purely by CSS.
 
 export const initAnimations = () => {
-    initParticles();
-    
-    // --- Smart Greeting ---
+    // --- Smart Time-Based Greeting ---
     const welcomeEl = document.querySelector('.auth-welcome');
-    if (welcomeEl) {
+    if (welcomeEl && !welcomeEl.dataset.greetingSet) {
         const hour = new Date().getHours();
-        let greeting = 'WELCOME BACK!';
-        if (hour < 12) greeting = 'GOOD MORNING!';
-        else if (hour < 18) greeting = 'GOOD AFTERNOON!';
-        else greeting = 'GOOD EVENING!';
-        
-        // If it's a join page
-        if (welcomeEl.textContent.includes('JOIN')) {
-            greeting = greeting.replace('WELCOME BACK', 'JOIN US');
-            if (hour < 12) greeting = 'MORNIN\', JOIN!';
-            else if (hour < 18) greeting = 'AFTERNOON, JOIN!';
-            else greeting = 'EVENING, JOIN!';
+        const isSignup = document.getElementById('signup-form') !== null;
+        if (isSignup) {
+            // Signup page: leave static "Create your account" heading as-is
+        } else {
+            // Signin page: personalise the "Welcome back" heading with time
+            let greeting = 'Welcome back';
+            if (hour < 12) greeting = 'Good morning';
+            else if (hour < 18) greeting = 'Good afternoon';
+            else greeting = 'Good evening';
+            welcomeEl.textContent = greeting;
         }
-        welcomeEl.textContent = greeting;
+        welcomeEl.dataset.greetingSet = '1';
     }
 
-    // --- Interactive Mascot ---
-    const mascotImg = document.querySelector('.mascot-circle img');
-    const mascotCircle = document.querySelector('.mascot-circle');
-    
-    if (mascotCircle && mascotImg) {
-        document.addEventListener('mousemove', (e) => {
-            const { clientX, clientY } = e;
-            const { left, top, width, height } = mascotCircle.getBoundingClientRect();
-            const centerX = left + width / 2;
-            const centerY = top + height / 2;
-            
-            const deltaX = (clientX - centerX) / (window.innerWidth / 2);
-            const deltaY = (clientY - centerY) / (window.innerHeight / 2);
-            
-            mascotImg.style.transform = `translate(${deltaX * 15}px, ${deltaY * 15}px) rotate(${deltaX * 5}deg)`;
-            mascotCircle.style.transform = `perspective(1000px) rotateY(${deltaX * 8}deg) rotateX(${-deltaY * 8}deg)`;
-        });
-    }
-
-    // --- Password Strength ---
+    // --- Password Strength Meter ---
     const passwordInput = document.getElementById('password');
     const strengthMeter = document.getElementById('password-strength');
     if (passwordInput && strengthMeter) {
@@ -134,21 +88,18 @@ export const initAnimations = () => {
         });
     }
 
-    // Input Focus Animations & Floating Labels
+    // --- Input Focus State ---
     const inputs = document.querySelectorAll('.auth-input');
-
     inputs.forEach(input => {
         const parent = input.closest('.form-group-minimal') || input.parentElement;
         if (input.value.trim() !== '') parent.classList.add('has-value');
 
         input.addEventListener('focus', () => parent.classList.add('focused'));
-
         input.addEventListener('blur', () => {
             parent.classList.remove('focused');
             if (input.value.trim() !== '') parent.classList.add('has-value');
             else parent.classList.remove('has-value');
         });
-
         input.addEventListener('input', () => {
             if (input.classList.contains('error')) {
                 input.classList.remove('error');
@@ -161,20 +112,12 @@ export const initAnimations = () => {
         });
     });
 
-    // Password Visibility Toggle
-    const togglePasswordButtons = document.querySelectorAll('.toggle-password');
-    togglePasswordButtons.forEach(btn => {
+    // --- Password Visibility Toggle ---
+    document.querySelectorAll('.toggle-password').forEach(btn => {
         btn.addEventListener('click', (e) => {
             e.preventDefault();
             const input = document.getElementById(btn.dataset.target);
             if (!input) return;
-            
-            // Mascot reaction to peek
-            if (mascotImg) {
-                mascotImg.style.filter = input.type === 'password' ? 'none' : 'blur(2px)';
-                mascotImg.style.transition = 'filter 0.3s ease';
-            }
-
             if (input.type === 'password') {
                 input.type = 'text';
                 btn.classList.add('showing');
@@ -189,15 +132,11 @@ export const initAnimations = () => {
         });
     });
 
-    // Page Load Entry Animation
+    // --- Page Entry Animation ---
     const authForm = document.querySelector('.auth-form-section');
-    const mascotSection = document.querySelector('.auth-mascot-section');
-    if (authForm) {
-        setTimeout(() => authForm.classList.add('animate-enter'), 100);
-    }
-    if (mascotSection) {
-        setTimeout(() => mascotSection.classList.add('animate-enter'), 300);
-    }
+    const showcaseSection = document.querySelector('.auth-mascot-section');
+    if (authForm) setTimeout(() => authForm.classList.add('animate-enter'), 100);
+    if (showcaseSection) setTimeout(() => showcaseSection.classList.add('animate-enter'), 300);
 };
 
 export const setButtonLoading = (btn, isLoading) => {
@@ -476,19 +415,25 @@ document.addEventListener('DOMContentLoaded', async () => {
             setButtonLoading(submitBtn, true);
             try {
                 const desiredUsername = usernameInput ? usernameInput.value.trim() : '';
+                // Read selected avatar archetype from the radio picker
+                const avatarRadio = signUpForm.querySelector('input[name="avatar_id"]:checked');
+                const avatarId = avatarRadio ? Number(avatarRadio.value) : 1;
+
                 const { data, error } = await supabase.auth.signUp({
                     email: emailInput.value,
                     password: passwordInput.value,
                     options: {
-                        // Persist username in auth metadata so it's available even if email confirmation is required.
-                        data: desiredUsername ? { name: desiredUsername } : {}
+                        // Persist username + avatar in auth metadata so it's
+                        // available even if email confirmation is required.
+                        data: desiredUsername
+                            ? { name: desiredUsername, avatar_id: avatarId }
+                            : { avatar_id: avatarId }
                     }
                 });
                 if (error) throw error;
                 
                 // Immediately create a profile if successful and session is given (no email confirmation needed)
                 if (data?.user && usernameInput && data.session) {
-                   // Prefer backend upsert (service role) so RLS never blocks profile creation.
                    try {
                        await fetch(apiUrl('/users/me/profile'), {
                            method: 'PUT',
@@ -496,23 +441,24 @@ document.addEventListener('DOMContentLoaded', async () => {
                                'Content-Type': 'application/json',
                                Authorization: `Bearer ${data.session.access_token}`
                            },
-                           body: JSON.stringify({ name: desiredUsername })
+                           // Send both username and avatar to the backend profile endpoint
+                           body: JSON.stringify({ name: desiredUsername, avatar_id: avatarId })
                        });
                    } catch (_) { }
 
-                   // Fallback: direct insert (may be blocked by RLS depending on your policies).
                    try {
                        await supabase.from('user_profiles').upsert([{
                            user_id: data.user.id,
-                           name: desiredUsername
+                           name: desiredUsername,
+                           avatar_id: avatarId
                        }], { onConflict: 'user_id' });
                    } catch (_) { }
 
-                   // Cache locally so the dashboard shows the username immediately after redirect.
                    try {
                        localStorage.setItem('Animyx_profile_v1', JSON.stringify({
                            user_id: data.user.id,
                            name: desiredUsername,
+                           avatar_id: avatarId,
                            updated_at: new Date().toISOString()
                        }));
                    } catch (_) { }
