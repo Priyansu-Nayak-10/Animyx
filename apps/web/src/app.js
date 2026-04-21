@@ -24,6 +24,7 @@ import { initInsights, initDashboardModules, initTrackerFeed } from './features/
 import { initProfile, initSettings, initExport, initImport } from './features/user/userFeatures.js';
 import { normalizeAnime, dedupeAnimeList, bindNavigation, openView, initSectionReveal, initImageBlurUp } from './core/utils.js';
 import { initSmoothScroll } from './features/ui/smoothScroll.js';
+import { initPremiumEffects } from './features/ui/premium.js';
 
 // --- Production Console Cleaner ---
 if (!window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')) {
@@ -45,6 +46,7 @@ const initAuthEvents = async () => {
   await (window.__Animyx_AUTH_READY || Promise.resolve());
   console.log('[Animyx] 🚀 Starting...');
   initSmoothScroll();
+  initPremiumEffects();
 
   // ── Notification bell wiring ────────────────────────────────
   // NOTE: Sidebar toggle/close is handled by bindNavigation() in core/utils.js

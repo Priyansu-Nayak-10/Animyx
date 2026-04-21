@@ -55,6 +55,10 @@
     --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
     --ease-in-out-quart: cubic-bezier(0.76, 0, 0.24, 1);
     --duration-premium: 450ms;
+
+    /* Premium Glows */
+    --glow-primary: 0 0 20px rgba(124, 58, 237, 0.3);
+    --glow-accent: 0 0 25px rgba(168, 85, 247, 0.4);
 }
 
 * {
@@ -97,6 +101,101 @@ body {
 body.dark {
     background-color: var(--bg-main);
     color: var(--text-primary);
+}
+
+/* Premium Background Grid */
+.bg-grid-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        radial-gradient(circle at 2px 2px, rgba(124, 58, 237, 0.05) 1px, transparent 0);
+    background-size: 32px 32px;
+    pointer-events: none;
+    z-index: -1;
+    transform: translate3d(0,0,0);
+    opacity: 0.8;
+}
+
+.bg-glow-static {
+    position: fixed;
+    top: -10%;
+    right: -10%;
+    width: 50%;
+    height: 60%;
+    background: radial-gradient(circle, rgba(124, 58, 237, 0.08) 0%, transparent 70%);
+    filter: blur(80px);
+    pointer-events: none;
+    z-index: -2;
+}
+
+/* 3D Tilt Utilities */
+.tilt-card {
+    transition: transform 0.2s var(--ease-out-expo);
+    transform-style: preserve-3d;
+    perspective: 1000px;
+}
+
+.tilt-card > * {
+    transform: translateZ(20px);
+}
+
+/* Glassmorphism Refinements */
+.glass-panel {
+    background: rgba(24, 26, 42, 0.6);
+    backdrop-filter: blur(12px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Mascot Styling */
+.mascot-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 120px;
+    height: 120px;
+    z-index: 1000;
+    pointer-events: auto;
+    cursor: pointer;
+    filter: drop-shadow(0 10px 20px rgba(0,0,0,0.4));
+    transition: transform 0.4s var(--ease-out-expo);
+}
+
+.mascot-container:hover {
+    transform: translateY(-8px) scale(1.05);
+}
+
+.mascot-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    will-change: transform;
+}
+
+.mascot-bubble {
+    position: absolute;
+    bottom: 100%;
+    right: 50%;
+    background: var(--bg-card);
+    border: 1px solid var(--brand-primary);
+    padding: 10px 14px;
+    border-radius: 16px;
+    font-size: 0.75rem;
+    color: var(--text-primary);
+    white-space: nowrap;
+    opacity: 0;
+    transform: translate(50%, 10px) scale(0.9);
+    transition: all 0.3s var(--ease-out-expo);
+    pointer-events: none;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.mascot-container:hover .mascot-bubble {
+    opacity: 1;
+    transform: translate(50%, -10px) scale(1);
 }
 
 
