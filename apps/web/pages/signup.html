@@ -1,98 +1,224 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Account &bull; Animyx</title>
-    <link rel="icon" href="/images/favicon.png" />
-    <meta name="description" content="Create your Animyx 2.0 account - Start your ultimate anime journey today.">
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Auth Styles -->
-    <link rel="stylesheet" href="/css/auth.css">
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#0B0C13">
-    <link rel="apple-touch-icon" href="/images/favicon.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Account &bull; Animyx</title>
+  <link rel="icon" href="/images/favicon.png" />
+  <meta name="description" content="Create your Animyx account — start tracking and discovering anime today.">
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Auth styles -->
+  <link rel="stylesheet" href="/css/auth.css">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#07090f">
+  <link rel="apple-touch-icon" href="/images/favicon.png">
 </head>
 
 <body class="auth-page">
-    <div class="cyber-grid"></div>
-    <div class="auth-particle-bg" id="auth-particles"></div>
-    <div class="auth-grid-container">
-        <!-- TOP NAVIGATION -->
-        <nav class="auth-nav">
-            <span class="auth-logo-text-top">Animyx.</span>
-        </nav>
+  <div class="cyber-grid"></div>
 
-        <div class="auth-main-split">
-            <!-- LEFT: Form Section -->
-            <div class="auth-form-section">
-                <div class="auth-form-header">
-                    <h1 class="auth-welcome">JOIN Animyx!</h1>
-                    <p class="auth-switch">Already have an account? <a href="signin.html">Sign in</a></p>
-                </div>
+  <div class="auth-grid-container animate-enter">
 
-                <!-- Backend Error -->
-                <div id="backend-error" class="backend-error" role="alert" aria-live="polite"></div>
+    <!-- ── Nav ── -->
+    <nav class="auth-nav">
+      <span class="auth-logo-text-top">Animyx.</span>
+    </nav>
 
-                <form id="signup-form" class="auth-form-minimal auth-form-body">
-                    <div class="form-group-minimal" style="position: relative;">
-                        <label for="username">Username</label>
-                        <input type="text" id="username" name="username" class="auth-input" placeholder="otaku_kun" required title="Username" autocomplete="off">
-                        <span id="username-indicator" class="availability-indicator"></span>
-                    </div>
+    <!-- ── Split layout ── -->
+    <div class="auth-main-split">
 
-                    <div class="form-group-minimal">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" name="email" class="auth-input" placeholder="example@gmail.com" required title="Email Address">
-                    </div>
-
-                    <div class="form-group-minimal">
-                        <label for="password">Password</label>
-                        <div class="password-wrapper">
-                            <input type="password" id="password" name="password" class="auth-input" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;" required title="Password">
-                            <button type="button" class="toggle-password" data-target="password">
-                                <i class="fas fa-eye-slash"></i>
-                            </button>
-                        </div>
-                        <div class="strength-meter" id="password-strength">
-                            <div class="strength-bar"></div>
-                        </div>
-                    </div>
-
-                    <div class="form-minimal-options">
-                        <label class="minimal-remember">
-                            <input type="checkbox" id="terms" required>
-                            <span class="dot"></span>
-                            I agree to the Terms & Conditions
-                        </label>
-                    </div>
-
-                    <button type="submit" id="signup-btn" class="btn-minimal-submit">
-                        <span class="btn-text">Sign Up</span>
-                        <div class="spinner"></div>
-                    </button>
-                </form>
-            </div>
-
-            <!-- RIGHT: Mascot Section -->
-            <div class="auth-mascot-section">
-                <div class="mascot-circle">
-                    <img src="/images/animyx_mascot.png" alt="Animyx Mascot">
-                </div>
-                
-                <div class="auth-social-sidebar">
-                    <a href="#" title="Sign in with Google" id="btn-google"><i class="fab fa-google"></i></a>
-                    <a href="#" title="Sign in with Discord" id="btn-discord"><i class="fab fa-discord"></i></a>
-                    <a href="#" title="Sign in with GitHub" id="btn-github"><i class="fab fa-github"></i></a>
-                </div>
-            </div>
+      <!-- LEFT: Form -->
+      <div class="auth-form-section">
+        <div class="auth-form-header">
+          <h1 class="auth-welcome">Create your account</h1>
+          <p class="auth-switch">Already have one? <a href="signin.html">Sign in</a></p>
         </div>
-    </div>
 
-    <script src="/env.js"></script>
-    <script type="module" src="../src/features/auth/auth.js"></script>
+        <!-- Backend error -->
+        <div id="backend-error" class="backend-error" role="alert" aria-live="polite"></div>
+
+        <form id="signup-form" class="auth-form-minimal auth-form-body">
+
+          <!-- Avatar picker -->
+          <div class="avatar-picker-section">
+            <span class="avatar-picker-label">Choose your avatar</span>
+            <div class="avatar-grid" role="radiogroup" aria-label="Avatar selection">
+              <label class="avatar-option">
+                <input type="radio" name="avatar_id" value="1" checked>
+                <span class="avatar-circle av-1" title="Ninja">🥷</span>
+              </label>
+              <label class="avatar-option">
+                <input type="radio" name="avatar_id" value="2">
+                <span class="avatar-circle av-2" title="Mage">🧙</span>
+              </label>
+              <label class="avatar-option">
+                <input type="radio" name="avatar_id" value="3">
+                <span class="avatar-circle av-3" title="Samurai">⚔️</span>
+              </label>
+              <label class="avatar-option">
+                <input type="radio" name="avatar_id" value="4">
+                <span class="avatar-circle av-4" title="Scholar">📚</span>
+              </label>
+              <label class="avatar-option">
+                <input type="radio" name="avatar_id" value="5">
+                <span class="avatar-circle av-5" title="Ranger">🌿</span>
+              </label>
+              <label class="avatar-option">
+                <input type="radio" name="avatar_id" value="6">
+                <span class="avatar-circle av-6" title="Warrior">🔥</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Username -->
+          <div class="form-group-minimal" style="position: relative;">
+            <label for="username">Username</label>
+            <input
+              type="text"
+              id="username"
+              name="username"
+              class="auth-input"
+              placeholder="otaku_kun"
+              autocomplete="off"
+              required>
+            <span id="username-indicator" class="availability-indicator"></span>
+          </div>
+
+          <!-- Email -->
+          <div class="form-group-minimal">
+            <label for="email">Email Address</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              class="auth-input"
+              placeholder="you@example.com"
+              autocomplete="email"
+              required>
+          </div>
+
+          <!-- Password -->
+          <div class="form-group-minimal">
+            <label for="password">Password</label>
+            <div class="password-wrapper">
+              <input
+                type="password"
+                id="password"
+                name="password"
+                class="auth-input"
+                placeholder="Create a strong password"
+                autocomplete="new-password"
+                required>
+              <button type="button" class="toggle-password" data-target="password" aria-label="Toggle password visibility">
+                <i class="fas fa-eye-slash"></i>
+              </button>
+            </div>
+            <!-- Strength meter (JS-controlled) -->
+            <div class="strength-meter" id="password-strength">
+              <div class="strength-bar"></div>
+            </div>
+          </div>
+
+          <!-- Terms -->
+          <div class="form-minimal-options">
+            <label class="minimal-remember">
+              <input type="checkbox" id="terms" required>
+              <span class="dot"></span>
+              I agree to the Terms &amp; Conditions
+            </label>
+          </div>
+
+          <!-- Submit -->
+          <button type="submit" id="signup-btn" class="btn-minimal-submit">
+            <span class="btn-text">Create Account</span>
+            <div class="spinner"></div>
+          </button>
+        </form>
+
+        <!-- Social login -->
+        <div class="auth-divider"><span>or sign up with</span></div>
+        <div class="auth-social-row">
+          <a href="#" id="btn-google" class="auth-social-btn" title="Continue with Google">
+            <i class="fab fa-google"></i>
+            <span>Google</span>
+          </a>
+          <a href="#" id="btn-discord" class="auth-social-btn" title="Continue with Discord">
+            <i class="fab fa-discord"></i>
+            <span>Discord</span>
+          </a>
+          <a href="#" id="btn-github" class="auth-social-btn" title="Continue with GitHub">
+            <i class="fab fa-github"></i>
+            <span>GitHub</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- RIGHT: Feature showcase -->
+      <div class="auth-mascot-section">
+
+        <div>
+          <h2 class="showcase-title">Start your journey.</h2>
+          <p class="showcase-sub">Everything you need to own your anime experience.</p>
+        </div>
+
+        <ul class="showcase-features">
+          <li class="feature-card">
+            <div class="feature-icon-wrap"><i class="fas fa-bookmark"></i></div>
+            <div class="feature-text">
+              <strong>Smart Library</strong>
+              <span>Watching, completed, planned — all in one organized space.</span>
+            </div>
+          </li>
+          <li class="feature-card">
+            <div class="feature-icon-wrap"><i class="fas fa-star"></i></div>
+            <div class="feature-text">
+              <strong>Personalized Picks</strong>
+              <span>Recommendations that actually match your taste.</span>
+            </div>
+          </li>
+          <li class="feature-card">
+            <div class="feature-icon-wrap"><i class="fas fa-chart-bar"></i></div>
+            <div class="feature-text">
+              <strong>Insights &amp; Analytics</strong>
+              <span>Genre breakdown, milestones, and viewing streaks.</span>
+            </div>
+          </li>
+          <li class="feature-card">
+            <div class="feature-icon-wrap"><i class="fas fa-cloud"></i></div>
+            <div class="feature-text">
+              <strong>Sync Everywhere</strong>
+              <span>Your library follows you across every device.</span>
+            </div>
+          </li>
+        </ul>
+
+        <div class="showcase-stats">
+          <div class="showcase-stat">
+            <span class="showcase-stat-value">10K+</span>
+            <span class="showcase-stat-label">Anime Tracked</span>
+          </div>
+          <div class="showcase-stat">
+            <span class="showcase-stat-value">500+</span>
+            <span class="showcase-stat-label">Active Users</span>
+          </div>
+          <div class="showcase-stat">
+            <span class="showcase-stat-value">Free</span>
+            <span class="showcase-stat-label">Always</span>
+          </div>
+        </div>
+
+      </div>
+      <!-- end showcase -->
+
+    </div>
+  </div>
+
+  <script src="/env.js"></script>
+  <script type="module" src="../src/features/auth/auth.js"></script>
 </body>
 </html>
