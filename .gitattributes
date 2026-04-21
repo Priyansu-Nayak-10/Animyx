@@ -1,0 +1,25 @@
+# Animyx — Git line ending normalization
+# Ensures consistent LF line endings in the repo on all platforms.
+# Windows checkouts will still use CRLF locally (handled by core.autocrlf).
+
+* text=auto
+
+# Web source files — always LF in repo
+*.html  text eol=lf
+*.css   text eol=lf
+*.js    text eol=lf
+*.json  text eol=lf
+*.md    text eol=lf
+*.ts    text eol=lf
+
+# Binary files — never touch line endings
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.gif   binary
+*.ico   binary
+*.webp  binary
+*.svg   binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
