@@ -356,6 +356,13 @@ function createDataController({ api, store }) {
     return { seasonal, trending, top, airing };
   }
 
+  // Shared mutable state — declared before the functions that reference them
+  let refreshTimer = 0;
+  let liveUpcomingTimer = 0;
+  let liveUpcomingIntervalMs = 0;
+  let liveUpcomingRefreshEnabled = false;
+  let liveUpcomingFallbackMs = 60_000;
+
   function startAiringRefresh(intervalMs = 10 * 60 * 1000, options = {}) {
     stopAiringRefresh();
     const allowLowInterval = Boolean(options.allowLowInterval);
@@ -407,12 +414,6 @@ function createDataController({ api, store }) {
     liveUpcomingTimer = 0;
     liveUpcomingIntervalMs = 0;
   }
-
-  let refreshTimer = 0;
-  let liveUpcomingTimer = 0;
-  let liveUpcomingIntervalMs = 0;
-  let liveUpcomingRefreshEnabled = false;
-  let liveUpcomingFallbackMs = 60_000;
 
   return Object.freeze({
     loadAiring,

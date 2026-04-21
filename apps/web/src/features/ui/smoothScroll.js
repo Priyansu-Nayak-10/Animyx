@@ -13,13 +13,10 @@ export function initSmoothScroll() {
   lenis = new Lenis({
     wrapper: viewport,
     content: viewport.firstElementChild || viewport,
-    duration: 1.2,
-    easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // Exponential ease-out
-    direction: 'vertical',
-    gestureDirection: 'vertical',
-    smooth: true,
-    mouseMultiplier: 1,
-    smoothTouch: false,
+    lerp: 0.08,               // Controls smoothing (replaces duration in v1.1+)
+    orientation: 'vertical',  // Replaces deprecated 'direction'
+    gestureOrientation: 'vertical', // Replaces deprecated 'gestureDirection'
+    smoothWheel: true,        // Replaces deprecated 'smooth'
     touchMultiplier: 2,
     infinite: false,
   });

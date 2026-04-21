@@ -254,10 +254,6 @@ function createMemoizedSelector(projectSignature, computeResult) {
   };
 }
 
-function getCombinedDiscoveryState(storeState) {
-  return getCombinedDiscoveryStateMemo(storeState);
-}
-
 const getCombinedDiscoveryStateMemo = createMemoizedSelector(
   (storeState) => {
     const seasonalSig = listSignature(storeState?.seasonal || []);
@@ -273,6 +269,10 @@ const getCombinedDiscoveryStateMemo = createMemoizedSelector(
     ...(storeState?.airing || [])
   ])
 );
+
+function getCombinedDiscoveryState(storeState) {
+  return getCombinedDiscoveryStateMemo(storeState);
+}
 
 function isCurrentlyAiringStatus(value) {
   const status = String(value || "").toLowerCase();
