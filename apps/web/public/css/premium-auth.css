@@ -161,6 +161,53 @@ body::before {
     font-weight: 600;
 }
 
+/* Error Handling */
+.input-error {
+    font-size: 0.7rem;
+    color: #ef4444;
+    margin-top: 4px;
+    opacity: 0;
+    transform: translateY(-5px);
+    transition: all 0.2s ease;
+    pointer-events: none;
+    height: 0;
+    overflow: hidden;
+}
+
+.input-error.visible {
+    opacity: 1;
+    transform: translateY(0);
+    height: auto;
+    margin-bottom: 5px;
+}
+
+.backend-error {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 8px;
+    padding: 0.75rem;
+    color: #f87171;
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    display: none;
+}
+
+.backend-error:not(:empty) {
+    display: block;
+}
+
+.shake-anim {
+    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake {
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+    40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
 /* ── Archetype Picker ── */
 .archetype-section {
     margin-bottom: 2rem;
@@ -367,6 +414,33 @@ body::before {
 
 .btn-premium-submit:active {
     transform: translateY(0);
+}
+
+.btn-premium-submit.loading {
+    color: transparent;
+    pointer-events: none;
+}
+
+.btn-premium-submit.loading .spinner {
+    display: block;
+}
+
+.spinner {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 24px;
+    height: 24px;
+    margin: -12px 0 0 -12px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }
 
 /* ── Social Login ── */

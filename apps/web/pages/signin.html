@@ -42,19 +42,20 @@
 
     <!-- ── CENTER PANEL: Main Form ── -->
     <main class="panel-center">
-      <div class="glass-card animate-enter">
+      <div class="glass-card auth-form-section animate-enter">
         <header class="auth-header">
           <div class="auth-title">
-            <span class="small">Welcome Back</span>
+            <span class="small auth-welcome">Welcome Back</span>
             <span class="main">Sign In</span>
           </div>
           <p class="auth-subtitle">No account? <a href="signup.html">Sign up free</a></p>
         </header>
 
-        <!-- Backend error -->
-        <div id="backend-error" class="backend-error" role="alert" aria-live="polite"></div>
+        <div class="auth-form-body">
+          <!-- Backend error -->
+          <div id="backend-error" class="backend-error" role="alert" aria-live="polite"></div>
 
-        <form id="signin-form" class="auth-form">
+          <form id="signin-form" class="auth-form">
 
           <!-- Email -->
           <div class="form-group">
@@ -63,6 +64,7 @@
               <i class="fas fa-envelope input-icon"></i>
               <input type="email" id="email" name="email" class="auth-input" placeholder="you@example.com" autocomplete="email" required>
             </div>
+            <div class="input-error"></div>
           </div>
 
           <!-- Password -->
@@ -75,6 +77,7 @@
                 <i class="fas fa-eye-slash"></i>
               </button>
             </div>
+            <div class="input-error"></div>
           </div>
 
           <!-- Options -->
@@ -84,7 +87,7 @@
               <span class="dot"></span>
               Remember me
             </label>
-            <a href="forgot-password.html" class="minimal-forgot" style="font-size: 0.85rem; color: var(--p-muted); text-decoration: none; transition: color 0.15s;">Forgot password?</a>
+            <a href="forgot-password.html" class="forgot-link minimal-forgot" style="font-size: 0.85rem; color: var(--p-muted); text-decoration: none; transition: color 0.15s;">Forgot password?</a>
           </div>
 
           <!-- Submit -->
@@ -93,6 +96,7 @@
             <div class="spinner"></div>
           </button>
         </form>
+      </div>
 
         <!-- Social login -->
         <div class="social-divider"><span>Or continue with</span></div>

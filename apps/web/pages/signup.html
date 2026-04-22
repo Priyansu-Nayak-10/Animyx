@@ -43,19 +43,20 @@
 
     <!-- ── CENTER PANEL: Main Form ── -->
     <main class="panel-center">
-      <div class="glass-card animate-enter">
+      <div class="glass-card auth-form-section animate-enter">
         <header class="auth-header">
           <div class="auth-title">
-            <span class="small">Start your journey</span>
+            <span class="small auth-welcome">Start your journey</span>
             <span class="main">Create Account</span>
           </div>
           <p class="auth-subtitle">Already have one? <a href="signin.html">Sign in</a></p>
         </header>
 
-        <!-- Backend error -->
-        <div id="backend-error" class="backend-error" role="alert" aria-live="polite"></div>
+        <div class="auth-form-body">
+          <!-- Backend error -->
+          <div id="backend-error" class="backend-error" role="alert" aria-live="polite"></div>
 
-        <form id="signup-form" class="auth-form">
+          <form id="signup-form" class="auth-form">
           
           <!-- Archetype Picker -->
           <div class="archetype-section">
@@ -121,6 +122,7 @@
               <input type="text" id="username" name="username" class="auth-input" placeholder="otaku_kun" required>
               <span id="username-indicator" class="availability-indicator"></span>
             </div>
+            <div class="input-error"></div>
           </div>
 
           <!-- Email -->
@@ -130,6 +132,7 @@
               <i class="fas fa-envelope input-icon"></i>
               <input type="email" id="email" name="email" class="auth-input" placeholder="you@example.com" required>
             </div>
+            <div class="input-error"></div>
           </div>
 
           <!-- Password -->
@@ -142,6 +145,7 @@
                 <i class="fas fa-eye-slash"></i>
               </button>
             </div>
+            <div class="input-error"></div>
             <!-- Strength meter (JS-controlled) -->
             <div class="strength-meter" id="password-strength">
               <div class="strength-bar"></div>
@@ -153,8 +157,9 @@
             <label class="minimal-remember">
               <input type="checkbox" id="terms" required>
               <span class="dot"></span>
-              I agree to the <a href="#" style="color: var(--p-accent); text-decoration: none;">Terms &amp; Conditions</a>
+              I agree to the <a href="terms.html" style="color: var(--p-accent); text-decoration: none;">Terms &amp; Conditions</a>
             </label>
+            <div class="input-error"></div>
           </div>
 
           <!-- Submit -->
@@ -163,6 +168,7 @@
             <div class="spinner"></div>
           </button>
         </form>
+      </div>
 
         <!-- Social login -->
         <div class="social-divider"><span>Or sign up with</span></div>
