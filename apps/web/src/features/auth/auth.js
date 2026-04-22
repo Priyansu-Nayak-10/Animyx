@@ -133,7 +133,7 @@ export const initAnimations = () => {
     });
 
     // --- Page Entry Animation ---
-    if (showcaseSection) setTimeout(() => showcaseSection.classList.add('animate-enter'), 300);
+    // (animate-enter class is applied via CSS on .glass-card.animate-enter directly)
 };
 
 export const initTermsModal = () => {
