@@ -3,130 +3,141 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Create Account &bull; Animyx</title>
+  <title>Create Account &bull; Animyx Premium</title>
   <link rel="icon" href="/images/favicon.png" />
-  <meta name="description" content="Create your Animyx account — start tracking and discovering anime today.">
+  <meta name="description" content="Create your premium Animyx account — start tracking and discovering anime today.">
+  
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Rajdhani:wght@500;600;700&family=Noto+Sans+JP:wght@700;900&display=swap" rel="stylesheet">
+  
   <!-- FontAwesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Auth styles -->
-  <link rel="stylesheet" href="/css/auth.css">
+  
+  <!-- Premium Auth styles -->
+  <link rel="stylesheet" href="/css/premium-auth.css">
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#07090f">
-  <link rel="apple-touch-icon" href="/images/favicon.png">
 </head>
 
-<body class="auth-page">
-  <div class="cyber-grid"></div>
+<body>
+  <!-- Sakura Petal Animation -->
+  <div class="sakura-container">
+    <div class="petal" style="left: 10%; animation-delay: 0s;"></div>
+    <div class="petal" style="left: 25%; animation-delay: 2s;"></div>
+    <div class="petal" style="left: 45%; animation-delay: 4s;"></div>
+    <div class="petal" style="left: 65%; animation-delay: 1s;"></div>
+    <div class="petal" style="left: 85%; animation-delay: 3s;"></div>
+    <div class="petal" style="left: 95%; animation-delay: 5s;"></div>
+  </div>
 
-  <div class="auth-grid-container animate-enter">
+  <div class="premium-auth-wrapper">
+    
+    <!-- ── LEFT PANEL: Swordsman ── -->
+    <aside class="panel-left">
+      <div class="vertical-text">
+        アニメの旅を始めよう
+      </div>
+    </aside>
 
-    <!-- ── Nav ── -->
-    <nav class="auth-nav">
-      <span class="auth-logo-text-top">Animyx.</span>
-    </nav>
-
-    <!-- ── Split layout ── -->
-    <div class="auth-main-split">
-
-      <!-- LEFT: Form -->
-      <div class="auth-form-section">
-        <div class="auth-form-header">
-          <h1 class="auth-welcome">Create your account</h1>
-          <p class="auth-switch">Already have one? <a href="signin.html">Sign in</a></p>
-        </div>
+    <!-- ── CENTER PANEL: Main Form ── -->
+    <main class="panel-center">
+      <div class="glass-card animate-enter">
+        <header class="auth-header">
+          <div class="auth-title">
+            <span class="small">Start your journey</span>
+            <span class="main">Create Account</span>
+          </div>
+          <p class="auth-subtitle">Already have one? <a href="signin.html">Sign in</a></p>
+        </header>
 
         <!-- Backend error -->
         <div id="backend-error" class="backend-error" role="alert" aria-live="polite"></div>
 
-        <form id="signup-form" class="auth-form-minimal auth-form-body">
-
-          <!-- Avatar picker -->
-          <div class="avatar-picker-section">
-            <span class="avatar-picker-label">Choose your anime archetype</span>
-            <div class="avatar-grid" role="radiogroup" aria-label="Anime avatar selection">
-
-              <label class="avatar-option">
+        <form id="signup-form" class="auth-form">
+          
+          <!-- Archetype Picker -->
+          <div class="archetype-section">
+            <span class="archetype-label">Choose your anime archetype</span>
+            <div class="archetype-grid" role="radiogroup" aria-label="Anime avatar selection">
+              
+              <label class="hexagon-option">
                 <input type="radio" name="avatar_id" value="1" checked>
-                <span class="avatar-circle av-1" title="The Hero — 勇">勇</span>
-                <span class="avatar-type">Hero</span>
+                <div class="hexagon-shape">
+                  <span class="kanji">勇</span>
+                </div>
+                <span class="archetype-name">Hero</span>
               </label>
 
-              <label class="avatar-option">
+              <label class="hexagon-option">
                 <input type="radio" name="avatar_id" value="2">
-                <span class="avatar-circle av-2" title="Idol / Magical Girl — 愛">愛</span>
-                <span class="avatar-type">Idol</span>
+                <div class="hexagon-shape">
+                  <span class="kanji">愛</span>
+                </div>
+                <span class="archetype-name">Idol</span>
               </label>
 
-              <label class="avatar-option">
+              <label class="hexagon-option">
                 <input type="radio" name="avatar_id" value="3">
-                <span class="avatar-circle av-3" title="Ronin / Lone Swordsman — 刃">刃</span>
-                <span class="avatar-type">Ronin</span>
+                <div class="hexagon-shape">
+                  <span class="kanji">刃</span>
+                </div>
+                <span class="archetype-name">Ronin</span>
               </label>
 
-              <label class="avatar-option">
+              <label class="hexagon-option">
                 <input type="radio" name="avatar_id" value="4">
-                <span class="avatar-circle av-4" title="Yōkai / Spirit — 霊">霊</span>
-                <span class="avatar-type">Yōkai</span>
+                <div class="hexagon-shape">
+                  <span class="kanji">霊</span>
+                </div>
+                <span class="archetype-name">Yōkai</span>
               </label>
 
-              <label class="avatar-option">
+              <label class="hexagon-option">
                 <input type="radio" name="avatar_id" value="5">
-                <span class="avatar-circle av-5" title="Miko / Shrine Maiden — 巫">巫</span>
-                <span class="avatar-type">Miko</span>
+                <div class="hexagon-shape">
+                  <span class="kanji">巫</span>
+                </div>
+                <span class="archetype-name">Miko</span>
               </label>
 
-              <label class="avatar-option">
+              <label class="hexagon-option">
                 <input type="radio" name="avatar_id" value="6">
-                <span class="avatar-circle av-6" title="Shinobi / Ninja — 忍">忍</span>
-                <span class="avatar-type">Shinobi</span>
+                <div class="hexagon-shape">
+                  <span class="kanji">忍</span>
+                </div>
+                <span class="archetype-name">Shinobi</span>
               </label>
 
             </div>
           </div>
 
           <!-- Username -->
-          <div class="form-group-minimal" style="position: relative;">
+          <div class="form-group">
             <label for="username">Username</label>
-            <input
-              type="text"
-              id="username"
-              name="username"
-              class="auth-input"
-              placeholder="otaku_kun"
-              autocomplete="off"
-              required>
-            <span id="username-indicator" class="availability-indicator"></span>
+            <div class="input-wrapper">
+              <i class="fas fa-user input-icon"></i>
+              <input type="text" id="username" name="username" class="auth-input" placeholder="otaku_kun" required>
+              <span id="username-indicator" class="availability-indicator"></span>
+            </div>
           </div>
 
           <!-- Email -->
-          <div class="form-group-minimal">
+          <div class="form-group">
             <label for="email">Email Address</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              class="auth-input"
-              placeholder="you@example.com"
-              autocomplete="email"
-              required>
+            <div class="input-wrapper">
+              <i class="fas fa-envelope input-icon"></i>
+              <input type="email" id="email" name="email" class="auth-input" placeholder="you@example.com" required>
+            </div>
           </div>
 
           <!-- Password -->
-          <div class="form-group-minimal">
+          <div class="form-group">
             <label for="password">Password</label>
-            <div class="password-wrapper">
-              <input
-                type="password"
-                id="password"
-                name="password"
-                class="auth-input"
-                placeholder="Create a strong password"
-                autocomplete="new-password"
-                required>
+            <div class="input-wrapper">
+              <i class="fas fa-lock input-icon"></i>
+              <input type="password" id="password" name="password" class="auth-input" placeholder="Create a strong password" required>
               <button type="button" class="toggle-password" data-target="password" aria-label="Toggle password visibility">
                 <i class="fas fa-eye-slash"></i>
               </button>
@@ -138,97 +149,102 @@
           </div>
 
           <!-- Terms -->
-          <div class="form-minimal-options">
+          <div class="form-group">
             <label class="minimal-remember">
               <input type="checkbox" id="terms" required>
               <span class="dot"></span>
-              I agree to the Terms &amp; Conditions
+              I agree to the <a href="#" style="color: var(--p-accent); text-decoration: none;">Terms &amp; Conditions</a>
             </label>
           </div>
 
           <!-- Submit -->
-          <button type="submit" id="signup-btn" class="btn-minimal-submit">
+          <button type="submit" id="signup-btn" class="btn-premium-submit">
             <span class="btn-text">Create Account</span>
             <div class="spinner"></div>
           </button>
         </form>
 
         <!-- Social login -->
-        <div class="auth-divider"><span>or sign up with</span></div>
-        <div class="auth-social-row">
-          <a href="#" id="btn-google" class="auth-social-btn" title="Continue with Google">
+        <div class="social-divider"><span>Or sign up with</span></div>
+        <div class="social-row">
+          <a href="#" id="btn-google" class="social-btn">
             <i class="fab fa-google"></i>
             <span>Google</span>
           </a>
-          <a href="#" id="btn-discord" class="auth-social-btn" title="Continue with Discord">
+          <a href="#" id="btn-discord" class="social-btn">
             <i class="fab fa-discord"></i>
             <span>Discord</span>
           </a>
-          <a href="#" id="btn-github" class="auth-social-btn" title="Continue with GitHub">
+          <a href="#" id="btn-github" class="social-btn">
             <i class="fab fa-github"></i>
             <span>GitHub</span>
           </a>
         </div>
       </div>
+    </main>
 
-      <!-- RIGHT: Feature showcase -->
-      <div class="auth-mascot-section">
-
-        <div>
-          <h2 class="showcase-title">Start your journey.</h2>
-          <p class="showcase-sub">Everything you need to own your anime experience.</p>
-        </div>
-
-        <ul class="showcase-features">
-          <li class="feature-card">
-            <div class="feature-icon-wrap"><i class="fas fa-bookmark"></i></div>
-            <div class="feature-text">
-              <strong>Smart Library</strong>
-              <span>Watching, completed, planned — all in one organized space.</span>
-            </div>
-          </li>
-          <li class="feature-card">
-            <div class="feature-icon-wrap"><i class="fas fa-star"></i></div>
-            <div class="feature-text">
-              <strong>Personalized Picks</strong>
-              <span>Recommendations that actually match your taste.</span>
-            </div>
-          </li>
-          <li class="feature-card">
-            <div class="feature-icon-wrap"><i class="fas fa-chart-bar"></i></div>
-            <div class="feature-text">
-              <strong>Insights &amp; Analytics</strong>
-              <span>Genre breakdown, milestones, and viewing streaks.</span>
-            </div>
-          </li>
-          <li class="feature-card">
-            <div class="feature-icon-wrap"><i class="fas fa-cloud"></i></div>
-            <div class="feature-text">
-              <strong>Sync Everywhere</strong>
-              <span>Your library follows you across every device.</span>
-            </div>
-          </li>
-        </ul>
-
-        <div class="showcase-stats">
-          <div class="showcase-stat">
-            <span class="showcase-stat-value">10K+</span>
-            <span class="showcase-stat-label">Anime Tracked</span>
-          </div>
-          <div class="showcase-stat">
-            <span class="showcase-stat-value">500+</span>
-            <span class="showcase-stat-label">Active Users</span>
-          </div>
-          <div class="showcase-stat">
-            <span class="showcase-stat-value">Free</span>
-            <span class="showcase-stat-label">Always</span>
-          </div>
-        </div>
-
+    <!-- ── RIGHT PANEL: Features ── -->
+    <aside class="panel-right">
+      <div class="feature-title">
+        Start Your <br> <span class="accent">Journey.</span>
       </div>
-      <!-- end showcase -->
 
-    </div>
+      <div class="premium-feature-card">
+        <div class="feature-icon-box"><i class="fas fa-bookmark"></i></div>
+        <div class="feature-info">
+          <strong>Smart Library</strong>
+          <p>Organize everything you've watched, watching, or plan to.</p>
+        </div>
+        <div class="feature-char-overlay" style="background-image: url('/images/auth/char-library.png');"></div>
+      </div>
+
+      <div class="premium-feature-card">
+        <div class="feature-icon-box"><i class="fas fa-star"></i></div>
+        <div class="feature-info">
+          <strong>Personalized Picks</strong>
+          <p>Recommendations that actually match your taste.</p>
+        </div>
+        <div class="feature-char-overlay" style="background-image: url('/images/auth/char-picks.png');"></div>
+      </div>
+
+      <div class="premium-feature-card">
+        <div class="feature-icon-box"><i class="fas fa-chart-bar"></i></div>
+        <div class="feature-info">
+          <strong>Insights & Analytics</strong>
+          <p>Genre breakdown, milestones, and viewing streaks.</p>
+        </div>
+        <div class="feature-char-overlay" style="background-image: url('/images/auth/char-insights.png');"></div>
+      </div>
+
+      <div class="premium-feature-card">
+        <div class="feature-icon-box"><i class="fas fa-cloud"></i></div>
+        <div class="feature-info">
+          <strong>Sync Everywhere</strong>
+          <p>Your library follows you across every device.</p>
+        </div>
+        <div class="feature-char-overlay" style="background-image: url('/images/auth/char-sync.png');"></div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-item">
+          <span class="stat-value">10K+</span>
+          <span class="stat-label">Anime Tracked</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">500+</span>
+          <span class="stat-label">Active Users</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">Free</span>
+          <span class="stat-label">Always</span>
+        </div>
+      </div>
+      
+      <div class="horizontal-text" style="text-align: center; font-family: 'Noto Sans JP'; font-size: 0.8rem; color: rgba(255,255,255,0.2); margin-top: 2rem;">
+        あなたの物語、あなたの世界。
+      </div>
+    </aside>
+
   </div>
 
   <script src="/env.js"></script>

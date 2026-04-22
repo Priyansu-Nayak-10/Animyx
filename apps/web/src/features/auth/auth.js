@@ -91,7 +91,7 @@ export const initAnimations = () => {
     // --- Input Focus State ---
     const inputs = document.querySelectorAll('.auth-input');
     inputs.forEach(input => {
-        const parent = input.closest('.form-group-minimal') || input.parentElement;
+        const parent = input.closest('.form-group') || input.closest('.form-group-minimal') || input.parentElement;
         if (input.value.trim() !== '') parent.classList.add('has-value');
 
         input.addEventListener('focus', () => parent.classList.add('focused'));
@@ -103,7 +103,7 @@ export const initAnimations = () => {
         input.addEventListener('input', () => {
             if (input.classList.contains('error')) {
                 input.classList.remove('error');
-                const errorProp = input.closest('.form-group')?.querySelector('.input-error');
+                const errorProp = parent.querySelector('.input-error') || input.closest('.form-group')?.querySelector('.input-error');
                 if (errorProp && errorProp.classList.contains('input-error')) {
                     errorProp.innerText = '';
                     errorProp.classList.remove('visible');

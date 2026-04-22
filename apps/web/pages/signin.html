@@ -3,71 +3,74 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sign In &bull; Animyx</title>
+  <title>Sign In &bull; Animyx Premium</title>
   <link rel="icon" href="/images/favicon.png" />
   <meta name="description" content="Sign in to Animyx — track, discover, and sync your anime library.">
+  
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Rajdhani:wght@500;600;700&family=Noto+Sans+JP:wght@700;900&display=swap" rel="stylesheet">
+  
   <!-- FontAwesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Auth styles -->
-  <link rel="stylesheet" href="/css/auth.css">
+  
+  <!-- Premium Auth styles -->
+  <link rel="stylesheet" href="/css/premium-auth.css">
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#07090f">
-  <link rel="apple-touch-icon" href="/images/favicon.png">
 </head>
 
-<body class="auth-page">
-  <div class="cyber-grid"></div>
+<body>
+  <!-- Sakura Petal Animation -->
+  <div class="sakura-container">
+    <div class="petal" style="left: 15%; animation-delay: 1s;"></div>
+    <div class="petal" style="left: 35%; animation-delay: 3s;"></div>
+    <div class="petal" style="left: 55%; animation-delay: 0s;"></div>
+    <div class="petal" style="left: 75%; animation-delay: 2s;"></div>
+    <div class="petal" style="left: 85%; animation-delay: 4s;"></div>
+  </div>
 
-  <div class="auth-grid-container animate-enter">
+  <div class="premium-auth-wrapper">
+    
+    <!-- ── LEFT PANEL: Swordsman ── -->
+    <aside class="panel-left">
+      <div class="vertical-text">
+        お帰りなさい
+      </div>
+    </aside>
 
-    <!-- ── Nav ── -->
-    <nav class="auth-nav">
-      <span class="auth-logo-text-top">Animyx.</span>
-    </nav>
-
-    <!-- ── Split layout ── -->
-    <div class="auth-main-split">
-
-      <!-- LEFT: Form -->
-      <div class="auth-form-section">
-        <div class="auth-form-header">
-          <h1 class="auth-welcome">Welcome back</h1>
-          <p class="auth-switch">No account? <a href="signup.html">Sign up free</a></p>
-        </div>
+    <!-- ── CENTER PANEL: Main Form ── -->
+    <main class="panel-center">
+      <div class="glass-card animate-enter">
+        <header class="auth-header">
+          <div class="auth-title">
+            <span class="small">Welcome Back</span>
+            <span class="main">Sign In</span>
+          </div>
+          <p class="auth-subtitle">No account? <a href="signup.html">Sign up free</a></p>
+        </header>
 
         <!-- Backend error -->
         <div id="backend-error" class="backend-error" role="alert" aria-live="polite"></div>
 
-        <form id="signin-form" class="auth-form-minimal auth-form-body">
+        <form id="signin-form" class="auth-form">
+
           <!-- Email -->
-          <div class="form-group-minimal">
+          <div class="form-group">
             <label for="email">Email Address</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              class="auth-input"
-              placeholder="you@example.com"
-              autocomplete="email"
-              required>
+            <div class="input-wrapper">
+              <i class="fas fa-envelope input-icon"></i>
+              <input type="email" id="email" name="email" class="auth-input" placeholder="you@example.com" autocomplete="email" required>
+            </div>
           </div>
 
           <!-- Password -->
-          <div class="form-group-minimal">
+          <div class="form-group">
             <label for="password">Password</label>
-            <div class="password-wrapper">
-              <input
-                type="password"
-                id="password"
-                name="password"
-                class="auth-input"
-                placeholder="Enter your password"
-                autocomplete="current-password"
-                required>
+            <div class="input-wrapper">
+              <i class="fas fa-lock input-icon"></i>
+              <input type="password" id="password" name="password" class="auth-input" placeholder="Enter your password" autocomplete="current-password" required>
               <button type="button" class="toggle-password" data-target="password" aria-label="Toggle password visibility">
                 <i class="fas fa-eye-slash"></i>
               </button>
@@ -75,98 +78,103 @@
           </div>
 
           <!-- Options -->
-          <div class="form-minimal-options">
+          <div class="form-group" style="flex-direction: row; justify-content: space-between; align-items: center; margin-top: 0.5rem;">
             <label class="minimal-remember">
               <input type="checkbox" id="remember">
               <span class="dot"></span>
               Remember me
             </label>
-            <a href="forgot-password.html" class="minimal-forgot">Forgot password?</a>
+            <a href="forgot-password.html" class="minimal-forgot" style="font-size: 0.85rem; color: var(--p-muted); text-decoration: none; transition: color 0.15s;">Forgot password?</a>
           </div>
 
           <!-- Submit -->
-          <button type="submit" id="signin-btn" class="btn-minimal-submit">
+          <button type="submit" id="signin-btn" class="btn-premium-submit">
             <span class="btn-text">Sign In</span>
             <div class="spinner"></div>
           </button>
         </form>
 
         <!-- Social login -->
-        <div class="auth-divider"><span>or continue with</span></div>
-        <div class="auth-social-row">
-          <a href="#" id="btn-google" class="auth-social-btn" title="Continue with Google">
+        <div class="social-divider"><span>Or continue with</span></div>
+        <div class="social-row">
+          <a href="#" id="btn-google" class="social-btn">
             <i class="fab fa-google"></i>
             <span>Google</span>
           </a>
-          <a href="#" id="btn-discord" class="auth-social-btn" title="Continue with Discord">
+          <a href="#" id="btn-discord" class="social-btn">
             <i class="fab fa-discord"></i>
             <span>Discord</span>
           </a>
-          <a href="#" id="btn-github" class="auth-social-btn" title="Continue with GitHub">
+          <a href="#" id="btn-github" class="social-btn">
             <i class="fab fa-github"></i>
             <span>GitHub</span>
           </a>
         </div>
       </div>
+    </main>
 
-      <!-- RIGHT: Feature showcase (replaces mascot) -->
-      <div class="auth-mascot-section">
-
-        <div>
-          <h2 class="showcase-title">Your anime universe.</h2>
-          <p class="showcase-sub">Track, discover, and obsess — all in one place.</p>
-        </div>
-
-        <ul class="showcase-features">
-          <li class="feature-card">
-            <div class="feature-icon-wrap"><i class="fas fa-bookmark"></i></div>
-            <div class="feature-text">
-              <strong>Smart Library</strong>
-              <span>Organize every series you've watched, watching, or plan to.</span>
-            </div>
-          </li>
-          <li class="feature-card">
-            <div class="feature-icon-wrap"><i class="fas fa-star"></i></div>
-            <div class="feature-text">
-              <strong>Live Recommendations</strong>
-              <span>Personalized picks that evolve with your taste.</span>
-            </div>
-          </li>
-          <li class="feature-card">
-            <div class="feature-icon-wrap"><i class="fas fa-chart-bar"></i></div>
-            <div class="feature-text">
-              <strong>Deep Insights</strong>
-              <span>Genre intelligence, streaks, watch time and more.</span>
-            </div>
-          </li>
-          <li class="feature-card">
-            <div class="feature-icon-wrap"><i class="fas fa-cloud"></i></div>
-            <div class="feature-text">
-              <strong>Real-time Sync</strong>
-              <span>Your library syncs instantly across all your devices.</span>
-            </div>
-          </li>
-        </ul>
-
-        <div class="showcase-stats">
-          <div class="showcase-stat">
-            <span class="showcase-stat-value">10K+</span>
-            <span class="showcase-stat-label">Anime Tracked</span>
-          </div>
-          <div class="showcase-stat">
-            <span class="showcase-stat-value">500+</span>
-            <span class="showcase-stat-label">Active Users</span>
-          </div>
-          <div class="showcase-stat">
-            <span class="showcase-stat-value">Free</span>
-            <span class="showcase-stat-label">Always</span>
-          </div>
-        </div>
-
+    <!-- ── RIGHT PANEL: Features ── -->
+    <aside class="panel-right">
+      <div class="feature-title">
+        Your Anime <br> <span class="accent">Universe.</span>
       </div>
-      <!-- end showcase -->
 
-    </div>
+      <div class="premium-feature-card">
+        <div class="feature-icon-box"><i class="fas fa-bookmark"></i></div>
+        <div class="feature-info">
+          <strong>Smart Library</strong>
+          <p>Organize everything you've watched, watching, or plan to.</p>
+        </div>
+        <div class="feature-char-overlay" style="background-image: url('/images/auth/char-library.png');"></div>
+      </div>
+
+      <div class="premium-feature-card">
+        <div class="feature-icon-box"><i class="fas fa-star"></i></div>
+        <div class="feature-info">
+          <strong>Live Recommendations</strong>
+          <p>Personalized picks that evolve with your taste.</p>
+        </div>
+        <div class="feature-char-overlay" style="background-image: url('/images/auth/char-picks.png');"></div>
+      </div>
+
+      <div class="premium-feature-card">
+        <div class="feature-icon-box"><i class="fas fa-chart-bar"></i></div>
+        <div class="feature-info">
+          <strong>Deep Insights</strong>
+          <p>Genre intelligence, streaks, watch time and more.</p>
+        </div>
+        <div class="feature-char-overlay" style="background-image: url('/images/auth/char-insights.png');"></div>
+      </div>
+
+      <div class="premium-feature-card">
+        <div class="feature-icon-box"><i class="fas fa-cloud"></i></div>
+        <div class="feature-info">
+          <strong>Real-time Sync</strong>
+          <p>Your library syncs instantly across all your devices.</p>
+        </div>
+        <div class="feature-char-overlay" style="background-image: url('/images/auth/char-sync.png');"></div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-item">
+          <span class="stat-value">10K+</span>
+          <span class="stat-label">Anime Tracked</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">500+</span>
+          <span class="stat-label">Active Users</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">Free</span>
+          <span class="stat-label">Always</span>
+        </div>
+      </div>
+      
+      <div class="horizontal-text" style="text-align: center; font-family: 'Noto Sans JP'; font-size: 0.8rem; color: rgba(255,255,255,0.2); margin-top: 2rem;">
+        あなたの物語、あなたの世界。
+      </div>
+    </aside>
+
   </div>
 
   <script src="/env.js"></script>
