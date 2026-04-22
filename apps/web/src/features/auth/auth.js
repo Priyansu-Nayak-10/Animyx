@@ -58,6 +58,14 @@ export const initAnimations = () => {
     const strengthMeter = document.getElementById('password-strength');
     if (passwordInput && strengthMeter) {
         const bar = strengthMeter.querySelector('.strength-bar');
+        
+        let strengthText = strengthMeter.parentElement.querySelector('.strength-text');
+        if (!strengthText) {
+            strengthText = document.createElement('div');
+            strengthText.className = 'strength-text';
+            strengthMeter.parentElement.appendChild(strengthText);
+        }
+
         passwordInput.addEventListener('input', () => {
             const val = passwordInput.value;
             if (val.length > 0) {
@@ -76,14 +84,20 @@ export const initAnimations = () => {
                     '0 0 15px rgba(139, 92, 246, 0.5)', 
                     '0 0 20px rgba(34, 197, 94, 0.6)'
                 ];
+                const labels = ['Weak', 'Fair', 'Good', 'Strong'];
                 
                 const index = Math.max(0, score - 1);
                 bar.style.width = widths[index];
                 bar.style.background = colors[index];
                 bar.style.boxShadow = shadows[index];
+                
+                strengthText.textContent = labels[index];
+                strengthText.style.color = colors[index];
+                strengthText.style.display = 'block';
             } else {
                 strengthMeter.classList.remove('visible');
                 bar.style.width = '0';
+                strengthText.style.display = 'none';
             }
         });
     }
@@ -265,9 +279,11 @@ function debounce(func, wait) {
 async function checkUsernameAvailability(username, indicator) {
     if (!username || username.length < 3) {
         indicator.className = 'availability-indicator';
+        indicator.innerHTML = '';
         return false;
     }
     indicator.className = 'availability-indicator loading';
+    indicator.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
     try {
         const { data, error } = await supabase
             .from('user_profiles')
@@ -280,15 +296,18 @@ async function checkUsernameAvailability(username, indicator) {
         if (data) {
             indicator.className = 'availability-indicator error';
             indicator.title = 'Username is already taken';
+            indicator.innerHTML = '<i class="fas fa-times"></i>';
             return false;
         } else {
             indicator.className = 'availability-indicator success';
             indicator.title = 'Username is available';
+            indicator.innerHTML = '<i class="fas fa-check"></i>';
             return true;
         }
     } catch (err) {
         console.error('Check username auth error', err);
         indicator.className = 'availability-indicator';
+        indicator.innerHTML = '';
         return true; 
     }
 }
@@ -331,6 +350,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     const passwordInput = document.getElementById('password');
     const errorContainer = document.querySelector('.auth-form-body');
     bindAuxAuthActions({ emailInput, errorContainer });
+
+    // Real-time Email Validation
+    if (emailInput) {
+        emailInput.addEventListener('blur', () => {
+            const val = emailInput.value.trim();
+            if (val && !validateEmail(val)) {
+                showInlineError(emailInput, 'Please enter a valid email address');
+            }
+        });
+        emailInput.addEventListener('input', () => {
+            if (emailInput.classList.contains('error') && validateEmail(emailInput.value.trim())) {
+                clearInlineError(emailInput);
+            }
+        });
+    }
 
     // Sign In Logic
     if (signInForm) {
@@ -400,6 +434,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (val.length < 3) {
                     showInlineError(usernameInput, 'Username must be at least 3 characters');
                     indicator.className = 'availability-indicator error';
+                    indicator.innerHTML = '<i class="fas fa-times"></i>';
                     isUsernameAvailable = false;
                     return;
                 }
