@@ -63,6 +63,21 @@ body::before {
     overflow: hidden;
 }
 
+.auth-logo {
+    position: absolute;
+    top: 2.5rem;
+    left: 2.5rem;
+    font-family: 'Permanent Marker', cursive;
+    font-size: 2.5rem;
+    color: var(--p-accent);
+    text-transform: uppercase;
+    letter-spacing: 0.2rem;
+    text-shadow: 0 0 15px rgba(217, 70, 239, 0.6);
+    cursor: default;
+    user-select: none;
+    z-index: 10;
+}
+
 
 /* ── Panel Center: Form Area ── */
 .panel-center {
