@@ -405,7 +405,8 @@ const USER_SCOPED_LOCALSTORAGE_KEYS = [
 ];
 
 const USER_SCOPED_SESSIONSTORAGE_KEYS = [
-  'Animyx:redirectLock'
+  'Animyx:redirectLock',
+  'Animyx:useSessionStorage'
 ];
 
 const LOCALSTORAGE_PREFIXES = [

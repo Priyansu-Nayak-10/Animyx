@@ -220,13 +220,6 @@ body::before {
     40%, 60% { transform: translate3d(4px, 0, 0); }
 }
 
-/* ── Archetype Picker ── */
-.archetype-section {
-    margin-bottom: 2rem;
-}
-
-.archetype-label {
-    font-size: 0.75rem;
 /* ── Form Styling ── */
 .auth-form {
     display: flex;
@@ -528,25 +521,18 @@ body::before {
 }
 
 /* ── Responsive ── */
-@media (max-width: 1200px) {
-    .premium-auth-wrapper {
-        grid-template-columns: 1fr 2fr;
-    }
-    .panel-right { display: none; }
-}
-
 @media (max-width: 900px) {
-    .premium-auth-wrapper {
-        grid-template-columns: 1fr;
-    }
-    .panel-left { display: none; }
     .panel-center { padding: 1rem; }
-    .glass-card { padding: 2rem; }
-    .archetype-grid { grid-template-columns: repeat(3, 1fr); }
+    .glass-card { 
+        padding: 2.5rem 1.5rem; 
+        max-height: 90vh;
+        max-width: 95%;
+    }
+    .auth-title .main { font-size: 3rem; }
 }
 
 @media (max-width: 480px) {
-    .auth-title { font-size: 2.25rem; }
-    .social-row { grid-template-columns: 1fr; }
-    .social-btn span { display: inline; }
+    .auth-title .main { font-size: 2.5rem; }
+    .auth-logo { top: 1.5rem; left: 1.5rem; font-size: 1.8rem; }
+    .social-btn { width: 100%; }
 }
