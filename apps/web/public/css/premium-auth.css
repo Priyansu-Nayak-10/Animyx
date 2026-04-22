@@ -482,23 +482,6 @@ body::before {
     line-height: 1.4;
 }
 
-.feature-char-overlay {
-    position: absolute;
-    right: -10px;
-    top: 0;
-    bottom: 0;
-    width: 100px;
-    opacity: 0.3;
-    pointer-events: none;
-    mask-image: linear-gradient(to left, black, transparent);
-    background-size: cover;
-    background-position: center;
-    transition: opacity 0.3s ease;
-}
-
-.premium-feature-card:hover .feature-char-overlay {
-    opacity: 0.6;
-}
 
 /* Stats Row */
 .stats-grid {
