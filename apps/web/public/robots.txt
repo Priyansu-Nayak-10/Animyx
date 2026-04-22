@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Disallow: /pages/app.html
+Sitemap: https://animyx.onrender.com/sitemap.xml
