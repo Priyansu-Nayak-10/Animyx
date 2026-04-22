@@ -3,7 +3,7 @@
    Immersive 3-panel layout with Glassmorphism
    ============================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Rajdhani:wght@500;600;700&family=Noto+Sans+JP:wght@700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Rajdhani:wght@500;600;700&family=Noto+Sans+JP:wght@700;900&family=Permanent+Marker&display=swap');
 
 :root {
     --p-bg: #07090f;
@@ -125,29 +125,28 @@ body::before {
 }
 
 .auth-title {
-    font-family: 'Rajdhani', sans-serif;
-    font-size: 3rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    line-height: 0.9;
-    margin-bottom: 0.5rem;
+    font-family: 'Outfit', sans-serif;
+    margin-bottom: 2rem;
     display: flex;
     flex-direction: column;
 }
 
 .auth-title .small {
-    font-size: 1.2rem;
-    letter-spacing: 0.2rem;
-    color: var(--p-muted);
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
 }
 
 .auth-title .main {
-    background: linear-gradient(to right, #fff, var(--p-accent));
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    font-style: italic;
-    filter: drop-shadow(0 0 10px rgba(217, 70, 239, 0.3));
+    font-family: 'Permanent Marker', cursive;
+    font-size: 5rem;
+    color: var(--p-accent);
+    text-transform: uppercase;
+    line-height: 0.8;
+    margin-top: -0.5rem;
+    text-shadow: 0 0 20px rgba(217, 70, 239, 0.4);
 }
 
 .auth-subtitle {
@@ -227,6 +226,7 @@ body::before {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     gap: 10px;
+    justify-content: center;
 }
 
 .hexagon-option {
@@ -243,17 +243,25 @@ body::before {
 }
 
 .hexagon-shape {
-    width: 60px;
-    height: 70px;
-    background: rgba(255, 255, 255, 0.05);
+    width: 55px;
+    height: 65px;
+    background: rgba(255, 255, 255, 0.03);
     clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: center;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    transition: all 0.3s ease;
-    margin-bottom: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-bottom: 12px;
+}
+
+.hexagon-shape::before {
+    content: "";
+    position: absolute;
+    inset: 1px;
+    background: inherit;
+    clip-path: inherit;
+    z-index: -1;
 }
 
 .hexagon-shape .kanji {
@@ -286,14 +294,14 @@ body::before {
 }
 
 .hexagon-option input:checked + .hexagon-shape {
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.08);
     border-color: var(--h-color);
-    box-shadow: 0 0 20px var(--h-color);
+    filter: drop-shadow(0 0 10px var(--h-color));
 }
 
 .hexagon-option input:checked + .hexagon-shape .kanji {
     color: var(--h-color);
-    text-shadow: 0 0 15px var(--h-color);
+    text-shadow: 0 0 10px var(--h-color);
 }
 
 .hexagon-option input:checked ~ .archetype-name {
@@ -315,14 +323,15 @@ body::before {
 }
 
 .form-group label {
-    font-size: 0.75rem;
-    font-weight: 700;
+    font-size: 0.65rem;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.05rem;
+    letter-spacing: 0.1rem;
     color: var(--p-muted);
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    padding-left: 0.25rem;
 }
 
 .input-wrapper {
@@ -341,21 +350,20 @@ body::before {
 
 .auth-input {
     width: 100%;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    padding: 0.85rem 1rem 0.85rem 2.75rem;
+    background: rgba(10, 12, 24, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 0.85rem 1rem 0.85rem 3rem;
     color: #fff;
     font-family: inherit;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     transition: all 0.3s ease;
 }
 
 .auth-input:focus {
     outline: none;
-    background: rgba(255, 255, 255, 0.07);
-    border-color: var(--p-primary);
-    box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.15), inset 0 0 10px rgba(124, 58, 237, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.05);
 }
 
 .auth-input:focus + .input-icon {
@@ -448,10 +456,16 @@ body::before {
     display: flex;
     align-items: center;
     gap: 1rem;
-    margin: 1.5rem 0;
-    font-size: 0.75rem;
+    margin: 2rem 0 1.5rem;
+    font-size: 0.6rem;
+    font-weight: 800;
     color: var(--p-muted);
     text-transform: uppercase;
+    letter-spacing: 0.1rem;
+}
+
+.social-divider span {
+    white-space: nowrap;
 }
 
 .social-divider::before, .social-divider::after {
@@ -473,19 +487,20 @@ body::before {
     justify-content: center;
     gap: 0.75rem;
     padding: 0.75rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
     color: #fff;
     text-decoration: none;
-    font-size: 0.9rem;
-    font-weight: 600;
+    font-size: 0.8rem;
+    font-weight: 700;
     transition: all 0.3s ease;
 }
 
 .social-btn:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
     border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
 }
 
 /* ── Panel Right: Features Area ── */
@@ -507,7 +522,11 @@ body::before {
 }
 
 .feature-title .accent {
+    font-family: 'Permanent Marker', cursive;
     color: var(--p-accent);
+    font-size: 3.5rem;
+    display: block;
+    margin-top: -0.5rem;
 }
 
 .premium-feature-card {
