@@ -1,3 +1,4 @@
+/* global Lenis */
 /**
  * smoothScroll.js
  *
@@ -24,19 +25,6 @@ function createProgressBar(viewport) {
   return bar;
 }
 
-function updateProgress(viewport, bar) {
-  const scrollTop    = viewport.scrollTop;
-  const scrollHeight = viewport.scrollHeight - viewport.clientHeight;
-  const pct = scrollHeight > 0 ? (scrollTop / scrollHeight) * 100 : 0;
-  bar.style.width = `${pct}%`;
-
-  // Velocity class: helps nav/sticky elements react to scroll speed
-  if (pct > 2) {
-    document.body.classList.add('is-scrolling');
-  } else {
-    document.body.classList.remove('is-scrolling');
-  }
-}
 
 /* ─── Core init ─────────────────────────────────────────────── */
 export function initSmoothScroll() {

@@ -372,7 +372,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 });
                 if (error) throw error;
                 // Wipe any stale user-scoped caches so new sessions never inherit old libraries.
-                try { await clearAnimyxUserData({ keepPreferences: true }); } catch (_) {}
+                try { await clearAnimyxUserData(); } catch (_) {}
                 setTimeout(() => window.location.href = '/pages/app.html', 600);
             } catch (error) {
                 showBackendError(errorContainer, error.message || 'Login failed');
@@ -820,7 +820,7 @@ function initSessionBootstrapIfPresent() {
                 const prevUserId = String(localStorage.getItem('Animyx:lastUserId') || '');
                 const nextUserId = String(session?.user?.id || '');
                 if (prevUserId && nextUserId && prevUserId !== nextUserId) {
-                    await clearAnimyxUserData({ keepPreferences: true });
+                    await clearAnimyxUserData();
                 }
                 if (nextUserId) localStorage.setItem('Animyx:lastUserId', nextUserId);
             } catch (_) { }
@@ -848,7 +848,7 @@ function initSessionBootstrapIfPresent() {
                 } else {
                     // Sign-out: tear down realtime subscriptions for the previous user
                     try { window.__AnimyxSyncService?.unsubscribe(); } catch (_) {}
-                    void clearAnimyxUserData({ keepPreferences: true });
+                    void clearAnimyxUserData();
                     if (!window.location.pathname.endsWith('/pages/signin.html')) {
                         sessionStorage.setItem('Animyx:redirectLock', String(Date.now()));
                         window.location.replace('/pages/signin.html');
@@ -875,7 +875,7 @@ function initSessionBootstrapIfPresent() {
         logoutBtn.addEventListener('click', async () => {
             logoutBtn.disabled = true;
             logoutBtn.style.opacity = '0.6';
-            await clearAnimyxUserData({ keepPreferences: true });
+            await clearAnimyxUserData();
             await supabase.auth.signOut();
             window.location.href = '/pages/signin.html';
         });

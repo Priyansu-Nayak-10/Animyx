@@ -1087,5 +1087,4 @@ export function initDashboardModules(ctx) {
   });
 }
 
-// Re-export insights separate (too large to merge)
-export { initInsights } from "./insights.js";
+

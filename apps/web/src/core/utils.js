@@ -442,8 +442,8 @@ function looksLikeSupabaseAuthKey(key) {
   return false;
 }
 
-export async function clearAnimyxUserData({ _keepPreferences = true } = {}) {
-  // keepPreferences param kept for API compatibility but theme/accent are no longer stored.
+export async function clearAnimyxUserData() {
+  // Theme/accent are no longer stored, so we clear everything user-scoped.
   for (const key of USER_SCOPED_LOCALSTORAGE_KEYS) safeRemoveStorageKey(localStorage, key);
   for (const key of USER_SCOPED_SESSIONSTORAGE_KEYS) safeRemoveStorageKey(sessionStorage, key);
 
@@ -475,7 +475,7 @@ export async function clearAnimyxUserData({ _keepPreferences = true } = {}) {
 }
 
 export async function clearAnimyxAllData() {
-  await clearAnimyxUserData({ keepPreferences: false });
+  await clearAnimyxUserData();
 
   // Also remove Supabase auth keys so deleted users don't keep cached sessions.
   safeIterateKeys(localStorage, (key) => {
