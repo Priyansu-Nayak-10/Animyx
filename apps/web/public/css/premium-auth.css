@@ -60,6 +60,7 @@ body::before {
     padding: 2rem;
     position: relative;
     z-index: 2;
+    overflow: hidden;
 }
 
 
@@ -81,8 +82,27 @@ body::before {
     padding: 3.5rem 3rem;
     width: 100%;
     max-width: 480px;
+    max-height: 85vh;
+    overflow-y: auto;
+    overflow-x: hidden;
     box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8);
     position: relative;
+    scrollbar-width: thin;
+    scrollbar-color: var(--p-accent) transparent;
+}
+
+.glass-card::-webkit-scrollbar {
+    width: 4px;
+}
+
+.glass-card::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.glass-card::-webkit-scrollbar-thumb {
+    background: var(--p-accent);
+    border-radius: 10px;
+    box-shadow: 0 0 10px var(--p-accent);
 }
 
 .glass-card::after {
