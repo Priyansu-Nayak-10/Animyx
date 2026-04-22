@@ -325,6 +325,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             setButtonLoading(submitBtn, true);
             try {
+                // Respect "Remember me" checkbox — if unchecked, use sessionStorage via dynamic provider.
+                const remember = document.getElementById('remember')?.checked;
+                if (remember === false) {
+                    sessionStorage.setItem('Animyx:useSessionStorage', 'true');
+                } else {
+                    sessionStorage.removeItem('Animyx:useSessionStorage');
+                }
+
                 const { error } = await supabase.auth.signInWithPassword({
                     email: emailInput.value,
                     password: passwordInput.value

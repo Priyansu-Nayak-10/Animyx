@@ -33,6 +33,27 @@ export function getClientId() {
 // Supabase client (previously core/supabaseClient.js)
 // ---------------------------------------------------------------------------
 
+const dynamicAuthStorage = {
+  getItem: (key) => {
+    // Check sessionStorage first (temporary sessions), then localStorage (persistent)
+    const sValue = sessionStorage.getItem(key);
+    if (sValue !== null) return sValue;
+    return localStorage.getItem(key);
+  },
+  setItem: (key, value) => {
+    // If the 'sessionOnly' flag is set, persist only to sessionStorage
+    if (sessionStorage.getItem('Animyx:useSessionStorage') === 'true') {
+      sessionStorage.setItem(key, value);
+    } else {
+      localStorage.setItem(key, value);
+    }
+  },
+  removeItem: (key) => {
+    sessionStorage.removeItem(key);
+    localStorage.removeItem(key);
+  }
+};
+
 let client;
 if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
   console.error('[Animyx] Missing Supabase runtime config. Authentication and cloud sync will be disabled.');
@@ -51,7 +72,14 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
     }
   });
 } else {
-  client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  client = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+    auth: {
+      storage: dynamicAuthStorage,
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true
+    }
+  });
 }
 
 export const supabase = client;
