@@ -133,10 +133,41 @@ export const initAnimations = () => {
     });
 
     // --- Page Entry Animation ---
-    const authForm = document.querySelector('.auth-form-section');
-    const showcaseSection = document.querySelector('.auth-mascot-section');
-    if (authForm) setTimeout(() => authForm.classList.add('animate-enter'), 100);
     if (showcaseSection) setTimeout(() => showcaseSection.classList.add('animate-enter'), 300);
+};
+
+export const initTermsModal = () => {
+    const modal = document.getElementById('terms-modal');
+    const openBtn = document.getElementById('open-terms');
+    const closeBtn = document.getElementById('close-terms');
+    const acceptBtn = document.getElementById('accept-terms-btn');
+    const termsCheckbox = document.getElementById('terms');
+
+    if (!modal || !openBtn) return;
+
+    const openModal = (e) => {
+        if (e) e.preventDefault();
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    };
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+    };
+
+    openBtn.addEventListener('click', openModal);
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+    if (acceptBtn) {
+        acceptBtn.addEventListener('click', () => {
+            if (termsCheckbox) termsCheckbox.checked = true;
+            closeModal();
+        });
+    }
+
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
 };
 
 export const setButtonLoading = (btn, isLoading) => {
@@ -291,6 +322,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     initAnimations();
+    initTermsModal();
 
     const signInForm = document.getElementById('signin-form');
     const signUpForm = document.getElementById('signup-form');
