@@ -455,9 +455,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             setButtonLoading(submitBtn, true);
             try {
                 const desiredUsername = usernameInput ? usernameInput.value.trim() : '';
-                // Read selected avatar archetype from the radio picker
-                const avatarRadio = signUpForm.querySelector('input[name="avatar_id"]:checked');
-                const avatarId = avatarRadio ? Number(avatarRadio.value) : 1;
+                // Default avatar archetype to 1 (Hero) since picker is removed
+                const avatarId = 1;
 
                 const { data, error } = await supabase.auth.signUp({
                     email: emailInput.value,
