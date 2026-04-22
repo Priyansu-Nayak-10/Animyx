@@ -234,7 +234,8 @@ function bindAuxAuthActions({ emailInput, errorContainer }) {
     }
 
     if (googleBtn) {
-        googleBtn.addEventListener('click', () => {
+        googleBtn.addEventListener('click', (event) => {
+            event.preventDefault();
             clearBackendError(errorContainer);
             void startOAuth('google', errorContainer);
         });
