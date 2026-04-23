@@ -35,7 +35,7 @@ export function initSmoothScroll() {
 
   lenis = new Lenis({
     wrapper: viewport,
-    content: viewport.firstElementChild || viewport,
+    content: viewport.querySelector('.view-container') || viewport.firstElementChild || viewport,
     lerp: 0.065,                  // ↓ from 0.08 — silkier, more premium glide
     orientation: 'vertical',
     gestureOrientation: 'vertical',

@@ -216,8 +216,8 @@ function initProfile({ toast, libraryStore, storage = globalThis.localStorage } 
     if (refs.bioInput && profile.bio) refs.bioInput.value = profile.bio;
     if (refs.malInput && profile.mal) refs.malInput.value = profile.mal;
     if (refs.alInput && profile.al) refs.alInput.value = profile.al;
-    if (profile.avatar) applyAvatarToPage(profile.avatar);
-    if (profile.banner) applyBannerToPage(profile.banner);
+    applyAvatarToPage(profile.avatar);
+    applyBannerToPage(profile.banner);
     if (profile.name) applyUsernameToPage(profile.name);
     renderStats();
   }

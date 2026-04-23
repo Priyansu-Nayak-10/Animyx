@@ -722,7 +722,7 @@ async function pushLibrary(localItems) {
       status: normalizedStatus,
       nextEpisode: progress,
       totalEpisodes: Number(item?.episodes || 0),
-      userRating: item?.userRating ?? null,
+      userRating: Number(item?.userRating) > 0 ? Number(item.userRating) : null,
       updatedAt: updatedAtMs,
       watchlistAddedAt: watchlistAddedAtMs,
       watchProgressAt: watchProgressAtMs,
@@ -945,11 +945,11 @@ export function initLibraryCloudSync({ libraryStore, toast = null, syncIntervalM
       if (retryAttempt >= ROLLBACK_THRESHOLD) {
         console.error('[CloudSync] Persistent sync failure. Rolling back to last known good state.');
         if (toast?.show) {
-          toast.show("Failed to sync changes to cloud. Reverting to last saved state.", "error", 4000);
+          toast.show("Sync failed. Edits saved locally and will retry later.", "error", 4000);
         }
         
-        suppressSync = true;
-        libraryStore.init(lastKnownGoodItems);
+        // suppressSync = true;
+        // libraryStore.init(lastKnownGoodItems);
         suppressSync = false;
         
         retryAttempt = 0;
@@ -957,7 +957,7 @@ export function initLibraryCloudSync({ libraryStore, toast = null, syncIntervalM
         void syncKvSet('pendingSync', false);
         hasPendingSync = false;
         clearRetryTimer();
-        setStatus('synced', { lastSyncedAt });
+        setStatus('error', { message: 'Sync paused' });
         return;
       }
       if (isOfflineError(error)) {
